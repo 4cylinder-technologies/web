@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support — Dashboard AIR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080C14; --surface: #0D1320; --border: #1C2A3D;
+  --orange: #F97316; --text: #E8EFF8; --muted: #6B8299;
+}
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; line-height: 1.7; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(249,115,22,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.025) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none; z-index: 0;
+}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(8,12,20,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--orange); }
+.contact-btn {
+  background: rgba(249,115,22,0.12); color: var(--orange); border: 1px solid rgba(249,115,22,0.3);
+  padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
+  cursor: pointer; text-decoration: none; transition: background 0.2s;
+}
+.contact-btn:hover { background: rgba(249,115,22,0.2); }
+.hero { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 100px 24px 56px; border-bottom: 1px solid var(--border); }
+.hero-label { font-size: 11px; font-weight: 500; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 16px; }
+.hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(32px, 5vw, 48px); font-weight: 800; line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.5px; }
+.hero h1 span { color: var(--orange); }
+.hero p { font-size: 16px; color: var(--muted); max-width: 520px; line-height: 1.8; }
+main { max-width: 860px; margin: 0 auto; padding: 56px 24px 80px; }
+.contact-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 32px; margin-bottom: 48px; display: flex; align-items: center;
+  justify-content: space-between; gap: 24px; flex-wrap: wrap;
+}
+.contact-card h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 6px; }
+.contact-card p { color: var(--muted); font-size: 14px; }
+.email-link {
+  display: inline-block; background: var(--orange); color: #fff;
+  font-size: 14px; font-weight: 500; padding: 10px 22px; border-radius: 8px;
+  text-decoration: none; white-space: nowrap; transition: opacity 0.2s;
+}
+.email-link:hover { opacity: 0.88; }
+.section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px; margin-bottom: 24px; }
+.faq-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 56px; }
+details { background: var(--surface); border: 1px solid var(--border); border-radius: 0; overflow: hidden; }
+details + details { border-top: none; }
+details:first-child { border-radius: 10px 10px 0 0; }
+details:last-child { border-radius: 0 0 10px 10px; }
+summary {
+  padding: 18px 22px; font-weight: 500; font-size: 15px; cursor: pointer;
+  list-style: none; display: flex; justify-content: space-between; align-items: center;
+  color: var(--text); transition: color 0.2s;
+}
+summary::-webkit-details-marker { display: none; }
+summary:hover { color: var(--orange); }
+summary::after { content: '+'; font-size: 20px; font-weight: 300; color: var(--muted); flex-shrink: 0; margin-left: 16px; }
+details[open] summary::after { content: '−'; }
+details[open] summary { color: var(--orange); }
+.faq-body { padding: 16px 22px 20px; color: var(--muted); font-size: 14px; line-height: 1.8; border-top: 1px solid var(--border); }
+.faq-body a { color: var(--orange); text-decoration: none; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 56px; }
+.info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+.info-card .icon { font-size: 22px; margin-bottom: 12px; }
+.info-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+.info-card p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: center; font-size: 12px; color: var(--muted); position: relative; z-index: 1; }
+footer a { color: var(--muted); text-decoration: none; }
+footer a:hover { color: var(--orange); }
+@media (max-width: 600px) { .contact-card { flex-direction: column; align-items: flex-start; } nav { padding: 0 20px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/index.html">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.9" transform="rotate(-30 16 16)"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.6" transform="rotate(30 16 16)"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.35"/>
+      <circle cx="16" cy="16" r="3" fill="#F97316"/>
+    </svg>
+    <span class="nav-logo-text">Dashboard AIR</span>
+  </a>
+  <a class="contact-btn" href="mailto:michael.welton@4cylindertechnologies.com">Contact Support</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-label">Support Center</div>
+  <h1>How can we<br><span>help you?</span></h1>
+  <p>Dashboard AIR routes your prompts to the right AI tool — every time. Find answers below or reach out directly.</p>
+</section>
+
+<main>
+
+  <div class="contact-card">
+    <div>
+      <h2>Get in touch</h2>
+      <p>Questions, feedback, or billing issues — we respond within 24 hours.</p>
+    </div>
+    <a class="email-link" href="mailto:michael.welton@4cylindertechnologies.com">Email Support</a>
+  </div>
+
+  <h2 class="section-title">Frequently Asked Questions</h2>
+
+  <div class="faq-list">
+    <details>
+      <summary>What is Dashboard AIR?</summary>
+      <div class="faq-body">Dashboard AIR is an AI routing app for iPhone and iPad. You type a prompt once and the app recommends the best AI tool for your task — whether that's ChatGPT, Claude, Perplexity, Grok, and more. One prompt. The right AI. Every time.</div>
+    </details>
+    <details>
+      <summary>How do I cancel my subscription?</summary>
+      <div class="faq-body">Subscriptions are managed through Apple. To cancel: open <strong>Settings</strong> on your iPhone or iPad → tap your name → <strong>Subscriptions</strong> → tap Dashboard AIR → <strong>Cancel Subscription</strong>. Your access continues until the end of the current billing period.</div>
+    </details>
+    <details>
+      <summary>How do I request a refund?</summary>
+      <div class="faq-body">Refunds are handled by Apple. Visit <a href="https://reportaproblem.apple.com" target="_blank">reportaproblem.apple.com</a>, sign in with your Apple ID, find Dashboard AIR, and select "Request a refund."</div>
+    </details>
+    <details>
+      <summary>What's included in the Pro plan?</summary>
+      <div class="faq-body">Pro unlocks routing across all AI categories, confidence scoring, custom category pinning, theme customization, and priority support. Free users get access to the top three categories with standard routing and 3 routes per day.</div>
+    </details>
+    <details>
+      <summary>How do I restore my purchase on a new device?</summary>
+      <div class="faq-body">Sign in with the same email you used to subscribe. Your Pro or Teams access will restore automatically. If it doesn't appear, go to Settings in the app and tap "Restore Purchases."</div>
+    </details>
+    <details>
+      <summary>How do I delete my account?</summary>
+      <div class="faq-body">Open Dashboard AIR → tap the gear icon (⚙️) → scroll to the bottom → tap <strong>Delete Account</strong>. You'll be asked to confirm. This permanently deletes your account and all associated data.</div>
+    </details>
+    <details>
+      <summary>The app says "routing offline" — what does that mean?</summary>
+      <div class="faq-body">This means the app couldn't reach our AI routing engine. Check your internet connection and try again. If the issue persists, contact us at <a href="mailto:michael.welton@4cylindertechnologies.com">michael.welton@4cylindertechnologies.com</a>.</div>
+    </details>
+    <details>
+      <summary>Is my data private?</summary>
+      <div class="faq-body">Yes. Dashboard AIR does not store your prompt content on our servers. Routing requests are processed and discarded. Your account information is stored securely in Firebase. We do not sell your data to any third party. Read our full <a href="/privacy.html">Privacy Policy</a>.</div>
+    </details>
+  </div>
+
+  <h2 class="section-title">App Information</h2>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="icon">📱</div>
+      <h3>Platform</h3>
+      <p>Available on iPhone and iPad. iOS 16 or later required.</p>
+    </div>
+    <div class="info-card">
+      <div class="icon">💳</div>
+      <h3>Billing</h3>
+      <p>Subscriptions billed through Apple. Manage or cancel anytime in iOS Settings.</p>
+    </div>
+    <div class="info-card">
+      <div class="icon">🏢</div>
+      <h3>Developer</h3>
+      <p>4Cylinder Technologies LLC · Delaware · Charlotte, NC</p>
+    </div>
+    <div class="info-card">
+      <div class="icon">📄</div>
+      <h3>Terms of Use</h3>
+      <p>Uses Apple's <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color:var(--orange)">Standard EULA</a>. Full terms at <a href="/terms.html" style="color:var(--orange)">4cylindertechnologies.com/terms</a>.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2026 4Cylinder Technologies LLC · Delaware · Charlotte, NC &nbsp;·&nbsp; <a href="/index.html">Home</a> &nbsp;·&nbsp; <a href="/privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms.html">Terms of Use</a></p>
+</footer>
+
+</body>
+</html>

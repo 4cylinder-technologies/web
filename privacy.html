@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — 4Cylinder Technologies LLC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080C14; --surface: #0D1320; --border: #1C2A3D;
+  --orange: #F97316; --text: #E8EFF8; --muted: #6B8299;
+}
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; line-height: 1.8; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(249,115,22,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.025) 1px, transparent 1px);
+  background-size: 48px 48px; pointer-events: none; z-index: 0;
+}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between;
+  background: rgba(8,12,20,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--orange); }
+.nav-back { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.nav-back:hover { color: var(--orange); }
+main { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 100px 24px 80px; }
+.page-label { font-size: 10px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--orange); margin-bottom: 16px; }
+h1 { font-family: 'Syne', sans-serif; font-size: clamp(32px, 5vw, 52px); font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+.updated { font-size: 13px; color: var(--muted); margin-bottom: 56px; }
+.policy-section { margin-bottom: 48px; padding-bottom: 48px; border-bottom: 1px solid var(--border); }
+.policy-section:last-child { border-bottom: none; }
+h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+p { font-size: 15px; color: var(--muted); margin-bottom: 16px; line-height: 1.85; }
+ul { padding-left: 20px; margin-bottom: 16px; }
+li { font-size: 15px; color: var(--muted); line-height: 1.85; margin-bottom: 8px; }
+a { color: var(--orange); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.app-scope { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+.app-scope h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--orange); }
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; }
+footer p { font-size: 12px; color: var(--muted); }
+footer a { color: var(--muted); }
+footer a:hover { color: var(--orange); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.9" transform="rotate(-30 16 16)"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.6" transform="rotate(30 16 16)"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.35"/>
+      <circle cx="16" cy="16" r="3" fill="#F97316"/>
+    </svg>
+    <span class="nav-logo-text">4Cylinder Technologies</span>
+  </a>
+  <a class="nav-back" href="index.html">← Back to Home</a>
+</nav>
+
+<main>
+  <p class="page-label">Legal</p>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: May 29, 2026 · Applies to all 4Cylinder Technologies apps</p>
+
+  <div class="policy-section">
+    <h2>Overview</h2>
+    <p>4Cylinder Technologies LLC ("4Cylinder," "we," "us," or "our") is a Delaware-incorporated software company operating out of Charlotte, NC. We build mobile applications designed to make technology work harder for you.</p>
+    <p>This Privacy Policy applies to all apps published by 4Cylinder Technologies LLC, including Dashboard AIR, Ask AIR, and HelmIQ. It describes how we collect, use, and protect your information.</p>
+    <p>We believe in plain language. This policy is written to be read — not to bury what matters in legal jargon.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>Apps Covered by This Policy</h2>
+    <div class="app-scope">
+      <h3>Dashboard AIR</h3>
+      <p>An AI routing app that analyzes your prompt and recommends the best AI tool for your task. Available on iOS and Android.</p>
+    </div>
+    <div class="app-scope">
+      <h3>Ask AIR</h3>
+      <p>An AI command center that executes prompts across multiple AI engines natively. Coming soon.</p>
+    </div>
+    <div class="app-scope">
+      <h3>HelmIQ</h3>
+      <p>An AI-powered home inventory app. Photograph your belongings — AI catalogs, locates, and manages them. In development.</p>
+    </div>
+  </div>
+
+  <div class="policy-section">
+    <h2>What We Collect</h2>
+    <p>We collect only what is necessary to provide our services.</p>
+    <ul>
+      <li><strong>Account information</strong> — your email address, used to create and manage your account.</li>
+      <li><strong>Subscription status</strong> — your plan tier (Free, Pro, or Teams), managed through Apple App Store, Google Play, or our payment processors.</li>
+      <li><strong>Usage data</strong> — anonymized routing history used to improve our AI routing engine (Dashboard AIR). We do not store the content of your prompts on our servers.</li>
+      <li><strong>Device information</strong> — device type and OS version, collected automatically to ensure compatibility.</li>
+    </ul>
+    <p>We do not collect your name, phone number, location, contacts, or any sensitive personal information unless explicitly required for a specific feature and disclosed at the time of collection.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>What We Do Not Do</h2>
+    <ul>
+      <li>We do not sell your data to any third party — ever.</li>
+      <li>We do not use your data for advertising.</li>
+      <li>We do not store the content of your AI prompts on our servers.</li>
+      <li>We do not share your personal information with AI providers — only anonymized routing signals are used.</li>
+      <li>We do not track you across other apps or websites.</li>
+    </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2>How We Use Your Information</h2>
+    <ul>
+      <li>To create and manage your account</li>
+      <li>To process subscription payments and verify your plan tier</li>
+      <li>To deliver app features and improve routing accuracy</li>
+      <li>To send account-related emails (verification, password reset, receipts)</li>
+      <li>To respond to support requests</li>
+    </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2>Third-Party Services</h2>
+    <p>Our apps use the following third-party services, each with their own privacy practices:</p>
+    <ul>
+      <li><strong>Firebase (Google)</strong> — authentication and database. <a href="https://firebase.google.com/support/privacy" target="_blank">Privacy policy →</a></li>
+      <li><strong>RevenueCat</strong> — subscription management on iOS. <a href="https://www.revenuecat.com/privacy" target="_blank">Privacy policy →</a></li>
+      <li><strong>Apple App Store</strong> — iOS payments and distribution. <a href="https://www.apple.com/legal/privacy/" target="_blank">Privacy policy →</a></li>
+      <li><strong>Google Play</strong> — Android payments and distribution. <a href="https://policies.google.com/privacy" target="_blank">Privacy policy →</a></li>
+      <li><strong>Anthropic (Claude)</strong> — AI routing engine. Prompts are processed but not stored. <a href="https://www.anthropic.com/privacy" target="_blank">Privacy policy →</a></li>
+    </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2>Data Retention</h2>
+    <p>We retain your account information for as long as your account is active. Unverified accounts are automatically deleted after 72 hours. If you delete your account, all associated data is permanently removed from our systems within 30 days.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>Your Rights</h2>
+    <p>You have the right to:</p>
+    <ul>
+      <li>Access the personal information we hold about you</li>
+      <li>Request correction of inaccurate data</li>
+      <li>Request deletion of your account and associated data</li>
+      <li>Opt out of non-essential communications</li>
+    </ul>
+    <p>To exercise any of these rights, contact us at <a href="mailto:michael.welton@4cylindertechnologies.com">michael.welton@4cylindertechnologies.com</a>. To delete your account directly, open any 4Cylinder app → Settings → Delete Account.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>Children's Privacy</h2>
+    <p>Our apps are not directed at children under 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us immediately.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>Changes to This Policy</h2>
+    <p>We may update this policy as our apps evolve. When we make material changes, we will update the "Last updated" date at the top of this page. Continued use of our apps after changes constitutes acceptance of the updated policy.</p>
+  </div>
+
+  <div class="policy-section">
+    <h2>Contact</h2>
+    <p>Questions about this policy or your data:</p>
+    <p>
+      <strong>4Cylinder Technologies LLC</strong><br>
+      Delaware · Charlotte, NC<br>
+      <a href="mailto:michael.welton@4cylindertechnologies.com">michael.welton@4cylindertechnologies.com</a>
+    </p>
+  </div>
+</main>
+
+<footer>
+  <p>© 2026 4Cylinder Technologies LLC · Delaware · Charlotte, NC &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="terms.html">Terms of Use</a></p>
+</footer>
+
+</body>
+</html>
