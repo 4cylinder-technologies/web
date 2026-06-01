@@ -54,16 +54,16 @@
     .nav-logo {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
     }
 
-    .nav-logo img {
-      height: 36px;
-      width: auto;
-      border-radius: 6px;
-      background: #fff;
-      padding: 3px 8px;
+    .nav-logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--orange);
+      letter-spacing: -0.3px;
     }
 
     .nav-wordmark {
@@ -555,11 +555,13 @@
   <!-- NAV -->
   <nav>
     <a href="#" class="nav-logo">
-      <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" />
-      <div class="nav-wordmark">
-        4Cylinder Technologies
-        <span>LLC</span>
-      </div>
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.9" transform="rotate(-30 16 16)"/>
+        <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.6" transform="rotate(30 16 16)"/>
+        <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#F97316" stroke-width="1.4" opacity="0.35"/>
+        <circle cx="16" cy="16" r="3" fill="#F97316"/>
+      </svg>
+      <span class="nav-logo-text">4Cylinder Technologies</span>
     </a>
     <ul class="nav-links">
       <li><a href="#apps">Apps</a></li>
