@@ -45,6 +45,23 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); pa
 footer p { font-size: 12px; color: var(--muted); }
 footer a { color: var(--muted); }
 footer a:hover { color: var(--orange); }
+.nav-wordmark {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--orange);
+  letter-spacing: -0.2px;
+  line-height: 1.15;
+}
+.nav-wordmark small {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 1px;
+}
 </style>
 </head>
 <body>
@@ -52,6 +69,10 @@ footer a:hover { color: var(--orange); }
 <nav>
   <a class="nav-logo" href="index.html">
     <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" style="height:40px; width:auto;" />
+    <div class="nav-wordmark">
+      4Cylinder Technologies
+      <small>LLC</small>
+    </div>
   </a>
   <a class="nav-back" href="index.html">← Back to Home</a>
 </nav>

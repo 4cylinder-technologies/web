@@ -77,6 +77,23 @@ footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: ce
 footer a { color: var(--muted); text-decoration: none; }
 footer a:hover { color: var(--orange); }
 @media (max-width: 600px) { .contact-card { flex-direction: column; align-items: flex-start; } nav { padding: 0 20px; } }
+.nav-wordmark {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--orange);
+  letter-spacing: -0.2px;
+  line-height: 1.15;
+}
+.nav-wordmark small {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 1px;
+}
 </style>
 </head>
 <body>
@@ -84,6 +101,10 @@ footer a:hover { color: var(--orange); }
 <nav>
   <a class="nav-logo" href="/index.html">
     <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" style="height:40px; width:auto;" />
+    <div class="nav-wordmark">
+      4Cylinder Technologies
+      <small>LLC</small>
+    </div>
   </a>
   <a class="contact-btn" href="mailto:support@4cylindertechnologies.com">Contact Support</a>
 </nav>
