@@ -313,7 +313,7 @@
     /* ── APPS GRID ──────────────────────────────────── */
     .apps-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 0;
       border-radius: 20px;
       overflow: hidden;
@@ -348,6 +348,14 @@
       top: -40px; right: -40px;
       width: 240px; height: 240px;
       background: radial-gradient(circle, rgba(96,165,250,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .app-card.myowniq::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, rgba(0,191,255,0.07) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -658,8 +666,12 @@
       Dashboard AIR — Live on App Store
     </a>
     <a class="pill" href="#apps">
+      <span class="pill-dot live"></span>
+      Ask AIR — Live on App Store
+    </a>
+    <a class="pill" href="#apps">
       <span class="pill-dot soon"></span>
-      Ask AIR — Coming Soon
+      MyOwnIQ — Coming Soon
     </a>
   </div>
 
@@ -717,14 +729,39 @@
       <div class="app-icon-wrap">
         <img src="Ask AIR Logo.png" alt="Ask AIR" />
       </div>
-      <div class="app-status soon">
-        <span class="status-dot"></span>
-        Coming Soon
+      <div class="app-status live">
+        <span class="status-dot pulse"></span>
+        Live on App Store
       </div>
       <h3>Ask AIR</h3>
       <p>
         Conversational AI built around your context. Ask anything — get answers that actually know who you are, what you're working on, and how you think.
         Available on iOS &amp; Android.
+      </p>
+      <div class="app-actions">
+        <a class="badge-apple"
+           href="https://apps.apple.com/us/app/ask-air/id6746498300"
+           target="_blank"
+           rel="noopener">
+          <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg"
+               alt="Download on the App Store" />
+        </a>
+        <a class="app-support-link" href="support.html">Support &amp; FAQ →</a>
+      </div>
+    </div>
+
+    <!-- MyOwnIQ -->
+    <div class="app-card myowniq">
+      <div class="app-icon-wrap">
+        <img src="MyOwnIQ Logo.png" alt="MyOwnIQ" />
+      </div>
+      <div class="app-status soon">
+        <span class="status-dot"></span>
+        Coming Soon
+      </div>
+      <h3>MyOwnIQ™</h3>
+      <p>
+        AI-Powered Ownership Intelligence. Point a camera at any space — pantry, garage, closet — and AI inventories everything it sees. Find it, need it, lose it. Know What You Own.
       </p>
       <div class="app-actions">
         <p class="coming-soon-label">Launching soon — stay tuned.</p>
