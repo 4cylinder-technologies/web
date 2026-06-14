@@ -24,7 +24,7 @@ nav {
   background: rgba(8,12,20,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
 }
 .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--orange); }
+.nav-wordmark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--orange); letter-spacing: -0.4px; line-height: 1.1; }
 .nav-back { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
 .nav-back:hover { color: var(--orange); }
 main { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 100px 24px 80px; }
@@ -41,18 +41,12 @@ a { color: var(--orange); text-decoration: none; }
 a:hover { text-decoration: underline; }
 .app-scope { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
 .app-scope h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--orange); }
+.security-badge { background: linear-gradient(135deg, rgba(249,115,22,0.1), rgba(249,115,22,0.05)); border: 1px solid rgba(249,115,22,0.3); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+.security-badge h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--orange); }
 footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; }
 footer p { font-size: 12px; color: var(--muted); }
 footer a { color: var(--muted); }
 footer a:hover { color: var(--orange); }
-.nav-wordmark {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 20px;
-  color: var(--orange);
-  letter-spacing: -0.4px;
-  line-height: 1.1;
-}
 </style>
 </head>
 <body>
@@ -68,27 +62,27 @@ footer a:hover { color: var(--orange); }
 <main>
   <p class="page-label">Legal</p>
   <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: May 29, 2026 · Applies to all 4Cylinder Technologies apps</p>
+  <p class="updated">Last updated: June 14, 2026 · Applies to all 4Cylinder Technologies apps</p>
 
   <div class="policy-section">
     <h2>Overview</h2>
-    <p>4Cylinder Technologies LLC ("4Cylinder," "we," "us," or "our") is a Delaware-incorporated software company operating out of Charlotte, NC. We build mobile applications designed to make technology work harder for you.</p>
-    <p>This Privacy Policy applies to all apps published by 4Cylinder Technologies LLC, including Dashboard AIR, Ask AIR, and HelmIQ. It describes how we collect, use, and protect your information.</p>
+    <p>4Cylinder Technologies LLC ("4Cylinder," "we," "us," or "our") is a Delaware-incorporated software company operating out of Charlotte, NC. We build mobile applications designed to make AI work harder for you.</p>
+    <p>This Privacy Policy applies to all apps published by 4Cylinder Technologies LLC, including DashboardAIR, AskAIR, and MyOwnIQ. It describes how we collect, use, and protect your information.</p>
     <p>We believe in plain language. This policy is written to be read — not to bury what matters in legal jargon.</p>
   </div>
 
   <div class="policy-section">
     <h2>Apps Covered by This Policy</h2>
     <div class="app-scope">
-      <h3>Dashboard AIR</h3>
-      <p>An AI routing app that analyzes your prompt and recommends the best AI tool for your task. Available on iOS and Android.</p>
+      <h3>DashboardAIR</h3>
+      <p>The AI power user command center. Type one prompt — DashboardAIR routes it to the best AI tool automatically, renders the answer in-app, and shows the confidence score. Available on iOS and Android.</p>
     </div>
     <div class="app-scope">
-      <h3>Ask AIR</h3>
-      <p>An AI command center that executes prompts across multiple AI engines natively. Coming soon.</p>
+      <h3>AskAIR</h3>
+      <p>The consumer AI guide. Tap a life category, ask your question, get an answer from the right AI — all inside the app. No switching, no copy-pasting. Available on iOS and Android.</p>
     </div>
     <div class="app-scope">
-      <h3>HelmIQ</h3>
+      <h3>MyOwnIQ</h3>
       <p>An AI-powered home inventory app. Photograph your belongings — AI catalogs, locates, and manages them. In development.</p>
     </div>
   </div>
@@ -98,8 +92,8 @@ footer a:hover { color: var(--orange); }
     <p>We collect only what is necessary to provide our services.</p>
     <ul>
       <li><strong>Account information</strong> — your email address, used to create and manage your account.</li>
-      <li><strong>Subscription status</strong> — your plan tier (Free, Pro, or Teams), managed through Apple App Store, Google Play, or our payment processors.</li>
-      <li><strong>Usage data</strong> — anonymized routing history used to improve our AI routing engine (Dashboard AIR). We do not store the content of your prompts on our servers.</li>
+      <li><strong>Subscription status</strong> — your plan tier (Free, Pro, Teams, or Family), managed through Apple App Store or Google Play via RevenueCat.</li>
+      <li><strong>Usage data</strong> — anonymized routing history used to improve our AI routing engine. We do not store the full content of your prompts on our servers beyond what is required to generate your answer.</li>
       <li><strong>Device information</strong> — device type and OS version, collected automatically to ensure compatibility.</li>
     </ul>
     <p>We do not collect your name, phone number, location, contacts, or any sensitive personal information unless explicitly required for a specific feature and disclosed at the time of collection.</p>
@@ -110,10 +104,35 @@ footer a:hover { color: var(--orange); }
     <ul>
       <li>We do not sell your data to any third party — ever.</li>
       <li>We do not use your data for advertising.</li>
-      <li>We do not store the content of your AI prompts on our servers.</li>
-      <li>We do not share your personal information with AI providers — only anonymized routing signals are used.</li>
+      <li>We do not store the full content of your AI prompts on our servers.</li>
+      <li>We do not share your personal information with AI providers — only your prompt is passed to generate your answer.</li>
       <li>We do not track you across other apps or websites.</li>
     </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2>Security</h2>
+    <p>We take security seriously. Here is how we protect your data:</p>
+
+    <div class="security-badge">
+      <h3>🔒 Biometric Authentication</h3>
+      <p>DashboardAIR and AskAIR support Face ID, Touch ID, and Android biometric unlock. When enabled, biometric data never leaves your device — it is processed entirely by your device's operating system (iOS Secure Enclave / Android Keystore). We never have access to your biometric data.</p>
+    </div>
+
+    <div class="security-badge">
+      <h3>🔐 Data Encryption</h3>
+      <p>Sensitive data stored on your device — including authentication tokens and subscription status — is encrypted at rest using platform-native secure storage (iOS Keychain / Android Keystore) via expo-secure-store. All data transmitted between the app and our servers is encrypted in transit using TLS 1.2 or higher.</p>
+    </div>
+
+    <div class="security-badge">
+      <h3>🛡️ Session Security</h3>
+      <p>Authentication sessions are managed securely via Firebase Authentication. The app supports automatic session timeout after a period of inactivity. Clipboard data containing copied prompts is automatically cleared after use to protect your privacy.</p>
+    </div>
+
+    <div class="security-badge">
+      <h3>🔑 API Key Security</h3>
+      <p>All AI service API keys are stored in Google Cloud Secret Manager — never in app code or client-side storage. Keys are encrypted at rest and access-controlled at the infrastructure level.</p>
+    </div>
   </div>
 
   <div class="policy-section">
@@ -132,16 +151,20 @@ footer a:hover { color: var(--orange); }
     <p>Our apps use the following third-party services, each with their own privacy practices:</p>
     <ul>
       <li><strong>Firebase (Google)</strong> — authentication and database. <a href="https://firebase.google.com/support/privacy" target="_blank">Privacy policy →</a></li>
-      <li><strong>RevenueCat</strong> — subscription management on iOS. <a href="https://www.revenuecat.com/privacy" target="_blank">Privacy policy →</a></li>
+      <li><strong>RevenueCat</strong> — subscription management. <a href="https://www.revenuecat.com/privacy" target="_blank">Privacy policy →</a></li>
       <li><strong>Apple App Store</strong> — iOS payments and distribution. <a href="https://www.apple.com/legal/privacy/" target="_blank">Privacy policy →</a></li>
       <li><strong>Google Play</strong> — Android payments and distribution. <a href="https://policies.google.com/privacy" target="_blank">Privacy policy →</a></li>
-      <li><strong>Anthropic (Claude)</strong> — AI routing engine. Prompts are processed but not stored. <a href="https://www.anthropic.com/privacy" target="_blank">Privacy policy →</a></li>
+      <li><strong>Anthropic (Claude)</strong> — AI routing and answering. Prompts are processed to generate answers. <a href="https://www.anthropic.com/privacy" target="_blank">Privacy policy →</a></li>
+      <li><strong>OpenAI (ChatGPT)</strong> — AI answering for selected categories. <a href="https://openai.com/policies/privacy-policy" target="_blank">Privacy policy →</a></li>
+      <li><strong>xAI (Grok)</strong> — AI answering for news and real-time categories. <a href="https://x.ai/privacy" target="_blank">Privacy policy →</a></li>
+      <li><strong>Perplexity</strong> — AI answering for research categories. <a href="https://www.perplexity.ai/privacy" target="_blank">Privacy policy →</a></li>
+      <li><strong>Google Cloud Secret Manager</strong> — secure API key storage. <a href="https://cloud.google.com/terms/cloud-privacy-notice" target="_blank">Privacy policy →</a></li>
     </ul>
   </div>
 
   <div class="policy-section">
     <h2>Data Retention</h2>
-    <p>We retain your account information for as long as your account is active. Accounts that remain unverified may be automatically removed. If you delete your account, all associated data is permanently removed from our systems within 30 days.</p>
+    <p>We retain your account information for as long as your account is active. Unverified accounts may be automatically removed after 72 hours. If you delete your account, all associated data is permanently removed from our systems within 30 days.</p>
   </div>
 
   <div class="policy-section">
@@ -152,13 +175,19 @@ footer a:hover { color: var(--orange); }
       <li>Request correction of inaccurate data</li>
       <li>Request deletion of your account and associated data</li>
       <li>Opt out of non-essential communications</li>
+      <li>Disable biometric authentication at any time in app Settings</li>
     </ul>
     <p>To exercise any of these rights, contact us at <a href="mailto:support@4cylindertechnologies.com">support@4cylindertechnologies.com</a>. To delete your account directly, open any 4Cylinder app → Settings → Delete Account.</p>
   </div>
 
   <div class="policy-section">
+    <h2>Biometric Data</h2>
+    <p>When you enable biometric authentication (Face ID, Touch ID, or Android biometrics), your biometric data is processed entirely on your device by the operating system. 4Cylinder Technologies LLC never receives, stores, or has access to your biometric data in any form. Biometric authentication can be disabled at any time in Settings.</p>
+  </div>
+
+  <div class="policy-section">
     <h2>Children's Privacy</h2>
-    <p>Our apps are not directed at children under 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us immediately.</p>
+    <p>Our apps are not directed at children under 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us immediately at <a href="mailto:support@4cylindertechnologies.com">support@4cylindertechnologies.com</a>.</p>
   </div>
 
   <div class="policy-section">
