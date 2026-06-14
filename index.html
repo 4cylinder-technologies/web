@@ -76,14 +76,15 @@
     .app-card.dashboard { background: linear-gradient(160deg, rgba(249,115,22,0.06) 0%, transparent 60%); }
     .app-card.askair { background: linear-gradient(160deg, rgba(124,111,205,0.06) 0%, transparent 60%); }
     .app-card.myowniq { background: linear-gradient(160deg, rgba(0,191,255,0.06) 0%, transparent 60%); }
-    .app-icon-wrap { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; margin-bottom: 4px; }
-    .app-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .app-icon-wrap { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; margin-bottom: 4px; flex-shrink: 0; }
+    .app-icon-wrap img { width: 64px; height: 64px; object-fit: cover; display: block; }
     .app-status { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; width: fit-content; }
     .app-status.live { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
     .app-status.soon { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(0,191,255,0.2); }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
     .status-dot.pulse { animation: statusPulse 2s ease-in-out infinite; }
     .app-card h3 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+    .app-card h3 .tm { font-size: 10px; font-weight: 400; vertical-align: super; color: var(--muted); text-decoration: none; }
     .app-card.dashboard h3 { color: var(--orange); }
     .app-card.askair h3 { color: var(--lavender); }
     .app-card.myowniq h3 { color: var(--blue); }
@@ -196,7 +197,7 @@
         <span class="status-dot pulse"></span>
         Live on App Store
       </div>
-      <h3>DashboardAIR™</h3>
+      <h3>DashboardAIR<span class="tm">™</span></h3>
       <p>The AI power user command center. Type a prompt once — DashboardAIR routes it to the best AI tool automatically, renders the answer in-app, and shows the confidence score. One prompt. The right AI. Every time.</p>
       <div class="app-actions">
         <a class="badge-apple" href="https://apps.apple.com/app/id6764654975" target="_blank" rel="noopener">
@@ -215,7 +216,7 @@
         <span class="status-dot pulse"></span>
         Live on App Store
       </div>
-      <h3>AskAIR™</h3>
+      <h3>AskAIR<span class="tm">™</span></h3>
       <p>The consumer AI guide. Tap a life category, ask your question, get an answer from the right AI — all inside the app. Health, family, money, sports, travel, and more. Whatever you need. The right AI. Every time.</p>
       <div class="app-actions">
         <a class="badge-apple" href="https://apps.apple.com/us/app/ask-air/id6746498300" target="_blank" rel="noopener">
@@ -234,7 +235,7 @@
         <span class="status-dot"></span>
         Coming Soon
       </div>
-      <h3>MyOwnIQ™</h3>
+      <h3>MyOwnIQ<span class="tm">™</span></h3>
       <p>AI-Powered Ownership Intelligence. Point a camera at any space — pantry, garage, closet — and AI inventories everything it sees. Find it, need it, lose it. Know What You Own.</p>
       <div class="app-actions">
         <p class="coming-soon-label">Launching soon — stay tuned.</p>
