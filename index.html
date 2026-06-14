@@ -4,638 +4,143 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4Cylinder Technologies LLC — AI Apps Built for Real Life</title>
-  <meta name="description" content="4Cylinder Technologies LLC — Dashboard AIR and Ask AIR. AI-powered apps built for the way you think." />
+  <meta name="description" content="4Cylinder Technologies LLC — DashboardAIR, AskAIR, and MyOwnIQ. AI-powered apps built for the way you think." />
   <meta property="og:title" content="4Cylinder Technologies LLC" />
-  <meta property="og:description" content="AI-powered apps built for real life. Dashboard AIR is live on the App Store." />
+  <meta property="og:description" content="AI-powered apps built for real life. DashboardAIR and AskAIR are live on the App Store." />
   <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
   <style>
-    /* ── RESET & TOKENS ─────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
     :root {
-      --bg:          #080C14;
-      --surface:     #0D1522;
-      --surface2:    #111B2B;
-      --border:      rgba(255,255,255,0.07);
-      --border-med:  rgba(255,255,255,0.11);
-      --text:        #E8EDF5;
-      --muted:       #6B7A99;
-      --subtle:      #3A4A62;
-      --orange:      #F97316;
-      --orange-dim:  rgba(249,115,22,0.12);
-      --orange-glow: rgba(249,115,22,0.22);
-      --green:       #22C55E;
-      --green-dim:   rgba(34,197,94,0.1);
-      --blue:        #60A5FA;
-      --blue-dim:    rgba(96,165,250,0.1);
+      --bg: #080C14; --surface: #0D1522; --surface2: #111B2B;
+      --border: rgba(255,255,255,0.07); --border-med: rgba(255,255,255,0.11);
+      --text: #E8EDF5; --muted: #6B7A99; --subtle: #3A4A62;
+      --orange: #F97316; --orange-dim: rgba(249,115,22,0.12); --orange-glow: rgba(249,115,22,0.22);
+      --lavender: #7c6fcd; --lavender-dim: rgba(124,111,205,0.12);
+      --blue: #00BFFF; --blue-dim: rgba(0,191,255,0.1);
+      --green: #22C55E; --green-dim: rgba(34,197,94,0.1);
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* ── GRID BACKGROUND ────────────────────────────── */
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
     body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(249,115,22,0.022) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(249,115,22,0.022) 1px, transparent 1px);
-      background-size: 52px 52px;
-      pointer-events: none;
-      z-index: 0;
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(249,115,22,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.022) 1px, transparent 1px);
+      background-size: 52px 52px; pointer-events: none; z-index: 0;
     }
-
-    /* ── NAV ────────────────────────────────────────── */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      height: 66px;
-      background: rgba(8,12,20,0.88);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 66px;
+      background: rgba(8,12,20,0.88); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
     }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      text-decoration: none;
-    }
-
-    /* SVG orb mark — inline, no external dep */
-    .nav-orb {
-      flex-shrink: 0;
-    }
-
-    .nav-wordmark {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 20px;
-      color: var(--orange);
-      letter-spacing: -0.4px;
-      line-height: 1.1;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-      list-style: none;
-    }
-    .nav-links a {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-      letter-spacing: 0.01em;
-    }
+    .nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .nav-wordmark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--orange); letter-spacing: -0.4px; line-height: 1.1; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; letter-spacing: 0.01em; }
     .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      background: var(--orange-dim);
-      border: 1px solid rgba(249,115,22,0.3);
-      color: var(--orange) !important;
-      padding: 7px 16px;
-      border-radius: 6px;
-      transition: background 0.2s, border-color 0.2s !important;
-    }
-    .nav-cta:hover {
-      background: rgba(249,115,22,0.2) !important;
-      border-color: rgba(249,115,22,0.5) !important;
-    }
-
-    /* ── HERO ───────────────────────────────────────── */
-    .hero {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 100px 24px 80px;
-    }
-
-    .hero-glow {
-      position: absolute;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 700px;
-      height: 400px;
-      background: radial-gradient(ellipse at center, rgba(249,115,22,0.13) 0%, transparent 65%);
-      pointer-events: none;
-    }
-
-    .hero-eyebrow {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--orange);
-      margin-bottom: 24px;
-      opacity: 0;
-      animation: fadeUp 0.6s ease forwards 0.1s;
-    }
-
-    .hero h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(44px, 7vw, 88px);
-      font-weight: 800;
-      line-height: 1.0;
-      letter-spacing: -2px;
-      margin-bottom: 28px;
-      opacity: 0;
-      animation: fadeUp 0.7s ease forwards 0.2s;
-    }
-    .hero h1 em {
-      font-style: italic;
-      color: var(--orange);
-    }
-
-    .hero-sub {
-      max-width: 560px;
-      font-size: 18px;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.7;
-      margin-bottom: 48px;
-      opacity: 0;
-      animation: fadeUp 0.7s ease forwards 0.35s;
-    }
-
-    .hero-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: center;
-      margin-bottom: 52px;
-      opacity: 0;
-      animation: fadeUp 0.7s ease forwards 0.45s;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 18px;
-      border-radius: 100px;
-      border: 1px solid var(--border-med);
-      background: rgba(255,255,255,0.03);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text);
-      text-decoration: none;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .pill:hover {
-      border-color: rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.06);
-    }
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .pill-dot.live    { background: var(--green); box-shadow: 0 0 8px var(--green); }
-    .pill-dot.soon    { background: var(--blue);  box-shadow: 0 0 8px var(--blue); }
-
-    .hero-cta {
-      opacity: 0;
-      animation: fadeUp 0.7s ease forwards 0.55s;
-    }
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--orange);
-      color: #fff;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 15px;
-      padding: 14px 32px;
-      border-radius: 10px;
-      text-decoration: none;
-      transition: opacity 0.2s, transform 0.15s;
-      letter-spacing: 0.01em;
-    }
+    .nav-cta { background: var(--orange-dim); border: 1px solid rgba(249,115,22,0.3); color: var(--orange) !important; padding: 7px 16px; border-radius: 6px; transition: background 0.2s, border-color 0.2s !important; }
+    .nav-cta:hover { background: rgba(249,115,22,0.2) !important; border-color: rgba(249,115,22,0.5) !important; }
+    .hero { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 100px 24px 80px; }
+    .hero-glow { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(ellipse at center, rgba(249,115,22,0.13) 0%, transparent 65%); pointer-events: none; }
+    .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--orange); margin-bottom: 24px; opacity: 0; animation: fadeUp 0.6s ease forwards 0.1s; }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(44px, 7vw, 88px); font-weight: 800; line-height: 1.0; letter-spacing: -2px; margin-bottom: 28px; opacity: 0; animation: fadeUp 0.7s ease forwards 0.2s; }
+    .hero h1 em { font-style: italic; color: var(--orange); }
+    .hero-sub { max-width: 560px; font-size: 18px; font-weight: 300; color: var(--muted); line-height: 1.7; margin-bottom: 48px; opacity: 0; animation: fadeUp 0.7s ease forwards 0.35s; }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 52px; opacity: 0; animation: fadeUp 0.7s ease forwards 0.45s; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 100px; border: 1px solid var(--border-med); background: rgba(255,255,255,0.03); font-size: 13px; font-weight: 500; color: var(--text); text-decoration: none; transition: border-color 0.2s, background 0.2s; }
+    .pill:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
+    .pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .pill-dot.live { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .pill-dot.soon { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+    .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; opacity: 0; animation: fadeUp 0.7s ease forwards 0.55s; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--orange); color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; padding: 14px 32px; border-radius: 10px; text-decoration: none; transition: opacity 0.2s, transform 0.15s; letter-spacing: 0.01em; }
     .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 10px; background: var(--lavender-dim); color: var(--lavender); border: 1px solid rgba(124,111,205,0.3); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; padding: 14px 32px; border-radius: 10px; text-decoration: none; transition: opacity 0.2s, transform 0.15s; letter-spacing: 0.01em; }
+    .btn-secondary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .hero-scroll { position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; opacity: 0; animation: fadeUp 0.6s ease forwards 1s; }
+    .scroll-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--subtle); }
+    .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--subtle), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+    .divider { position: relative; z-index: 1; height: 1px; background: var(--border); max-width: 1100px; margin: 0 auto; }
+    section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 96px 40px; }
+    .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--orange); margin-bottom: 16px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 16px; }
+    .section-sub { font-size: 16px; color: var(--muted); max-width: 560px; line-height: 1.7; margin-bottom: 56px; }
 
-    .hero-scroll {
-      position: absolute;
-      bottom: 36px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      opacity: 0;
-      animation: fadeUp 0.6s ease forwards 1s;
-    }
-    .scroll-line {
-      width: 1px;
-      height: 40px;
-      background: linear-gradient(to bottom, var(--orange), transparent);
-      animation: scrollPulse 2s ease-in-out infinite;
-    }
-    .scroll-label {
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+    /* Apps grid */
+    .apps-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border-med); border-radius: 20px; overflow: hidden; }
+    .app-card { padding: 48px 40px 52px; display: flex; flex-direction: column; gap: 16px; }
+    .app-card + .app-card { border-left: 1px solid var(--border-med); }
+    .app-card.dashboard { background: linear-gradient(160deg, rgba(249,115,22,0.06) 0%, transparent 60%); }
+    .app-card.askair { background: linear-gradient(160deg, rgba(124,111,205,0.06) 0%, transparent 60%); }
+    .app-card.myowniq { background: linear-gradient(160deg, rgba(0,191,255,0.06) 0%, transparent 60%); }
+    .app-icon-wrap { width: 64px; height: 64px; border-radius: 16px; overflow: hidden; margin-bottom: 4px; }
+    .app-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .app-status { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; width: fit-content; }
+    .app-status.live { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+    .app-status.soon { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(0,191,255,0.2); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-dot.pulse { animation: statusPulse 2s ease-in-out infinite; }
+    .app-card h3 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+    .app-card.dashboard h3 { color: var(--orange); }
+    .app-card.askair h3 { color: var(--lavender); }
+    .app-card.myowniq h3 { color: var(--blue); }
+    .app-card p { font-size: 14px; color: var(--muted); line-height: 1.75; flex: 1; }
+    .app-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .badge-apple img { height: 40px; width: auto; display: block; }
+    .badge-google img { height: 40px; width: auto; display: block; }
+    .app-support-link { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .app-support-link:hover { color: var(--text); }
+    .coming-soon-label { font-size: 13px; color: var(--subtle); font-style: italic; }
 
-    /* ── DIVIDER ────────────────────────────────────── */
-    .divider {
-      position: relative;
-      z-index: 1;
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--border-med), transparent);
-      margin: 0 40px;
-    }
+    /* Company */
+    .company-grid { display: grid; grid-template-columns: 200px 1fr; gap: 64px; align-items: start; }
+    .company-logo-wrap img { width: 100%; height: auto; opacity: 0.9; }
+    .company-copy p { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
+    .company-copy strong { color: var(--text); }
+    .company-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .meta-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); padding: 5px 12px; border-radius: 100px; }
 
-    /* ── SECTIONS ───────────────────────────────────── */
-    section {
-      position: relative;
-      z-index: 1;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 100px 40px;
-    }
-
-    .section-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--orange);
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(32px, 4.5vw, 56px);
-      font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -1.5px;
-      margin-bottom: 20px;
-    }
-
-    .section-sub {
-      font-size: 17px;
-      font-weight: 300;
-      color: var(--muted);
-      max-width: 520px;
-      line-height: 1.75;
-      margin-bottom: 60px;
-    }
-
-    /* ── APPS GRID ──────────────────────────────────── */
-    .apps-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 0;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid var(--border-med);
-    }
-
-    .app-card {
-      background: var(--surface);
-      padding: 48px 44px 52px;
-      position: relative;
-      overflow: hidden;
-      transition: background 0.25s;
-    }
-    .app-card:hover { background: var(--surface2); }
-
-    .app-card + .app-card {
-      border-left: 1px solid var(--border-med);
-    }
-
-    /* Subtle radial accent per card */
-    .app-card.dashboard::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 240px; height: 240px;
-      background: radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .app-card.askair::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 240px; height: 240px;
-      background: radial-gradient(circle, rgba(96,165,250,0.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .app-card.myowniq::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 240px; height: 240px;
-      background: radial-gradient(circle, rgba(0,191,255,0.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .app-icon-wrap {
-      width: 72px;
-      height: 72px;
-      border-radius: 18px;
-      overflow: hidden;
-      margin-bottom: 24px;
-      border: 1px solid var(--border-med);
-      background: var(--surface2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .app-icon-wrap img {
-      width: 72px;
-      height: 72px;
-      object-fit: cover;
-      border-radius: 18px;
-      display: block;
-    }
-
-    .app-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border-radius: 100px;
-      margin-bottom: 20px;
-    }
-    .app-status.live {
-      background: var(--green-dim);
-      color: var(--green);
-      border: 1px solid rgba(34,197,94,0.25);
-    }
-    .app-status.soon {
-      background: var(--blue-dim);
-      color: var(--blue);
-      border: 1px solid rgba(96,165,250,0.25);
-    }
-    .status-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-    .status-dot.pulse {
-      animation: statusPulse 2s ease-in-out infinite;
-    }
-
-    .app-card h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 14px;
-    }
-    .app-card p {
-      font-size: 15px;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.75;
-      margin-bottom: 36px;
-    }
-
-    .app-actions {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 14px;
-    }
-
-    /* Official Apple App Store badge — external SVG */
-    .badge-apple {
-      display: inline-block;
-      transition: opacity 0.2s, transform 0.15s;
-    }
-    .badge-apple:hover { opacity: 0.85; transform: translateY(-1px); }
-    .badge-apple img {
-      height: 44px;
-      width: auto;
-      display: block;
-    }
-
-    .app-support-link {
-      font-size: 13px;
-      color: var(--muted);
-      text-decoration: none;
-      border-bottom: 1px solid var(--border-med);
-      padding-bottom: 1px;
-      transition: color 0.2s, border-color 0.2s;
-    }
-    .app-support-link:hover {
-      color: var(--orange);
-      border-color: var(--orange);
-    }
-
-    .coming-soon-label {
-      font-size: 14px;
-      font-weight: 300;
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    /* ── COMPANY / ABOUT ────────────────────────────── */
-    #company {
-      border-top: 1px solid var(--border);
-    }
-
-    .company-grid {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      gap: 64px;
-      align-items: center;
-      margin-top: 16px;
-    }
-
-    .company-logo-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface);
-      border: 1px solid var(--border-med);
-      border-radius: 20px;
-      padding: 36px;
-    }
-    .company-logo-wrap img {
-      width: 100%;
-      max-width: 160px;
-      height: auto;
-      opacity: 1;
-    }
-
-    .company-copy p {
-      font-size: 16px;
-      font-weight: 300;
-      color: var(--muted);
-      line-height: 1.8;
-      margin-bottom: 20px;
-    }
-    .company-copy strong { color: var(--text); font-weight: 500; }
-
-    .company-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 32px;
-    }
-    .meta-tag {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 6px 14px;
-      border-radius: 6px;
-      background: var(--surface2);
-      border: 1px solid var(--border-med);
-      color: var(--muted);
-      letter-spacing: 0.03em;
-    }
-
-    /* ── CONTACT ────────────────────────────────────── */
-    #contact {
-      border-top: 1px solid var(--border);
-      text-align: center;
-    }
-    #contact .section-sub { margin: 0 auto 40px; }
-
-    .contact-email {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'Syne', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--orange);
-      text-decoration: none;
-      border-bottom: 2px solid transparent;
-      padding-bottom: 2px;
-      transition: border-color 0.2s;
-    }
+    /* Contact */
+    #contact { text-align: center; }
+    .contact-email { display: inline-block; font-family: 'Syne', sans-serif; font-size: clamp(18px, 2.5vw, 28px); font-weight: 700; color: var(--orange); text-decoration: none; border-bottom: 2px solid rgba(249,115,22,0.3); padding-bottom: 4px; transition: border-color 0.2s; }
     .contact-email:hover { border-color: var(--orange); }
 
-    /* ── FOOTER ─────────────────────────────────────── */
-    footer {
-      position: relative;
-      z-index: 1;
-      border-top: 1px solid var(--border);
-      padding: 32px 40px;
-    }
-    .footer-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-    .footer-wordmark {
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-    }
-    .footer-links {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      list-style: none;
-    }
-    .footer-links a {
-      font-size: 12px;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
+    /* Footer */
+    footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 40px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .footer-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .footer-wordmark { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--muted); }
+    .footer-links { display: flex; gap: 24px; list-style: none; }
+    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
     .footer-links a:hover { color: var(--text); }
-    .footer-copy {
-      font-size: 12px;
-      color: var(--subtle);
-    }
+    .footer-copy { font-size: 12px; color: var(--subtle); }
 
-    /* ── ANIMATIONS ─────────────────────────────────── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes scrollPulse {
-      0%, 100% { opacity: 0.3; }
-      50%       { opacity: 1; }
-    }
-    @keyframes statusPulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.4; }
-    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    @keyframes statusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* ── RESPONSIVE ─────────────────────────────────── */
     @media (max-width: 768px) {
       nav { padding: 0 20px; }
       .nav-links { display: none; }
       section { padding: 72px 20px; }
-
-      .apps-grid {
-        grid-template-columns: 1fr;
-        border-radius: 16px;
-      }
-      .app-card + .app-card {
-        border-left: none;
-        border-top: 1px solid var(--border-med);
-      }
+      .apps-grid { grid-template-columns: 1fr; border-radius: 16px; }
+      .app-card + .app-card { border-left: none; border-top: 1px solid var(--border-med); }
       .app-card { padding: 36px 28px 40px; }
-
-      .company-grid {
-        grid-template-columns: 1fr;
-        gap: 32px;
-      }
-
+      .company-grid { grid-template-columns: 1fr; gap: 32px; }
       .footer-inner { flex-direction: column; align-items: flex-start; }
-
       .hero h1 { letter-spacing: -1px; }
+      .hero-cta { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── NAV ─────────────────────────────────────────── -->
 <nav>
   <a class="nav-logo" href="/">
-    <img src="4Cylinder Technologies LLC Logo.png"
-         alt="4Cylinder Technologies LLC"
-         style="height:44px; width:auto; display:block;" />
+    <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" style="height:44px; width:auto; display:block;" />
     <div class="nav-wordmark">4Cylinder Technologies</div>
   </a>
   <ul class="nav-links">
@@ -647,41 +152,26 @@
   </ul>
 </nav>
 
-<!-- ── HERO ─────────────────────────────────────────── -->
 <div class="hero">
   <div class="hero-glow"></div>
-
   <p class="hero-eyebrow">4Cylinder Technologies LLC</p>
-
   <h1>Built for the<br>Way You <em>Think.</em></h1>
-
-  <p class="hero-sub">
-    We build AI-powered apps that remove friction between you and what you need —
-    fast, intuitive, and always one step ahead.
-  </p>
-
+  <p class="hero-sub">We build AI-powered apps that remove friction between you and what you need — fast, intuitive, and always one step ahead.</p>
   <div class="hero-pills">
-    <a class="pill" href="#apps">
-      <span class="pill-dot live"></span>
-      Dashboard AIR — Live on App Store
-    </a>
-    <a class="pill" href="#apps">
-      <span class="pill-dot live"></span>
-      Ask AIR — Live on App Store
-    </a>
-    <a class="pill" href="#apps">
-      <span class="pill-dot soon"></span>
-      MyOwnIQ — Coming Soon
-    </a>
+    <a class="pill" href="#apps"><span class="pill-dot live"></span>DashboardAIR — Live on App Store</a>
+    <a class="pill" href="#apps"><span class="pill-dot live"></span>AskAIR — Live on App Store</a>
+    <a class="pill" href="#apps"><span class="pill-dot soon"></span>MyOwnIQ — Coming Soon</a>
   </div>
-
   <div class="hero-cta">
     <a class="btn-primary" href="https://apps.apple.com/app/id6764654975" target="_blank" rel="noopener">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-      Download Dashboard AIR
+      Download DashboardAIR
+    </a>
+    <a class="btn-secondary" href="https://apps.apple.com/us/app/ask-air/id6746498300" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Download AskAIR
     </a>
   </div>
-
   <div class="hero-scroll">
     <span class="scroll-label">Scroll</span>
     <div class="scroll-line"></div>
@@ -690,7 +180,6 @@
 
 <div class="divider"></div>
 
-<!-- ── APPS ─────────────────────────────────────────── -->
 <section id="apps">
   <div class="section-label">Our Products</div>
   <h2 class="section-title">Smart apps.<br>One mission.</h2>
@@ -698,53 +187,39 @@
 
   <div class="apps-grid">
 
-    <!-- Dashboard AIR -->
+    <!-- DashboardAIR -->
     <div class="app-card dashboard">
       <div class="app-icon-wrap">
-        <img src="Dashboard AIR Logo.png" alt="Dashboard AIR" />
+        <img src="Dashboard AIR Logo.png" alt="DashboardAIR" />
       </div>
       <div class="app-status live">
         <span class="status-dot pulse"></span>
         Live on App Store
       </div>
-      <h3>Dashboard AIR™</h3>
-      <p>
-        Your personal AI command center. Type a prompt once and Dashboard AIR routes it to the best AI tool for the job — Claude, ChatGPT, Perplexity, Grok, and more.
-        One prompt. The right AI. Every time.
-      </p>
+      <h3>DashboardAIR™</h3>
+      <p>The AI power user command center. Type a prompt once — DashboardAIR routes it to the best AI tool automatically, renders the answer in-app, and shows the confidence score. One prompt. The right AI. Every time.</p>
       <div class="app-actions">
-        <a class="badge-apple"
-           href="https://apps.apple.com/app/id6764654975"
-           target="_blank"
-           rel="noopener">
-          <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg"
-               alt="Download on the App Store" />
+        <a class="badge-apple" href="https://apps.apple.com/app/id6764654975" target="_blank" rel="noopener">
+          <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="Download on the App Store" />
         </a>
         <a class="app-support-link" href="support.html">Support &amp; FAQ →</a>
       </div>
     </div>
 
-    <!-- Ask AIR -->
+    <!-- AskAIR -->
     <div class="app-card askair">
       <div class="app-icon-wrap">
-        <img src="Ask AIR Logo.png" alt="Ask AIR" />
+        <img src="Ask AIR Logo.png" alt="AskAIR" />
       </div>
       <div class="app-status live">
         <span class="status-dot pulse"></span>
         Live on App Store
       </div>
-      <h3>Ask AIR™</h3>
-      <p>
-        Conversational AI built around your context. Ask anything — get answers that actually know who you are, what you're working on, and how you think.
-        Available on iOS &amp; Android.
-      </p>
+      <h3>AskAIR™</h3>
+      <p>The consumer AI guide. Tap a life category, ask your question, get an answer from the right AI — all inside the app. Health, family, money, sports, travel, and more. Whatever you need. The right AI. Every time.</p>
       <div class="app-actions">
-        <a class="badge-apple"
-           href="https://apps.apple.com/us/app/ask-air/id6746498300"
-           target="_blank"
-           rel="noopener">
-          <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg"
-               alt="Download on the App Store" />
+        <a class="badge-apple" href="https://apps.apple.com/us/app/ask-air/id6746498300" target="_blank" rel="noopener">
+          <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="Download on the App Store" />
         </a>
         <a class="app-support-link" href="support.html">Support &amp; FAQ →</a>
       </div>
@@ -760,9 +235,7 @@
         Coming Soon
       </div>
       <h3>MyOwnIQ™</h3>
-      <p>
-        AI-Powered Ownership Intelligence. Point a camera at any space — pantry, garage, closet — and AI inventories everything it sees. Find it, need it, lose it. Know What You Own.
-      </p>
+      <p>AI-Powered Ownership Intelligence. Point a camera at any space — pantry, garage, closet — and AI inventories everything it sees. Find it, need it, lose it. Know What You Own.</p>
       <div class="app-actions">
         <p class="coming-soon-label">Launching soon — stay tuned.</p>
       </div>
@@ -773,30 +246,23 @@
 
 <div class="divider"></div>
 
-<!-- ── COMPANY ───────────────────────────────────────── -->
 <section id="company">
   <div class="section-label">About</div>
   <h2 class="section-title">4Cylinder Technologies LLC</h2>
   <p class="section-sub">A Delaware-incorporated software company operating out of Charlotte, NC.</p>
-
   <div class="company-grid">
     <div class="company-logo-wrap">
       <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" />
     </div>
     <div class="company-copy">
-      <p>
-        Founded by a <strong>solo developer with a clear vision</strong>: AI tools that integrate into real life, not the other way around.
-        Every app we ship is obsessively refined — built to think with you, not at you.
-      </p>
-      <p>
-        We don't do bloat. No unnecessary features. No dark patterns. Just software that <strong>respects your time, your data, and your intelligence</strong>.
-      </p>
+      <p>Founded by a <strong>solo developer with a clear vision</strong>: AI tools that integrate into real life, not the other way around. Every app we ship is obsessively refined — built to think with you, not at you.</p>
+      <p>We don't do bloat. No unnecessary features. No dark patterns. Just software that <strong>respects your time, your data, and your intelligence</strong>.</p>
       <div class="company-meta">
         <span class="meta-tag">📍 Charlotte, NC</span>
         <span class="meta-tag">🏛 Delaware LLC</span>
         <span class="meta-tag">🧑‍💻 Independent</span>
         <span class="meta-tag">🔒 Privacy-first</span>
-        <span class="meta-tag">⚡ Claude AI Powered</span>
+        <span class="meta-tag">⚡ Powered by AIR™</span>
       </div>
     </div>
   </div>
@@ -804,33 +270,25 @@
 
 <div class="divider"></div>
 
-<!-- ── CONTACT ───────────────────────────────────────── -->
 <section id="contact">
   <div class="section-label">Get in Touch</div>
   <h2 class="section-title">We'd love to<br>hear from you.</h2>
   <p class="section-sub">Questions, feedback, press inquiries — reach us directly.</p>
-  <a class="contact-email" href="mailto:support@4cylindertechnologies.com">
-    support@4cylindertechnologies.com
-  </a>
+  <a class="contact-email" href="mailto:support@4cylindertechnologies.com">support@4cylindertechnologies.com</a>
 </section>
 
-<!-- ── FOOTER ────────────────────────────────────────── -->
 <footer>
   <div class="footer-inner">
     <a class="footer-logo" href="/">
-      <img src="4Cylinder Technologies LLC Logo.png"
-           alt="4Cylinder Technologies LLC"
-           style="height:28px; width:auto;" />
+      <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" style="height:28px; width:auto;" />
       <span class="footer-wordmark">4Cylinder Technologies LLC</span>
     </a>
-
     <ul class="footer-links">
       <li><a href="#apps">Products</a></li>
       <li><a href="support.html">Support</a></li>
       <li><a href="privacy.html">Privacy Policy</a></li>
       <li><a href="terms.html">Terms of Use</a></li>
     </ul>
-
     <span class="footer-copy">© 2026 4Cylinder Technologies LLC</span>
   </div>
 </footer>

@@ -36,7 +36,7 @@ nav {
 .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(32px, 5vw, 48px); font-weight: 800; line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.5px; }
 .hero h1 span { color: var(--orange); }
 .hero p { font-size: 16px; color: var(--muted); max-width: 520px; line-height: 1.8; }
-main { max-width: 860px; margin: 0 auto; padding: 56px 24px 80px; }
+main { max-width: 860px; margin: 0 auto; padding: 56px 24px 80px; position: relative; z-index: 1; }
 .contact-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
   padding: 32px; margin-bottom: 48px; display: flex; align-items: center;
@@ -52,8 +52,6 @@ main { max-width: 860px; margin: 0 auto; padding: 56px 24px 80px; }
 .email-link:hover { opacity: 0.88; }
 .section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px; margin-bottom: 8px; }
 .section-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
-
-/* App tabs */
 .app-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
 .app-tab {
   padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
@@ -62,10 +60,8 @@ main { max-width: 860px; margin: 0 auto; padding: 56px 24px 80px; }
 }
 .app-tab.active { background: rgba(249,115,22,0.12); color: var(--orange); border-color: rgba(249,115,22,0.3); }
 .app-tab:hover:not(.active) { color: var(--text); border-color: rgba(255,255,255,0.15); }
-
 .faq-panel { display: none; }
 .faq-panel.active { display: block; }
-
 .faq-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 56px; }
 details { background: var(--surface); border: 1px solid var(--border); overflow: hidden; }
 details + details { border-top: none; }
@@ -83,13 +79,11 @@ details[open] summary::after { content: '−'; }
 details[open] summary { color: var(--orange); }
 .faq-body { padding: 16px 22px 20px; color: var(--muted); font-size: 14px; line-height: 1.8; border-top: 1px solid var(--border); }
 .faq-body a { color: var(--orange); text-decoration: none; }
-
 .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 56px; }
 .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
 .info-card .icon { font-size: 22px; margin-bottom: 12px; }
 .info-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
 .info-card p { font-size: 13px; color: var(--muted); line-height: 1.7; }
-.coming-soon-badge { display: inline-block; background: rgba(96,165,250,0.1); color: #60A5FA; border: 1px solid rgba(96,165,250,0.25); border-radius: 6px; font-size: 11px; font-weight: 600; padding: 3px 10px; letter-spacing: 0.05em; text-transform: uppercase; margin-left: 10px; vertical-align: middle; }
 footer { border-top: 1px solid var(--border); padding: 28px 24px; text-align: center; font-size: 12px; color: var(--muted); position: relative; z-index: 1; }
 footer a { color: var(--muted); text-decoration: none; }
 footer a:hover { color: var(--orange); }
@@ -99,7 +93,7 @@ footer a:hover { color: var(--orange); }
 <body>
 
 <nav>
-  <a class="nav-logo" href="/index.html">
+  <a class="nav-logo" href="index.html">
     <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" style="height:40px; width:auto;" />
     <div class="nav-wordmark">4Cylinder Technologies</div>
   </a>
@@ -126,41 +120,60 @@ footer a:hover { color: var(--orange); }
   <p class="section-sub">Select an app below to see relevant FAQs.</p>
 
   <div class="app-tabs">
-    <button class="app-tab active" onclick="showTab('dashboardair', this)">📡 Dashboard AIR</button>
-    <button class="app-tab" onclick="showTab('askair', this)">🎙️ Ask AIR <span class="coming-soon-badge">Soon</span></button>
-    <button class="app-tab" onclick="showTab('helmiq', this)">🏠 HelmIQ <span class="coming-soon-badge">Soon</span></button>
+    <button class="app-tab active" onclick="showTab('dashboardair', this)">📡 DashboardAIR</button>
+    <button class="app-tab" onclick="showTab('askair', this)">🎙️ AskAIR</button>
+    <button class="app-tab" onclick="showTab('myowniq', this)">🏠 MyOwnIQ</button>
   </div>
 
-  <!-- Dashboard AIR FAQs -->
+  <!-- DashboardAIR FAQs -->
   <div class="faq-panel active" id="faq-dashboardair">
     <div class="faq-list">
       <details>
-        <summary>What is Dashboard AIR?</summary>
-        <div class="faq-body">Dashboard AIR is an AI routing app for iPhone and iPad. You type a prompt once and the app recommends the best AI tool for your task — whether that's ChatGPT, Claude, Perplexity, Grok, and more. One prompt. The right AI. Every time.</div>
+        <summary>What is DashboardAIR?</summary>
+        <div class="faq-body">DashboardAIR is the AI power user command center for iPhone, iPad, and Android. Type a prompt once — DashboardAIR routes it to the best AI tool automatically, renders the answer in-app, and shows the confidence score. One prompt. The right AI. Every time.</div>
+      </details>
+      <details>
+        <summary>What AI tools does DashboardAIR use?</summary>
+        <div class="faq-body">DashboardAIR routes to the best AI for each task — including Claude, ChatGPT, Grok, Perplexity, Gemini, Microsoft Copilot, Wolfram Alpha, Canva, Adobe Firefly, Suno, and ElevenLabs. Free users get access to Perplexity, ChatGPT, and Grok. Pro and Teams unlock all tools.</div>
+      </details>
+      <details>
+        <summary>What's included in each plan?</summary>
+        <div class="faq-body">
+          <strong>Free:</strong> 3 routes/day, Perplexity, ChatGPT, and Grok.<br><br>
+          <strong>Pro ($4.99/mo or $47.99/yr):</strong> Unlimited routes, all AI tools, prompt history, themes, AI Advisor monthly report.<br><br>
+          <strong>Teams ($12.99/mo or $124.99/yr):</strong> Everything in Pro, plus shared categories, multi-user access, and team analytics.
+        </div>
       </details>
       <details>
         <summary>How do I cancel my subscription?</summary>
-        <div class="faq-body">Subscriptions are managed through Apple. To cancel: open <strong>Settings</strong> on your iPhone or iPad → tap your name → <strong>Subscriptions</strong> → tap Dashboard AIR → <strong>Cancel Subscription</strong>. Your access continues until the end of the current billing period.</div>
+        <div class="faq-body">
+          <strong>iOS:</strong> Settings → tap your name → Subscriptions → DashboardAIR → Cancel Subscription.<br><br>
+          <strong>Android:</strong> Google Play → tap your profile → Payments & subscriptions → Subscriptions → DashboardAIR → Cancel.<br><br>
+          Your access continues until the end of the current billing period.
+        </div>
       </details>
       <details>
         <summary>How do I request a refund?</summary>
-        <div class="faq-body">Refunds are handled by Apple. Visit <a href="https://reportaproblem.apple.com" target="_blank">reportaproblem.apple.com</a>, sign in with your Apple ID, find Dashboard AIR, and select "Request a refund."</div>
-      </details>
-      <details>
-        <summary>What's included in the Pro plan?</summary>
-        <div class="faq-body">Pro unlocks routing across all AI tools and categories, confidence scoring, custom category pinning, theme customization, prompt history, and the AI Advisor monthly report. Free users get 3 routes per day across the top three tools.</div>
+        <div class="faq-body">
+          <strong>iOS:</strong> Visit <a href="https://reportaproblem.apple.com" target="_blank">reportaproblem.apple.com</a>, sign in, find DashboardAIR, and select "Request a refund."<br><br>
+          <strong>Android:</strong> Open Google Play → tap your profile → Payments & subscriptions → Subscriptions → DashboardAIR → Request a refund.
+        </div>
       </details>
       <details>
         <summary>How do I restore my purchase on a new device?</summary>
         <div class="faq-body">Sign in with the same email you used to subscribe. Your Pro or Teams access will restore automatically. If it doesn't appear, go to Settings in the app and tap "Restore Purchases."</div>
       </details>
       <details>
+        <summary>How do I use biometric login?</summary>
+        <div class="faq-body">After signing in, DashboardAIR will offer to enable Face ID, Touch ID, or fingerprint login. You can also enable or disable it anytime in Settings → Security → Biometric Login. Your biometric data never leaves your device.</div>
+      </details>
+      <details>
         <summary>Why do I need to verify my email?</summary>
-        <div class="faq-body">Email verification is required to access Dashboard AIR. After signing up, check your inbox for a verification link from us. Tap the link, return to the app, and tap "I've verified my email." If you didn't receive the email, check your spam folder or use the resend option on the verification screen.</div>
+        <div class="faq-body">Email verification is required to access DashboardAIR. After signing up, check your inbox for a verification link. Tap it, return to the app, and tap "I've verified my email." Check your spam folder if you don't see it.</div>
       </details>
       <details>
         <summary>How do I delete my account?</summary>
-        <div class="faq-body">Open Dashboard AIR → tap the gear icon (⚙️) → scroll to the bottom → tap <strong>Delete Account</strong>. You'll be asked to confirm. This permanently deletes your account and all associated data.</div>
+        <div class="faq-body">Open DashboardAIR → tap the gear icon → scroll to the bottom → tap Delete Account. This permanently deletes your account and all associated data within 30 days.</div>
       </details>
       <details>
         <summary>The app says "routing offline" — what does that mean?</summary>
@@ -168,35 +181,74 @@ footer a:hover { color: var(--orange); }
       </details>
       <details>
         <summary>Is my data private?</summary>
-        <div class="faq-body">Yes. Dashboard AIR does not store your prompt content on our servers. Routing requests are processed and discarded. Your account information is stored securely in Firebase. We do not sell your data to any third party. Read our full <a href="/privacy.html">Privacy Policy</a>.</div>
+        <div class="faq-body">Yes. DashboardAIR does not store your prompt content on our servers. Sensitive data on your device is encrypted using platform-native secure storage. We never sell your data. Read our full <a href="privacy.html">Privacy Policy</a>.</div>
       </details>
     </div>
   </div>
 
-  <!-- Ask AIR FAQs -->
+  <!-- AskAIR FAQs -->
   <div class="faq-panel" id="faq-askair">
     <div class="faq-list">
       <details>
-        <summary>What is Ask AIR?</summary>
-        <div class="faq-body">Ask AIR is a conversational AI command center coming soon from 4Cylinder Technologies. It executes prompts across multiple AI engines natively — delivering answers inside the app without routing you elsewhere. Stay tuned for the launch announcement.</div>
+        <summary>What is AskAIR?</summary>
+        <div class="faq-body">AskAIR is the consumer AI guide — built for everyone. Tap a life category, ask your question, and get an answer from the right AI inside the app. No switching apps, no copy-pasting. Available on iOS and Android.</div>
       </details>
       <details>
-        <summary>When will Ask AIR be available?</summary>
-        <div class="faq-body">Ask AIR is currently in development. Follow us for updates or contact <a href="mailto:support@4cylindertechnologies.com">support@4cylindertechnologies.com</a> to be notified at launch.</div>
+        <summary>What categories does AskAIR cover?</summary>
+        <div class="faq-body">AskAIR covers 18 hubs and nearly 95 categories across life topics — Health, Family, Money, Legal, Sports, News, Travel, Career, Entertainment, Education, Home, Automotive, Faith, and more. Categories are updated regularly without requiring an app update.</div>
+      </details>
+      <details>
+        <summary>What's included in each plan?</summary>
+        <div class="faq-body">
+          <strong>Free:</strong> 5 questions/day, Tier 1 categories.<br><br>
+          <strong>Pro ($4.99/mo or $47.99/yr):</strong> Unlimited questions, all categories, question history, themes, Ask Advisor monthly insights, AIR Translate (answers in your language).<br><br>
+          <strong>Family ($14.99/mo or $143.99/yr):</strong> Pro access for up to 5 family members.
+        </div>
+      </details>
+      <details>
+        <summary>How do I cancel my subscription?</summary>
+        <div class="faq-body">
+          <strong>iOS:</strong> Settings → tap your name → Subscriptions → AskAIR → Cancel Subscription.<br><br>
+          <strong>Android:</strong> Google Play → tap your profile → Payments & subscriptions → Subscriptions → AskAIR → Cancel.<br><br>
+          Your access continues until the end of the current billing period.
+        </div>
+      </details>
+      <details>
+        <summary>How do I request a refund?</summary>
+        <div class="faq-body">
+          <strong>iOS:</strong> Visit <a href="https://reportaproblem.apple.com" target="_blank">reportaproblem.apple.com</a>, sign in, find AskAIR, and select "Request a refund."<br><br>
+          <strong>Android:</strong> Open Google Play → tap your profile → Payments & subscriptions → Subscriptions → AskAIR → Request a refund.
+        </div>
+      </details>
+      <details>
+        <summary>How does AskAIR handle sensitive categories like Health or Legal?</summary>
+        <div class="faq-body">AskAIR provides general information only — it is not a substitute for professional medical, legal, or financial advice. Sensitive categories display a disclaimer before every session. For mental health crises, AskAIR immediately surfaces the 988 Suicide & Crisis Lifeline and Crisis Text Line.</div>
+      </details>
+      <details>
+        <summary>How do I use biometric login?</summary>
+        <div class="faq-body">After signing in, AskAIR will offer to enable Face ID, Touch ID, or fingerprint login. You can also enable or disable it anytime in Settings → Security → Biometric Login. Your biometric data never leaves your device.</div>
+      </details>
+      <details>
+        <summary>How do I delete my account?</summary>
+        <div class="faq-body">Open AskAIR → tap the gear icon → scroll to the bottom → tap Delete Account. This permanently deletes your account and all associated data within 30 days.</div>
+      </details>
+      <details>
+        <summary>Is my data private?</summary>
+        <div class="faq-body">Yes. AskAIR does not store your prompt content beyond what is needed to generate your answer. Sensitive data on your device is encrypted using platform-native secure storage. We never sell your data. Read our full <a href="privacy.html">Privacy Policy</a>.</div>
       </details>
     </div>
   </div>
 
-  <!-- HelmIQ FAQs -->
-  <div class="faq-panel" id="faq-helmiq">
+  <!-- MyOwnIQ FAQs -->
+  <div class="faq-panel" id="faq-myowniq">
     <div class="faq-list">
       <details>
-        <summary>What is HelmIQ?</summary>
-        <div class="faq-body">HelmIQ is an AI-powered home inventory app in development. Photograph your belongings and AI catalogs, locates, and manages them for you — built for homeowners, renters, and anyone who wants to know what they own and where it is.</div>
+        <summary>What is MyOwnIQ?</summary>
+        <div class="faq-body">MyOwnIQ is an AI-powered home inventory app in development. Point your camera at any space — pantry, garage, closet — and AI catalogs everything it sees. Find it, need it, lose it. Know what you own.</div>
       </details>
       <details>
-        <summary>When will HelmIQ be available?</summary>
-        <div class="faq-body">HelmIQ is currently in development. Contact <a href="mailto:support@4cylindertechnologies.com">support@4cylindertechnologies.com</a> to be notified when it launches.</div>
+        <summary>When will MyOwnIQ be available?</summary>
+        <div class="faq-body">MyOwnIQ is currently in development. Contact <a href="mailto:support@4cylindertechnologies.com">support@4cylindertechnologies.com</a> to be notified when it launches.</div>
       </details>
     </div>
   </div>
@@ -206,12 +258,12 @@ footer a:hover { color: var(--orange); }
     <div class="info-card">
       <div class="icon">📱</div>
       <h3>Platform</h3>
-      <p>Dashboard AIR available on iPhone and iPad. iOS 16 or later required. Android coming soon.</p>
+      <p>DashboardAIR and AskAIR available on iOS and Android. iOS 16 or later required.</p>
     </div>
     <div class="info-card">
       <div class="icon">💳</div>
       <h3>Billing</h3>
-      <p>Subscriptions billed through Apple. Manage or cancel anytime in iOS Settings.</p>
+      <p>iOS subscriptions billed through Apple. Android subscriptions billed through Google Play. Manage or cancel anytime in device settings.</p>
     </div>
     <div class="info-card">
       <div class="icon">🏢</div>
@@ -221,14 +273,14 @@ footer a:hover { color: var(--orange); }
     <div class="info-card">
       <div class="icon">📄</div>
       <h3>Terms of Use</h3>
-      <p>Uses Apple's <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color:var(--orange)">Standard EULA</a>. Full terms at <a href="/terms.html" style="color:var(--orange)">terms</a>.</p>
+      <p>Uses Apple's <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" style="color:var(--orange)">Standard EULA</a>. Full terms at <a href="terms.html" style="color:var(--orange)">terms</a>.</p>
     </div>
   </div>
 
 </main>
 
 <footer>
-  <p>© 2026 4Cylinder Technologies LLC · Delaware · Charlotte, NC &nbsp;·&nbsp; <a href="/index.html">Home</a> &nbsp;·&nbsp; <a href="/privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="/terms.html">Terms of Use</a></p>
+  <p>© 2026 4Cylinder Technologies LLC · Delaware · Charlotte, NC &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html">Terms of Use</a></p>
 </footer>
 
 <script>

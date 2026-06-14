@@ -24,7 +24,7 @@ nav {
   background: rgba(8,12,20,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
 }
 .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--orange); }
+.nav-wordmark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--orange); letter-spacing: -0.4px; line-height: 1.1; }
 .nav-back { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
 .nav-back:hover { color: var(--orange); }
 main { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 100px 24px 80px; }
@@ -43,14 +43,6 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); pa
 footer p { font-size: 12px; color: var(--muted); }
 footer a { color: var(--muted); }
 footer a:hover { color: var(--orange); }
-.nav-wordmark {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 20px;
-  color: var(--orange);
-  letter-spacing: -0.4px;
-  line-height: 1.1;
-}
 </style>
 </head>
 <body>
@@ -66,11 +58,11 @@ footer a:hover { color: var(--orange); }
 <main>
   <p class="page-label">Legal</p>
   <h1>Terms of Use</h1>
-  <p class="updated">Last updated: May 29, 2026 · Applies to all 4Cylinder Technologies apps</p>
+  <p class="updated">Last updated: June 14, 2026 · Applies to all 4Cylinder Technologies apps</p>
 
   <div class="policy-section">
     <h2>Agreement</h2>
-    <p>These Terms of Use ("Terms") govern your use of all mobile applications published by 4Cylinder Technologies LLC ("4Cylinder," "we," "us," or "our"), including Dashboard AIR, Ask AIR, and HelmIQ (collectively, the "Apps").</p>
+    <p>These Terms of Use ("Terms") govern your use of all mobile applications published by 4Cylinder Technologies LLC ("4Cylinder," "we," "us," or "our"), including DashboardAIR, AskAIR, and MyOwnIQ (collectively, the "Apps").</p>
     <p>By downloading, installing, or using any of our Apps, you agree to be bound by these Terms. If you do not agree, do not use our Apps.</p>
     <p>For iOS users, these Terms incorporate Apple's Standard End User License Agreement (EULA), available at <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank">apple.com/legal/internet-services/itunes/dev/stdeula/</a>.</p>
   </div>
@@ -85,11 +77,11 @@ footer a:hover { color: var(--orange); }
     <p>Some features of our Apps require an account. You are responsible for:</p>
     <ul>
       <li>Providing accurate account information</li>
-      <li>Maintaining the security of your password</li>
+      <li>Maintaining the security of your password and biometric credentials</li>
       <li>All activity that occurs under your account</li>
-      <li>Notifying us immediately of any unauthorized use</li>
+      <li>Notifying us immediately of any unauthorized use at <a href="mailto:support@4cylindertechnologies.com">support@4cylindertechnologies.com</a></li>
     </ul>
-    <p>Accounts that are created but never verified are automatically deleted. We reserve the right to suspend or terminate accounts that violate these Terms.</p>
+    <p>Accounts that are created but never verified are automatically deleted after 72 hours. We reserve the right to suspend or terminate accounts that violate these Terms.</p>
   </div>
 
   <div class="policy-section">
@@ -97,10 +89,25 @@ footer a:hover { color: var(--orange); }
     <p>Some features require a paid subscription. By subscribing, you agree to the following:</p>
     <ul>
       <li>Subscriptions automatically renew at the end of each billing period unless cancelled.</li>
-      <li>iOS subscriptions are billed through Apple. To cancel, go to iOS Settings → your name → Subscriptions → Dashboard AIR → Cancel Subscription.</li>
-      <li>Android subscriptions are billed through Google Play. To cancel, open Google Play → Subscriptions → Cancel.</li>
+      <li>iOS subscriptions are billed through Apple. To cancel: Settings → your name → Subscriptions → select app → Cancel Subscription.</li>
+      <li>Android subscriptions are billed through Google Play. To cancel: Google Play → profile → Payments & subscriptions → Subscriptions → select app → Cancel.</li>
       <li>Refunds are handled by Apple or Google according to their respective refund policies.</li>
       <li>Prices are subject to change with reasonable notice.</li>
+    </ul>
+    <p>Current subscription tiers:</p>
+    <ul>
+      <li><strong>DashboardAIR:</strong> Free · Pro ($4.99/mo or $47.99/yr) · Teams ($12.99/mo or $124.99/yr)</li>
+      <li><strong>AskAIR:</strong> Free · Pro ($4.99/mo or $47.99/yr) · Family ($14.99/mo or $143.99/yr)</li>
+    </ul>
+  </div>
+
+  <div class="policy-section">
+    <h2>Biometric Authentication</h2>
+    <p>Our Apps offer optional biometric authentication (Face ID, Touch ID, fingerprint). By enabling biometrics, you acknowledge that:</p>
+    <ul>
+      <li>Biometric data is processed entirely on your device by the operating system — we never receive or store it.</li>
+      <li>You can disable biometric login at any time in Settings → Security.</li>
+      <li>We are not responsible for unauthorized access resulting from compromised biometric credentials on your device.</li>
     </ul>
   </div>
 
@@ -126,13 +133,15 @@ footer a:hover { color: var(--orange); }
       <li>AI-generated responses may not always be accurate, complete, or appropriate.</li>
       <li>You are responsible for evaluating and verifying any AI-generated output before relying on it.</li>
       <li>We are not responsible for decisions made based on AI-generated content.</li>
-      <li>We do not store the content of your prompts on our servers.</li>
+      <li>AI content is not a substitute for professional medical, legal, financial, or mental health advice.</li>
+      <li>We do not store the content of your prompts on our servers beyond what is required to generate your answer.</li>
     </ul>
   </div>
 
   <div class="policy-section">
     <h2>Intellectual Property</h2>
     <p>All content, design, code, trademarks, and intellectual property in our Apps are owned by or licensed to 4Cylinder Technologies LLC. You may not reproduce, distribute, or create derivative works without our express written permission.</p>
+    <p>DashboardAIR™, AskAIR™, and MyOwnIQ™ are trademarks of 4Cylinder Technologies LLC. AIR™ (Artificial Intelligence Router) is a trademark of 4Cylinder Technologies LLC.</p>
     <p>You retain ownership of any content you provide to our Apps. By submitting content, you grant us a limited license to use it solely for the purpose of providing our services.</p>
   </div>
 
@@ -169,7 +178,7 @@ footer a:hover { color: var(--orange); }
 </main>
 
 <footer>
-  <p>© 2026 4Cylinder Technologies LLC · Delaware · Charlotte, NC &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a></p>
+  <p>© 2026 4Cylinder Technologies LLC · Delaware · Charlotte, NC &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="support.html">Support</a></p>
 </footer>
 
 </body>
