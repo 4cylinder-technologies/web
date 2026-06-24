@@ -89,9 +89,11 @@
     .app-card.myowniq h3 { color: var(--blue); }
     .app-card p { font-size: 14px; color: var(--muted); line-height: 1.75; flex: 1; }
     .app-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-    .store-badges { display: flex; flex-direction: row; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .badge-apple img { height: 38px; width: auto; display: block; }
-    .badge-google img { height: 38px; width: auto; display: block; }
+    .store-badges { display: flex; flex-direction: row; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .badge-apple { display: block; height: 40px; }
+    .badge-apple img { height: 40px; width: auto; display: block; }
+    .badge-google { display: block; height: 40px; overflow: hidden; }
+    .badge-google img { height: 60px; width: auto; display: block; margin-top: -10px; margin-bottom: -10px; }
     .app-support-link { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; margin-top: 4px; display: inline-block; }
     .app-support-link:hover { color: var(--text); }
     .coming-soon-label { font-size: 13px; color: var(--subtle); font-style: italic; }
@@ -233,7 +235,7 @@
             <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="Download on the App Store" />
           </a>
           <a class="badge-google" href="https://play.google.com/store/apps/details?id=com.dashboardair.app" target="_blank" rel="noopener">
-            <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" style="height:56px; width:auto; margin: -9px 0;" />
+            <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" />
           </a>
         </div>
         <a class="app-support-link" href="support.html">Support &amp; FAQ →</a>
@@ -257,7 +259,7 @@
             <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="Download on the App Store" />
           </a>
           <a class="badge-google" href="https://play.google.com/store/apps/details?id=com.askair.app" target="_blank" rel="noopener">
-            <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" style="height:56px; width:auto; margin: -9px 0;" />
+            <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" />
           </a>
         </div>
         <a class="app-support-link" href="support.html">Support &amp; FAQ →</a>
@@ -276,6 +278,16 @@
       <h3>MyOwnIQ<span class="tm">™</span></h3>
       <p>AI-Powered Ownership Intelligence. Point a camera at any space — pantry, garage, closet — and AI inventories everything it sees. Find it, need it, lose it. Know What You Own.</p>
       <div class="app-actions">
+        <div style="display:flex; flex-direction:row; gap:8px; align-items:center; flex-wrap:wrap;">
+          <div style="height:40px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px; padding:0 16px; display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--subtle)"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <span style="font-size:12px; color:var(--subtle); font-weight:500;">iOS — Coming Soon</span>
+          </div>
+          <div style="height:40px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px; padding:0 16px; display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--subtle)"><path d="M3.18 23.76c.3.17.64.22.97.15l11.18-11.18L3.18.24C2.87.41 2.67.74 2.67 1.14v21.72c0 .4.2.73.51.9zm16.49-9.89l-2.26-2.26-1.94 1.94 2.26 2.26 1.94-2.26zm-5.15-5.15L3.35.55l11.17 8.17zm0 10.56L3.35 23.45l11.17-8.17z"/></svg>
+            <span style="font-size:12px; color:var(--subtle); font-weight:500;">Android — Coming Soon</span>
+          </div>
+        </div>
         <p class="coming-soon-label">Launching soon — stay tuned.</p>
       </div>
     </div>
