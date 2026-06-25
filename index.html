@@ -89,14 +89,15 @@
     .app-card.myowniq h3 { color: var(--blue); }
     .app-card p { font-size: 14px; color: var(--muted); line-height: 1.75; flex: 1; }
     .app-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-    .store-badges { display: flex; flex-direction: row; gap: 8px; align-items: stretch; flex-wrap: nowrap; }
+    .store-badges { display: flex; flex-direction: row; gap: 8px; align-items: stretch; flex-wrap: nowrap; max-width: 320px; }
     .store-badge {
-      display: inline-flex; align-items: center; gap: 7px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       background: #000; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px;
-      padding: 7px 12px; text-decoration: none; flex: 1;
+      padding: 8px 14px; text-decoration: none; flex: 1; min-height: 44px; max-width: 150px;
       transition: border-color 0.2s, background 0.2s;
     }
     .store-badge:hover { background: #1a1a1a; border-color: rgba(255,255,255,0.35); }
+    .store-badge svg { width: 20px; height: 20px; flex-shrink: 0; }
     .store-badge-text { display: flex; flex-direction: column; line-height: 1.2; }
     .store-badge-sub { font-size: 9px; color: rgba(255,255,255,0.6); letter-spacing: 0.02em; }
     .store-badge-name { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: -0.2px; }
@@ -238,14 +239,14 @@
       <div class="app-actions">
         <div class="store-badges">
           <a class="store-badge" href="https://apps.apple.com/app/id6764654975" target="_blank" rel="noopener">
-            <svg width="18" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
             <div class="store-badge-text">
               <span class="store-badge-sub">Download on the</span>
               <span class="store-badge-name">App Store</span>
             </div>
           </a>
           <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.dashboardair.app" target="_blank" rel="noopener">
-            <svg width="18" height="20" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.97.15l11.18-11.18L3.18.24C2.87.41 2.67.74 2.67 1.14v21.72c0 .4.2.73.51.9zm16.49-9.89l-2.26-2.26-1.94 1.94 2.26 2.26 1.94-2.26zm-5.15-5.15L3.35.55l11.17 8.17zm0 10.56L3.35 23.45l11.17-8.17z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.97.15l11.18-11.18L3.18.24C2.87.41 2.67.74 2.67 1.14v21.72c0 .4.2.73.51.9zm16.49-9.89l-2.26-2.26-1.94 1.94 2.26 2.26 1.94-2.26zm-5.15-5.15L3.35.55l11.17 8.17zm0 10.56L3.35 23.45l11.17-8.17z"/></svg>
             <div class="store-badge-text">
               <span class="store-badge-sub">Get it on</span>
               <span class="store-badge-name">Google Play</span>
@@ -270,14 +271,14 @@
       <div class="app-actions">
         <div class="store-badges">
           <a class="store-badge" href="https://apps.apple.com/us/app/ask-air/id6746498300" target="_blank" rel="noopener">
-            <svg width="18" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
             <div class="store-badge-text">
               <span class="store-badge-sub">Download on the</span>
               <span class="store-badge-name">App Store</span>
             </div>
           </a>
           <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.askair.app" target="_blank" rel="noopener">
-            <svg width="18" height="20" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.97.15l11.18-11.18L3.18.24C2.87.41 2.67.74 2.67 1.14v21.72c0 .4.2.73.51.9zm16.49-9.89l-2.26-2.26-1.94 1.94 2.26 2.26 1.94-2.26zm-5.15-5.15L3.35.55l11.17 8.17zm0 10.56L3.35 23.45l11.17-8.17z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.97.15l11.18-11.18L3.18.24C2.87.41 2.67.74 2.67 1.14v21.72c0 .4.2.73.51.9zm16.49-9.89l-2.26-2.26-1.94 1.94 2.26 2.26 1.94-2.26zm-5.15-5.15L3.35.55l11.17 8.17zm0 10.56L3.35 23.45l11.17-8.17z"/></svg>
             <div class="store-badge-text">
               <span class="store-badge-sub">Get it on</span>
               <span class="store-badge-name">Google Play</span>
@@ -302,14 +303,14 @@
       <div class="app-actions">
         <div class="store-badges">
           <div class="store-badge" style="opacity:0.4; cursor:default; flex:1;">
-            <svg width="18" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
             <div class="store-badge-text">
               <span class="store-badge-sub">Coming soon</span>
               <span class="store-badge-name">App Store</span>
             </div>
           </div>
           <div class="store-badge" style="opacity:0.4; cursor:default; flex:1;">
-            <svg width="18" height="20" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.97.15l11.18-11.18L3.18.24C2.87.41 2.67.74 2.67 1.14v21.72c0 .4.2.73.51.9zm16.49-9.89l-2.26-2.26-1.94 1.94 2.26 2.26 1.94-2.26zm-5.15-5.15L3.35.55l11.17 8.17zm0 10.56L3.35 23.45l11.17-8.17z"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.3.17.64.22.97.15l11.18-11.18L3.18.24C2.87.41 2.67.74 2.67 1.14v21.72c0 .4.2.73.51.9zm16.49-9.89l-2.26-2.26-1.94 1.94 2.26 2.26 1.94-2.26zm-5.15-5.15L3.35.55l11.17 8.17zm0 10.56L3.35 23.45l11.17-8.17z"/></svg>
             <div class="store-badge-text">
               <span class="store-badge-sub">Coming soon</span>
               <span class="store-badge-name">Google Play</span>
