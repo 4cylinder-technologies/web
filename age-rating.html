@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Age Ratings — 4Cylinder Technologies LLC</title>
+  <meta name="description" content="Age ratings and content guidance for DashboardAIR, AskAIR, and MyOwnIQ — 4Cylinder Technologies LLC." />
+  <meta property="og:title" content="Age Ratings — 4Cylinder Technologies LLC" />
+  <meta property="og:description" content="Age ratings and content guidance for DashboardAIR, AskAIR, and MyOwnIQ." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    :root {
+      --bg: #080C14; --surface: #0D1522; --surface2: #111B2B;
+      --border: rgba(255,255,255,0.07); --border-med: rgba(255,255,255,0.11);
+      --text: #E8EDF5; --muted: #6B7A99; --subtle: #3A4A62;
+      --orange: #F97316; --orange-dim: rgba(249,115,22,0.12); --orange-glow: rgba(249,115,22,0.22);
+      --lavender: #7c6fcd; --lavender-dim: rgba(124,111,205,0.12);
+      --blue: #00BFFF; --blue-dim: rgba(0,191,255,0.1);
+      --green: #22C55E; --green-dim: rgba(34,197,94,0.1);
+      --gold: #F5C842; --gold-dim: rgba(245,200,66,0.1);
+      --red: #F45B69; --red-dim: rgba(244,91,105,0.1);
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(249,115,22,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(249,115,22,0.022) 1px, transparent 1px);
+      background-size: 52px 52px; pointer-events: none; z-index: 0;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 66px;
+      background: rgba(8,12,20,0.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .nav-wordmark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--orange); letter-spacing: -0.4px; line-height: 1.1; }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; letter-spacing: 0.01em; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { background: var(--orange-dim); border: 1px solid rgba(249,115,22,0.3); color: var(--orange) !important; padding: 7px 16px; border-radius: 6px; transition: background 0.2s, border-color 0.2s !important; }
+    .nav-cta:hover { background: rgba(249,115,22,0.2) !important; border-color: rgba(249,115,22,0.5) !important; }
+
+    .page-hero { position: relative; z-index: 1; padding: 140px 24px 60px; text-align: center; max-width: 820px; margin: 0 auto; }
+    .page-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--orange); margin-bottom: 20px; }
+    .page-hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(34px, 5vw, 56px); font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px; }
+    .page-hero p { font-size: 17px; color: var(--muted); line-height: 1.75; max-width: 620px; margin: 0 auto; }
+
+    .divider { position: relative; z-index: 1; height: 1px; background: var(--border); max-width: 1100px; margin: 0 auto; }
+    section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 72px 40px; }
+    .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--orange); margin-bottom: 16px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: clamp(28px, 3.5vw, 40px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 16px; }
+    .section-sub { font-size: 16px; color: var(--muted); max-width: 620px; line-height: 1.7; margin-bottom: 48px; }
+
+    /* RATING CARDS */
+    .rating-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .rating-card { border: 1px solid var(--border-med); border-radius: 18px; padding: 36px 32px; display: flex; flex-direction: column; gap: 16px; }
+    .rating-card.myowniq { background: linear-gradient(160deg, rgba(0,191,255,0.06) 0%, transparent 60%); }
+    .rating-card.dashboard { background: linear-gradient(160deg, rgba(249,115,22,0.06) 0%, transparent 60%); }
+    .rating-card.askair { background: linear-gradient(160deg, rgba(124,111,205,0.06) 0%, transparent 60%); }
+    .rating-card-head { display: flex; align-items: center; gap: 14px; }
+    .rating-card-head img { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    .rating-card h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.2px; }
+    .rating-card.myowniq h3 { color: var(--blue); }
+    .rating-card.dashboard h3 { color: var(--orange); }
+    .rating-card.askair h3 { color: var(--lavender); }
+    .rating-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.03em; padding: 7px 16px; border-radius: 100px; width: fit-content; }
+    .rating-badge.everyone { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .rating-badge.mature { background: var(--red-dim); color: var(--red); border: 1px solid rgba(244,91,105,0.25); }
+    .rating-card p { font-size: 14px; color: var(--muted); line-height: 1.75; }
+    .rating-card ul { font-size: 13.5px; color: var(--muted); line-height: 1.9; padding-left: 18px; }
+    .store-ratings { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .store-rating-tag { font-size: 11px; font-weight: 600; color: var(--text); background: var(--surface2); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; }
+
+    /* NOTE BOX */
+    .note-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 32px 36px; margin-top: 40px; }
+    .note-box strong { color: var(--text); }
+    .note-box p { font-size: 14px; color: var(--muted); line-height: 1.8; }
+    .note-box p + p { margin-top: 14px; }
+
+    footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 40px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .footer-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .footer-wordmark { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--muted); }
+    .footer-links { display: flex; gap: 24px; list-style: none; }
+    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 12px; color: var(--subtle); }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      section { padding: 56px 20px; }
+      .page-hero { padding: 120px 20px 48px; }
+      .rating-grid { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .rating-card { padding: 28px 22px; }
+      .note-box { padding: 24px 22px; }
+      footer { padding: 28px 16px; }
+      .footer-links { flex-wrap: wrap; gap: 16px; row-gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" style="height:44px; width:auto; display:block;" />
+    <div class="nav-wordmark">4Cylinder Technologies</div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#apps">Products</a></li>
+    <li><a href="index.html#consensus">AIR Consensus Engine</a></li>
+    <li><a href="index.html#company">Company</a></li>
+    <li><a href="age-rating.html">Age Ratings</a></li>
+    <li><a href="privacy.html">Privacy</a></li>
+    <li><a href="terms.html">Terms</a></li>
+    <li><a href="index.html#contact" class="nav-cta">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <p class="page-eyebrow">Age Ratings &amp; Content Guidance</p>
+  <h1>Know before<br>you download.</h1>
+  <p>Each app we build has a different content profile, so each one carries its own age rating. Here's exactly what that means and why it differs across our apps.</p>
+</div>
+
+<div class="divider"></div>
+
+<section>
+  <div class="section-label">Ratings by App</div>
+  <h2 class="section-title">Three apps. Three ratings.</h2>
+  <p class="section-sub">Age ratings reflect what each app actually does — not a one-size-fits-all default. MyOwnIQ is a self-contained camera and inventory tool. DashboardAIR and AskAIR route your prompts out to third-party AI models we don't control the output of, which changes the rating picture.</p>
+
+  <div class="rating-grid">
+
+    <div class="rating-card myowniq">
+      <div class="rating-card-head">
+        <img src="MyOwnIQ Logo.png" alt="MyOwnIQ" />
+        <h3>MyOwnIQ<span style="font-size:10px;font-weight:400;vertical-align:super;color:var(--muted);">™</span></h3>
+      </div>
+      <span class="rating-badge everyone">✓ 4+ / Everyone</span>
+      <div class="store-ratings">
+        <span class="store-rating-tag">App Store: 4+</span>
+        <span class="store-rating-tag">Google Play: Everyone</span>
+      </div>
+      <p>MyOwnIQ uses your camera to identify and catalog items you photograph in your own spaces. There's no chat interface, no open AI conversation, no social feed, and no user-generated content shared publicly or with other users.</p>
+      <ul>
+        <li>No unrestricted web or AI chat access</li>
+        <li>No social features or public content sharing</li>
+        <li>Camera used only to scan your own belongings</li>
+      </ul>
+    </div>
+
+    <div class="rating-card dashboard">
+      <div class="rating-card-head">
+        <img src="Dashboard AIR Logo.png" alt="DashboardAIR" />
+        <h3>DashboardAIR<span style="font-size:10px;font-weight:400;vertical-align:super;color:var(--muted);">™</span></h3>
+      </div>
+      <span class="rating-badge mature">17+ / Mature</span>
+      <div class="store-ratings">
+        <span class="store-rating-tag">App Store: 17+</span>
+        <span class="store-rating-tag">Google Play: Mature 17+</span>
+      </div>
+      <p>DashboardAIR routes your prompts to third-party AI models (Claude, ChatGPT, Perplexity, Grok) selected by the AIR Consensus Engine™. Responses come directly from those providers and are not pre-filtered or moderated by us before display.</p>
+      <ul>
+        <li>Unrestricted, unfiltered AI-generated responses</li>
+        <li>Open-ended prompts can surface mature or unpredictable content</li>
+        <li>Not intended for use by children</li>
+      </ul>
+    </div>
+
+    <div class="rating-card askair">
+      <div class="rating-card-head">
+        <img src="Ask AIR Logo.png" alt="AskAIR" />
+        <h3>AskAIR<span style="font-size:10px;font-weight:400;vertical-align:super;color:var(--muted);">™</span></h3>
+      </div>
+      <span class="rating-badge mature">17+ / Mature</span>
+      <div class="store-ratings">
+        <span class="store-rating-tag">App Store: 17+</span>
+        <span class="store-rating-tag">Google Play: Mature 17+</span>
+      </div>
+      <p>AskAIR is a consumer-facing guide over the same underlying AI routing as DashboardAIR. Same reasoning applies: answers are generated by third-party AI providers we don't control, across open-ended topics including health, money, and more.</p>
+      <ul>
+        <li>Unrestricted, unfiltered AI-generated responses</li>
+        <li>Open-ended prompts across sensitive life topics</li>
+        <li>Not intended for use by children</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="note-box">
+    <p><strong>Why the difference?</strong> Age ratings are based on what an app can actually surface to a user, not just its category. MyOwnIQ is a closed-loop camera tool — it only ever shows you information about photos you took. DashboardAIR and AskAIR are AI routers: they hand your prompt to an outside AI model and display whatever that model returns, unedited. That's the same reason general-purpose AI chat apps are typically rated 17+/Mature on both app stores.</p>
+    <p><strong>Parents:</strong> if you're setting up Screen Time, Family Sharing, or Google Family Link controls, please rely on the age rating shown in each app's official App Store or Google Play listing as the authoritative source — this page is a plain-language explainer, not a replacement for the store listing.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<footer>
+  <div class="footer-inner">
+    <a class="footer-logo" href="/">
+      <img src="4Cylinder Technologies LLC Logo.png" alt="4Cylinder Technologies LLC" style="height:28px; width:auto;" />
+      <span class="footer-wordmark">4Cylinder Technologies LLC</span>
+    </a>
+    <ul class="footer-links">
+      <li><a href="index.html#apps">Products</a></li>
+      <li><a href="index.html#consensus">AIR Consensus Engine™</a></li>
+      <li><a href="support.html">Support</a></li>
+      <li><a href="age-rating.html">Age Ratings</a></li>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms of Use</a></li>
+      <li><a href="https://x.com/4CylinderTech" target="_blank" rel="noopener">𝕏 @4CylinderTech</a></li>
+    </ul>
+    <span class="footer-copy">© 2026 4Cylinder Technologies LLC · DashboardAIR™ · AskAIR™ · AIR Consensus Engine™</span>
+  </div>
+</footer>
+
+</body>
+</html>
