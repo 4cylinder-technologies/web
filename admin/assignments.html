@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ACE Admin — Assignments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./ace-admin.css" />
+</head>
+<body>
+  <div class="ace-header">
+    <div class="ace-brand">
+      <img src="../ace-icon.png" alt="AIR Consensus Engine" />
+      <div class="ace-brand-text">
+        <h1>AIR Consensus Engine<span class="tm">™</span></h1>
+        <div class="ace-brand-sub">Multiple Intelligences. One Truth.</div>
+      </div>
+    </div>
+    <nav class="ace-nav">
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./results.html">Results</a>
+      <a href="./assignments.html" class="active">Assignments</a>
+      <a href="#" id="logout-link">Sign out</a>
+    </nav>
+  </div>
+
+  <div class="ace-container">
+    <div class="ace-card">
+      <h3 style="margin-top:0;">DashboardAIR — Live Assignments</h3>
+      <div style="color: var(--ace-muted); font-size: 13px; margin-bottom: 8px;" id="dashboardair-meta"></div>
+      <table class="ace-table" id="dashboardair-table">
+        <thead><tr><th>Category</th><th>Tool</th><th>Confidence</th><th>ACE Verified</th></tr></thead>
+        <tbody><tr><td colspan="4" style="color: var(--ace-muted);">Loading…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="ace-card">
+      <h3 style="margin-top:0;">AskAIR — Live Assignments</h3>
+      <div style="color: var(--ace-muted); font-size: 13px; margin-bottom: 8px;" id="askair-meta"></div>
+      <table class="ace-table" id="askair-table">
+        <thead><tr><th>Category</th><th>Tool</th><th>Confidence</th><th>ACE Verified</th></tr></thead>
+        <tbody><tr><td colspan="4" style="color: var(--ace-muted);">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module">
+    import { AceAdmin } from './ace-admin.js';
+    import {
+      collection, doc, getDoc, getDocs,
+    } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+    await AceAdmin.requireAuth();
+
+    document.getElementById('logout-link').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await AceAdmin.logout();
+      window.location.href = './index.html';
+    });
+
+    async function loadAssignments(appId) {
+      const tbody = document.querySelector(`#${appId}-table tbody`);
+      const metaEl = document.getElementById(`${appId}-meta`);
+
+      const appDoc = await getDoc(doc(AceAdmin.db, 'ace_assignments', appId));
+      if (appDoc.exists()) {
+        const data = appDoc.data();
+        metaEl.textContent = `Last run: ${data.lastRun?.toDate?.().toLocaleString() ?? '—'} (${data.lastRunId?.slice(0, 8) ?? '—'})`;
+      }
+
+      const catsSnap = await getDocs(collection(AceAdmin.db, 'ace_assignments', appId, 'categories'));
+      if (catsSnap.empty) {
+        tbody.innerHTML = '<tr><td colspan="4" style="color: var(--ace-muted);">No published assignments yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      catsSnap.forEach(d => {
+        const a = d.data();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${d.id}</td>
+          <td>${a.toolId}</td>
+          <td><span class="badge confident">${a.confidence}</span></td>
+          <td>${a.aceVerified ? '✓' : '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    loadAssignments('dashboardair');
+    loadAssignments('askair');
+  </script>
+</body>
+</html>

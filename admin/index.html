@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ACE Admin — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./ace-admin.css" />
+</head>
+<body>
+  <div class="ace-login-box">
+    <img src="../ace-icon.png" alt="AIR Consensus Engine" />
+    <h1>AIR Consensus Engine<span class="tm">™</span></h1>
+    <div class="tagline">Multiple Intelligences. One Truth.</div>
+    <p class="subtitle">Admin access only.</p>
+    <button id="login-btn" class="ace-btn">Sign in with Google</button>
+    <div id="error" class="ace-error"></div>
+  </div>
+
+  <script type="module">
+    import { AceAdmin } from './ace-admin.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js';
+
+    const ADMIN_EMAIL = 'michael.welton@4cylindertechnologies.com';
+
+    // Already signed in as admin? Skip straight to the dashboard.
+    onAuthStateChanged(AceAdmin.auth, (user) => {
+      if (user && user.email === ADMIN_EMAIL) {
+        window.location.href = './dashboard.html';
+      }
+    });
+
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = '';
+      try {
+        await AceAdmin.login();
+        window.location.href = './dashboard.html';
+      } catch (err) {
+        errorEl.textContent = err.message || 'Sign-in failed.';
+      }
+    });
+  </script>
+</body>
+</html>

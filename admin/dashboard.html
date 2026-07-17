@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ACE Admin — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./ace-admin.css" />
+</head>
+<body>
+  <div class="ace-header">
+    <div class="ace-brand">
+      <img src="../ace-icon.png" alt="AIR Consensus Engine" />
+      <div class="ace-brand-text">
+        <h1>AIR Consensus Engine<span class="tm">™</span></h1>
+        <div class="ace-brand-sub">Multiple Intelligences. One Truth.</div>
+      </div>
+    </div>
+    <nav class="ace-nav">
+      <a href="./dashboard.html" class="active">Dashboard</a>
+      <a href="./results.html">Results</a>
+      <a href="./assignments.html">Assignments</a>
+      <a href="#" id="logout-link">Sign out</a>
+    </nav>
+  </div>
+
+  <div class="ace-container">
+    <div class="ace-card">
+      <div class="ace-stat-row">
+        <div class="ace-stat">
+          <div class="label">DashboardAIR — Last Run</div>
+          <div class="value" id="dashboardair-last-run">—</div>
+        </div>
+        <div class="ace-stat">
+          <div class="label">AskAIR — Last Run</div>
+          <div class="value" id="askair-last-run">—</div>
+        </div>
+        <div class="ace-stat">
+          <div class="label">Pending Approvals</div>
+          <div class="value" id="pending-count">—</div>
+        </div>
+      </div>
+    </div>
+
+    <details class="ace-card" id="ownership-card">
+      <summary style="cursor:pointer; list-style:none;">
+        <h3 style="display:inline; margin: 0;">📊 Tool Ownership Chart</h3>
+        <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand — shows the most recent run's tool breakdown)</span>
+      </summary>
+      <div style="margin-top: 16px;">
+        <select id="ownership-app-select" style="padding: 8px; border-radius: 6px; background: var(--ace-panel); color: var(--ace-text); border: 1px solid var(--ace-border); margin-bottom: 16px;">
+          <option value="dashboardair">DashboardAIR</option>
+          <option value="askair">AskAIR</option>
+        </select>
+        <div id="ownership-chart"><p style="color: var(--ace-muted); font-size: 13px;">Expand to load…</p></div>
+      </div>
+    </details>
+
+    <details class="ace-card" id="analytics-card">
+      <summary style="cursor:pointer; list-style:none;">
+        <h3 style="display:inline; margin: 0;">📈 ACE Analytics</h3>
+        <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand — category history, tool trend, and judge bias across recent runs)</span>
+      </summary>
+      <div style="margin-top: 16px;">
+        <select id="analytics-app-select" style="padding: 8px; border-radius: 6px; background: var(--ace-panel); color: var(--ace-text); border: 1px solid var(--ace-border); margin-bottom: 20px;">
+          <option value="dashboardair">DashboardAIR</option>
+          <option value="askair">AskAIR</option>
+        </select>
+
+        <details style="margin-bottom: 20px;">
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Category Winner History</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Which tool won each category, run by run — flags categories whose winner has flipped.</p>
+          <div id="category-history-table" style="overflow-x:auto;"><p style="color: var(--ace-muted); font-size: 13px;">Expand to load…</p></div>
+        </details>
+
+        <details style="margin-bottom: 20px;">
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Tool Win Trend</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Each tool's % share of decided categories, run by run.</p>
+          <div id="tool-trend-table" style="overflow-x:auto;"></div>
+        </details>
+
+        <details style="margin-bottom: 4px;">
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Judge Self-Preference Bias</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Does a judge favor its own tool more than its peers do? Aggregated across all loaded runs.</p>
+          <div id="judge-bias-table"></div>
+        </details>
+      </div>
+    </details>
+
+    <div class="ace-card">
+      <h3 style="margin-top:0;">Run ACE</h3>
+      <p style="color: var(--ace-muted); font-size: 14px;">
+        Polls all 5 judges across every active category for the selected app and stages results for review.
+        Leave "All categories" checked for a full run, or uncheck it and pick specific categories/hubs — e.g. to
+        re-run just the ones that hit a no-votes fallback last time.
+      </p>
+      <div style="display:flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
+        <select id="app-select" style="padding: 8px; border-radius: 6px; background: var(--ace-panel); color: var(--ace-text); border: 1px solid var(--ace-border);">
+          <option value="dashboardair">DashboardAIR</option>
+          <option value="askair">AskAIR</option>
+        </select>
+
+        <div id="category-picker" style="position: relative;">
+          <button type="button" id="category-picker-toggle" style="padding: 8px 12px; border-radius: 6px; background: var(--ace-panel); color: var(--ace-text); border: 1px solid var(--ace-border); min-width: 280px; text-align: left; cursor: pointer;">
+            All categories (full run)
+          </button>
+          <div id="category-picker-menu" style="display:none; position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; min-width: 320px; max-height: 320px; overflow-y: auto; background: var(--ace-panel); border: 1px solid var(--ace-border); border-radius: 6px; padding: 8px;">
+            <label style="display:flex; align-items:center; gap:8px; padding: 6px 4px; border-bottom: 1px solid var(--ace-border); margin-bottom: 4px; cursor:pointer;">
+              <input type="checkbox" id="category-picker-all" checked />
+              <strong>All categories (full run)</strong>
+            </label>
+            <div id="category-picker-list"><p style="color: var(--ace-muted); font-size: 13px; padding: 4px;">Loading…</p></div>
+          </div>
+        </div>
+
+        <button id="run-ace-btn" class="ace-btn">Run ACE</button>
+      </div>
+      <div id="run-status" style="margin-top: 12px; font-size: 14px; color: var(--ace-muted);"></div>
+    </div>
+
+    <div class="ace-card">
+      <h3 style="margin-top:0;">Recent Runs</h3>
+      <table class="ace-table" id="runs-table">
+        <thead>
+          <tr><th>Run</th><th>App</th><th>Date</th><th>Status</th><th>Categories</th><th></th><th></th></tr>
+        </thead>
+        <tbody><tr><td colspan="7" style="color: var(--ace-muted);">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module">
+    import {
+      AceAdmin, renderOwnershipChart, fetchRunHistory,
+      renderCategoryHistory, renderToolTrend, renderJudgeBias,
+    } from './ace-admin.js';
+    import {
+      collection, doc, deleteDoc, writeBatch,
+      query, where, orderBy, limit, getDocs,
+    } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+    await AceAdmin.requireAuth();
+
+    document.getElementById('logout-link').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await AceAdmin.logout();
+      window.location.href = './index.html';
+    });
+
+    // Populates the checkbox list inside #category-picker-menu. Each item's
+    // value is whatever runACEVoting expects as a categoryId (flat category
+    // id for dashboardair, hub slug for askair) — same IDs the old single
+    // -select used, just multi-selectable now.
+    async function loadCategories() {
+      const appId = document.getElementById('app-select').value;
+      const listEl = document.getElementById('category-picker-list');
+      const allCheckbox = document.getElementById('category-picker-all');
+      listEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px; padding: 4px;">Loading…</p>';
+      allCheckbox.checked = true;
+      updatePickerToggleLabel();
+
+      let items; // [{ id, label }]
+
+      if (appId === 'askair') {
+        // AskAIR votes per HUB, not per spoke (19 hubs vs. 115 spokes) — and
+        // spokes are matched by !appId || appId === 'askair' since some
+        // legacy docs have no appId field at all; a strict where('appId','
+        // ==','askair') would silently miss them (confirmed against real
+        // Firestore data, 2026-07-16).
+        const snap = await getDocs(query(collection(AceAdmin.db, 'categories'), where('active', '==', true)));
+        const hubs = new Set();
+        snap.docs.forEach(d => {
+          const c = d.data();
+          if (!c.appId || c.appId === 'askair') hubs.add(c.hub || '(uncategorized)');
+        });
+        items = Array.from(hubs).sort().map(hub => ({ id: slugifyHub(hub), label: hub }));
+      } else {
+        const catsQuery = query(
+          collection(AceAdmin.db, 'categories'),
+          where('appId', '==', appId),
+          where('active', '==', true)
+        );
+        const snap = await getDocs(catsQuery);
+        const categories = snap.docs
+          .map(d => d.data())
+          .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        items = categories.map(cat => ({ id: cat.id, label: `${cat.emoji ? cat.emoji + ' ' : ''}${cat.name}` }));
+      }
+
+      listEl.innerHTML = '';
+      items.forEach(item => {
+        const label = document.createElement('label');
+        label.style.cssText = 'display:flex; align-items:center; gap:8px; padding: 5px 4px; cursor:pointer; font-size: 14px;';
+        label.innerHTML = `<input type="checkbox" class="category-picker-item" value="${item.id}" /> ${item.label}`;
+        listEl.appendChild(label);
+      });
+
+      document.querySelectorAll('.category-picker-item').forEach(cb =>
+        cb.addEventListener('change', () => {
+          // Any individual pick implicitly means "not the full run" — and if
+          // the user unchecks every individual box, fall back to the full
+          // run rather than silently submitting an empty selection.
+          const anyChecked = Array.from(document.querySelectorAll('.category-picker-item')).some(c => c.checked);
+          allCheckbox.checked = !anyChecked;
+          updatePickerToggleLabel();
+        }));
+    }
+
+    function getSelectedCategoryIds() {
+      const allCheckbox = document.getElementById('category-picker-all');
+      if (allCheckbox.checked) return [];
+      return Array.from(document.querySelectorAll('.category-picker-item:checked')).map(cb => cb.value);
+    }
+
+    function updatePickerToggleLabel() {
+      const toggle = document.getElementById('category-picker-toggle');
+      const ids = getSelectedCategoryIds();
+      if (ids.length === 0) {
+        toggle.textContent = 'All categories (full run)';
+      } else if (ids.length === 1) {
+        const cb = document.querySelector(`.category-picker-item[value="${ids[0]}"]`);
+        toggle.textContent = cb ? cb.parentElement.textContent.trim() : '1 selected';
+      } else {
+        toggle.textContent = `${ids.length} categories selected`;
+      }
+    }
+
+    document.getElementById('category-picker-all').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.querySelectorAll('.category-picker-item').forEach(cb => { cb.checked = false; });
+      }
+      updatePickerToggleLabel();
+    });
+
+    document.getElementById('category-picker-toggle').addEventListener('click', () => {
+      const menu = document.getElementById('category-picker-menu');
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', (e) => {
+      const picker = document.getElementById('category-picker');
+      if (!picker.contains(e.target)) {
+        document.getElementById('category-picker-menu').style.display = 'none';
+      }
+    });
+
+    // Must match the backend's slugify() in ace/functions/index.js exactly —
+    // this is how a hub name becomes the categoryId used for a single-hub
+    // test run and for matching spokes back to their hub at publish time.
+    function slugifyHub(s) {
+      return String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    document.getElementById('app-select').addEventListener('change', loadCategories);
+
+    /**
+     * The run doc's own `status` field only ever moves in_progress ->
+     * awaiting_review -> published — setACEResultStatus (individual
+     * Approve/Reject) intentionally never touches it, only the category
+     * subdoc's status. That's why the Recent Runs badge used to show
+     * "awaiting_review" forever even after rejecting every category in a
+     * run: it was reading a field that per-category actions never update.
+     * Fix: derive the badge from the actual category statuses (same safe
+     * per-run subcollection query pattern as loadPendingCount) instead of
+     * trusting the run-level field alone.
+     */
+    async function loadRuns() {
+      const tbody = document.querySelector('#runs-table tbody');
+      const runsQuery = query(collection(AceAdmin.db, 'ace_results'), orderBy('runDate', 'desc'), limit(10));
+      const snap = await getDocs(runsQuery);
+
+      if (snap.empty) {
+        tbody.innerHTML = '<tr><td colspan="7" style="color: var(--ace-muted);">No runs yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      const lastRunByApp = {};
+
+      const rows = await Promise.all(snap.docs.map(async (doc) => {
+        const run = doc.data();
+        if (!lastRunByApp[run.appId]) lastRunByApp[run.appId] = run;
+
+        let badgeHtml = `<span class="badge ${run.status === 'published' ? 'approved' : 'pending'}">${run.status}</span>`;
+        if (run.status !== 'published') {
+          const catsSnap = await getDocs(collection(AceAdmin.db, 'ace_results', doc.id, 'categories'));
+          const total = catsSnap.size;
+          let approved = 0, rejected = 0;
+          catsSnap.forEach(c => {
+            const s = c.data().status;
+            if (s === 'approved') approved += 1;
+            else if (s === 'rejected') rejected += 1;
+          });
+          const decided = approved + rejected;
+          if (total > 0 && decided === total) {
+            badgeHtml = `<span class="badge approved">ready to publish</span> <span style="color: var(--ace-muted); font-size:12px;">(${approved} approved, ${rejected} rejected)</span>`;
+          } else {
+            badgeHtml = `<span class="badge pending">${decided}/${total} reviewed</span>`;
+          }
+        }
+
+        return `
+          <tr>
+            <td>${doc.id.slice(0, 8)}</td>
+            <td>${run.appId}</td>
+            <td>${run.runDate?.toDate?.().toLocaleString() ?? '—'}</td>
+            <td>${badgeHtml}</td>
+            <td>${run.categoryCount ?? '—'}</td>
+            <td><a href="./results.html?runId=${doc.id}" style="color: var(--ace-accent);">Review →</a></td>
+            <td><button class="ace-btn danger delete-run-btn" data-run-id="${doc.id}" style="padding: 4px 10px; font-size: 12px;">Delete</button></td>
+          </tr>
+        `;
+      }));
+
+      tbody.innerHTML = rows.join('');
+
+      document.querySelectorAll('.delete-run-btn').forEach(btn =>
+        btn.addEventListener('click', () => deleteRun(btn.dataset.runId)));
+
+      if (lastRunByApp.dashboardair) {
+        document.getElementById('dashboardair-last-run').textContent =
+          lastRunByApp.dashboardair.runDate?.toDate?.().toLocaleDateString() ?? '—';
+      }
+      if (lastRunByApp.askair) {
+        document.getElementById('askair-last-run').textContent =
+          lastRunByApp.askair.runDate?.toDate?.().toLocaleDateString() ?? '—';
+      }
+    }
+
+    /**
+     * "Pending Approvals" used to be run.categoryCount summed across
+     * un-published runs — that counted every category in a run regardless
+     * of whether you'd already approved/rejected it individually, so it
+     * never went down as you worked through a run.
+     *
+     * A collectionGroup('categories') query was tried here first, but it
+     * spans three different rule boundaries in this data (ace_results/*,
+     * ace_assignments/*, and the top-level public categories collection),
+     * and Firestore denied it outright with "Missing or insufficient
+     * permissions" rather than partially succeeding. Fix: don't span rule
+     * boundaries — loop over the runs we already have confirmed read access
+     * to (same path pattern results.html already uses successfully) and
+     * count pending categories per run instead.
+     */
+    async function loadPendingCount() {
+      const pendingCountEl = document.getElementById('pending-count');
+      try {
+        const runsSnap = await getDocs(query(collection(AceAdmin.db, 'ace_results'), orderBy('runDate', 'desc'), limit(20)));
+        const counts = await Promise.all(runsSnap.docs.map(async (runDoc) => {
+          const catsSnap = await getDocs(
+            query(collection(AceAdmin.db, 'ace_results', runDoc.id, 'categories'), where('status', '==', 'pending'))
+          );
+          return catsSnap.size;
+        }));
+        pendingCountEl.textContent = counts.reduce((a, b) => a + b, 0);
+        pendingCountEl.title = '';
+      } catch (err) {
+        console.error('loadPendingCount failed:', err);
+        pendingCountEl.textContent = '?';
+        pendingCountEl.title = err.message;
+      }
+    }
+
+    /**
+     * Deletes an ACE run entirely: every doc in its categories subcollection
+     * plus the run doc itself. Firestore has no cascading delete — deleting
+     * the parent doc alone would leave orphaned category docs behind.
+     */
+    async function deleteRun(runId) {
+      if (!confirm(`Delete run ${runId.slice(0, 8)} permanently? This cannot be undone. Published assignments already live in the apps are NOT affected — this only removes the staged run record.`)) {
+        return;
+      }
+      const catsSnap = await getDocs(collection(AceAdmin.db, 'ace_results', runId, 'categories'));
+      const batch = writeBatch(AceAdmin.db);
+      catsSnap.docs.forEach(d => batch.delete(d.ref));
+      batch.delete(doc(AceAdmin.db, 'ace_results', runId));
+      await batch.commit();
+      await loadRuns();
+      await loadPendingCount();
+    }
+
+    let ownershipLoaded = false;
+    async function loadOwnershipChart() {
+      const appId = document.getElementById('ownership-app-select').value;
+      const chartEl = document.getElementById('ownership-chart');
+      chartEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
+
+      try {
+        const latestRunQuery = query(
+          collection(AceAdmin.db, 'ace_results'),
+          where('appId', '==', appId),
+          orderBy('runDate', 'desc'),
+          limit(1)
+        );
+        const runSnap = await getDocs(latestRunQuery);
+        if (runSnap.empty) {
+          chartEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">No runs yet for this app.</p>';
+          return;
+        }
+        const runDoc = runSnap.docs[0];
+        const catsSnap = await getDocs(collection(AceAdmin.db, 'ace_results', runDoc.id, 'categories'));
+        const categories = catsSnap.docs.map(d => d.data());
+        renderOwnershipChart(chartEl, categories);
+      } catch (err) {
+        console.error('loadOwnershipChart failed:', err);
+        chartEl.innerHTML = `<p style="color: var(--ace-danger, #f87171); font-size: 13px;">Couldn't load ownership chart: ${err.message}</p>`;
+      }
+    }
+
+    document.getElementById('ownership-card').addEventListener('toggle', (e) => {
+      if (e.target.open && !ownershipLoaded) {
+        ownershipLoaded = true;
+        loadOwnershipChart();
+      }
+    });
+    document.getElementById('ownership-app-select').addEventListener('change', loadOwnershipChart);
+    document.getElementById('ownership-app-select').addEventListener('click', (e) => e.stopPropagation());
+
+    let analyticsLoaded = false;
+    async function loadAnalytics() {
+      const appId = document.getElementById('analytics-app-select').value;
+      const catHistEl = document.getElementById('category-history-table');
+      const trendEl = document.getElementById('tool-trend-table');
+      const biasEl = document.getElementById('judge-bias-table');
+
+      catHistEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
+      trendEl.innerHTML = '';
+      biasEl.innerHTML = '';
+
+      try {
+        // Last 12 runs — enough history to spot flips/trends without pulling
+        // every run and every category doc ever created as the run count grows.
+        const runs = await fetchRunHistory(AceAdmin.db, appId, 12);
+        renderCategoryHistory(catHistEl, runs);
+        renderToolTrend(trendEl, runs);
+        renderJudgeBias(biasEl, runs);
+      } catch (err) {
+        console.error('loadAnalytics failed:', err);
+        const msg = `<p style="color: var(--ace-danger, #f87171); font-size: 13px;">Couldn't load analytics: ${err.message}</p>`;
+        catHistEl.innerHTML = msg;
+        trendEl.innerHTML = '';
+        biasEl.innerHTML = '';
+      }
+    }
+
+    document.getElementById('analytics-card').addEventListener('toggle', (e) => {
+      if (e.target.open && !analyticsLoaded) {
+        analyticsLoaded = true;
+        loadAnalytics();
+      }
+    });
+    document.getElementById('analytics-app-select').addEventListener('change', loadAnalytics);
+    document.getElementById('analytics-app-select').addEventListener('click', (e) => e.stopPropagation());
+
+    document.getElementById('run-ace-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('run-ace-btn');
+      const status = document.getElementById('run-status');
+      const appId = document.getElementById('app-select').value;
+      const categoryIds = getSelectedCategoryIds();
+
+      btn.disabled = true;
+      status.textContent = categoryIds.length
+        ? `Polling judges for ${categoryIds.length} selected categor${categoryIds.length === 1 ? 'y' : 'ies'}…`
+        : 'Polling judges… this can take a minute for a full run.';
+      try {
+        const result = await AceAdmin.runACEVoting(categoryIds.length ? { appId, categoryIds } : { appId });
+        status.textContent = `Done — run ${result.data.runId.slice(0, 8)} staged ${result.data.categoryCount} categor${result.data.categoryCount === 1 ? 'y' : 'ies'}.`;
+        await loadRuns();
+        await loadPendingCount();
+      } catch (err) {
+        status.textContent = `Error: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    loadCategories();
+    loadRuns();
+    loadPendingCount();
+  </script>
+</body>
+</html>

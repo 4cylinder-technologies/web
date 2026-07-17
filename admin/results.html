@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ACE Admin — Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./ace-admin.css" />
+</head>
+<body>
+  <div class="ace-header">
+    <div class="ace-brand">
+      <img src="../ace-icon.png" alt="AIR Consensus Engine" />
+      <div class="ace-brand-text">
+        <h1>AIR Consensus Engine<span class="tm">™</span></h1>
+        <div class="ace-brand-sub">Multiple Intelligences. One Truth.</div>
+      </div>
+    </div>
+    <nav class="ace-nav">
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./results.html" class="active">Results</a>
+      <a href="./assignments.html">Assignments</a>
+      <a href="#" id="logout-link">Sign out</a>
+    </nav>
+  </div>
+
+  <div class="ace-container">
+    <div class="ace-card" style="display:flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h3 style="margin: 0;">Run <span id="run-id-label"></span></h3>
+        <div style="color: var(--ace-muted); font-size: 14px;" id="run-meta"></div>
+      </div>
+      <div style="display:flex; gap: 12px;">
+        <button id="export-csv-btn" class="ace-btn secondary">Export CSV</button>
+        <button id="approve-all-btn" class="ace-btn">Approve Remaining</button>
+        <button id="reject-all-btn" class="ace-btn danger">Reject All</button>
+        <button id="publish-btn" class="ace-btn" disabled>Publish Approved</button>
+      </div>
+    </div>
+
+    <details class="ace-card" id="summary-card" style="display:none;" open>
+      <summary style="cursor:pointer; list-style:none;">
+        <h3 style="display:inline; margin: 0;">Tool Ownership Summary</h3>
+        <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to collapse)</span>
+      </summary>
+      <p style="color: var(--ace-muted); font-size: 13px; margin: 12px 0 16px;">
+        Share of categories each tool would own if this run's results were published as-is.
+        Categories with no consensus ("split") are excluded from the denominator.
+      </p>
+      <div id="summary-chart"></div>
+    </details>
+
+    <div class="ace-card">
+      <table class="ace-table" id="results-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Winner</th>
+            <th>Confidence</th>
+            <th>Votes</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody><tr><td colspan="6" style="color: var(--ace-muted);">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module">
+    import { AceAdmin, computeToolOwnership, renderOwnershipChart } from './ace-admin.js';
+    import {
+      collection, doc, getDoc, getDocs, query, orderBy,
+    } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+    await AceAdmin.requireAuth();
+
+    document.getElementById('logout-link').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await AceAdmin.logout();
+      window.location.href = './index.html';
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const runId = params.get('runId');
+    if (!runId) {
+      document.querySelector('.ace-container').innerHTML =
+        '<div class="ace-card">No runId specified. Go back to <a href="./dashboard.html">Dashboard</a>.</div>';
+      throw new Error('Missing runId');
+    }
+    document.getElementById('run-id-label').textContent = runId.slice(0, 8);
+
+    let categories = [];
+
+    // Confidence is now always a real result — tally() (ace/functions/
+    // index.js) guarantees a winner, breaking ties by discounting
+    // self-interested votes first and falling back to a fixed alphabetical
+    // rule only if still tied. 'split' only appears on old runs from before
+    // that fix. Anything containing "tie-break" still has a real winner,
+    // just flagged so it's visually distinct from a clean majority.
+    function confidenceBadge(confidence) {
+      let cls = 'confident';
+      if (confidence === 'split') cls = 'split';
+      else if (String(confidence).includes('tie-break')) cls = 'pending';
+      return `<span class="badge ${cls}">${confidence}</span>`;
+    }
+
+    function votesSummary(votes) {
+      return Object.entries(votes)
+        .map(([judge, v]) => `<div>${judge}: <strong>${v.tool ?? '—'}</strong> — ${v.reason ?? ''}</div>`)
+        .join('');
+    }
+
+    // Same catalog as ace/functions/index.js's TOOL_CATALOG — kept in sync
+    // manually since this is a separate codebase from the backend by design.
+    const TOOL_CATALOG = [
+      { id: 'claude',     label: 'Claude' },
+      { id: 'chatgpt',    label: 'ChatGPT' },
+      { id: 'perplexity', label: 'Perplexity' },
+      { id: 'grok',       label: 'Grok' },
+      { id: 'gemini',     label: 'Gemini' },
+      { id: 'copilot',    label: 'Microsoft Copilot' },
+      { id: 'wolfram',    label: 'Wolfram Alpha' },
+      { id: 'firefly',    label: 'Adobe Firefly' },
+      { id: 'runway',     label: 'Runway' },
+      { id: 'elevenlabs', label: 'ElevenLabs' },
+      { id: 'suno',       label: 'Suno' },
+      { id: 'kling',      label: 'Kling AI' },
+      { id: 'canva',      label: 'Canva' },
+      { id: 'cleo',       label: 'Cleo' },
+      { id: 'wysa',       label: 'Wysa' },
+      { id: 'ada',        label: 'Ada Health' },
+    ];
+
+    async function loadResults() {
+      const runSnap = await getDoc(doc(AceAdmin.db, 'ace_results', runId));
+      if (!runSnap.exists()) {
+        document.querySelector('.ace-container').innerHTML = '<div class="ace-card">Run not found.</div>';
+        return;
+      }
+      const run = runSnap.data();
+      document.getElementById('run-meta').textContent =
+        `${run.appId} · ${run.runDate?.toDate?.().toLocaleString() ?? ''} · ${run.status}`;
+
+      const catsSnap = await getDocs(query(collection(AceAdmin.db, 'ace_results', runId, 'categories'), orderBy('categoryName')));
+      categories = catsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderTable();
+      renderSummary();
+    }
+
+    function renderSummary() {
+      const card = document.getElementById('summary-card');
+      if (categories.length === 0) {
+        card.style.display = 'none';
+        return;
+      }
+      card.style.display = 'block';
+      renderOwnershipChart(document.getElementById('summary-chart'), categories);
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector('#results-table tbody');
+      tbody.innerHTML = '';
+      categories.forEach(cat => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${cat.categoryName}</td>
+          <td>${cat.winner ?? '<em style="color: var(--ace-muted);">no consensus</em>'}</td>
+          <td>${confidenceBadge(cat.confidence)}</td>
+          <td class="votes-detail">${votesSummary(cat.votes || {})}</td>
+          <td><span class="badge ${cat.status}">${cat.status}</span></td>
+          <td>
+            <button class="ace-btn secondary approve-btn" data-id="${cat.id}" ${cat.status === 'approved' ? 'disabled' : ''}>Approve</button>
+            <button class="ace-btn danger reject-btn" data-id="${cat.id}" ${cat.status === 'rejected' ? 'disabled' : ''}>Reject</button>
+            <div style="margin-top: 8px; display:flex; gap:6px; align-items:center;">
+              <select class="override-select" data-id="${cat.id}" style="padding:4px 6px; font-size:12px; border-radius:4px; background: var(--ace-panel); color: var(--ace-text); border:1px solid var(--ace-border);">
+                <option value="">Override winner…</option>
+                ${TOOL_CATALOG.map(t => `<option value="${t.id}" ${t.id === cat.winner ? 'selected' : ''}>${t.label}</option>`).join('')}
+              </select>
+              <button class="ace-btn secondary override-btn" data-id="${cat.id}" style="padding:4px 10px; font-size:12px;">Set</button>
+            </div>
+            ${cat.overridden ? '<div style="font-size:11px; color: var(--ace-muted); margin-top:4px;">manually overridden</div>' : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.querySelectorAll('.approve-btn').forEach(btn =>
+        btn.addEventListener('click', () => setStatus(btn.dataset.id, 'approved')));
+      document.querySelectorAll('.reject-btn').forEach(btn =>
+        btn.addEventListener('click', () => setStatus(btn.dataset.id, 'rejected')));
+
+      // Manual override — the tally() tie-breakers (self-interest discount,
+      // then alphabetical) guarantee a winner, but a close/forced tie-break
+      // isn't the same as a confident consensus. This lets Michael's own
+      // domain judgment (e.g. "Perplexity's live sourcing matters more for
+      // legal than Claude's reasoning") override a thin result. Sets the
+      // category to approved with the chosen tool so the next Publish picks
+      // it up — does NOT touch live routing until Publish is clicked.
+      document.querySelectorAll('.override-btn').forEach(btn =>
+        btn.addEventListener('click', async () => {
+          const id = btn.dataset.id;
+          const select = document.querySelector(`.override-select[data-id="${id}"]`);
+          const overrideTool = select.value;
+          if (!overrideTool) {
+            alert('Pick a tool from the dropdown first.');
+            return;
+          }
+          if (!confirm(`Override this category's winner to "${overrideTool}" and mark it approved?`)) return;
+          btn.disabled = true;
+          try {
+            await AceAdmin.setACEResultStatus({ runId, categoryId: id, status: 'approved', overrideTool });
+            await loadResults();
+          } catch (err) {
+            alert(`Override failed: ${err.message}`);
+            btn.disabled = false;
+          }
+        }));
+
+      const anyApproved = categories.some(c => c.status === 'approved');
+      document.getElementById('publish-btn').disabled = !anyApproved;
+    }
+
+    async function setStatus(categoryId, status) {
+      await AceAdmin.setACEResultStatus({ runId, categoryId, status });
+      await loadResults();
+    }
+
+    // "Approve remaining" — only touches rows still pending. A row you've
+    // already rejected (e.g. to exclude one hub from this run while you
+    // re-test it separately) must stay rejected; only skipping already-
+    // approved rows would have silently flipped rejected ones back to
+    // approved, undoing a deliberate exclusion.
+    document.getElementById('approve-all-btn').addEventListener('click', async () => {
+      for (const cat of categories) {
+        if (cat.status === 'pending') {
+          await AceAdmin.setACEResultStatus({ runId, categoryId: cat.id, status: 'approved' });
+        }
+      }
+      await loadResults();
+    });
+
+    document.getElementById('reject-all-btn').addEventListener('click', async () => {
+      if (!confirm('Reject every category in this run? This does not delete the run — you can still re-approve categories individually afterward.')) {
+        return;
+      }
+      for (const cat of categories) {
+        if (cat.status !== 'rejected') {
+          await AceAdmin.setACEResultStatus({ runId, categoryId: cat.id, status: 'rejected' });
+        }
+      }
+      await loadResults();
+    });
+
+    document.getElementById('publish-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('publish-btn');
+      btn.disabled = true;
+      try {
+        const result = await AceAdmin.publishACEResults({ runId });
+        alert(`Published ${result.data.publishedCount} categories to ${result.data.appId}.`);
+        await loadResults();
+      } catch (err) {
+        alert(`Publish failed: ${err.message}`);
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('export-csv-btn').addEventListener('click', () => {
+      const rows = [['Category', 'Winner', 'Confidence', 'Status', ...Object.keys(categories[0]?.votes || {})]];
+      categories.forEach(cat => {
+        rows.push([
+          cat.categoryName,
+          cat.winner ?? '',
+          cat.confidence,
+          cat.status,
+          ...Object.values(cat.votes || {}).map(v => `${v.tool ?? ''}: ${v.reason ?? ''}`),
+        ]);
+      });
+
+      // Append the tool ownership summary below the per-category data.
+      const { rows: ownershipRows, decidedTotal, totalCategories } = computeToolOwnership(categories);
+      rows.push([]);
+      rows.push(['Tool Ownership Summary']);
+      rows.push([`Decided categories: ${decidedTotal} of ${totalCategories} (${totalCategories - decidedTotal} split/no-consensus)`]);
+      rows.push(['Tool', 'Categories Won', '% of Decided Categories']);
+      ownershipRows.forEach(r => rows.push([r.tool, r.count, `${r.pct.toFixed(1)}%`]));
+
+      const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `ace-results-${runId.slice(0, 8)}.csv`;
+      link.click();
+    });
+
+    loadResults();
+  </script>
+</body>
+</html>

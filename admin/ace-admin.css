@@ -1,0 +1,347 @@
+:root {
+  /* Pulled directly from 4cylindertechnologies.com's own palette */
+  --bg: #080C14;
+  --surface: #0D1522;
+  --surface2: #111B2B;
+  --border: rgba(255,255,255,0.07);
+  --border-med: rgba(255,255,255,0.11);
+  --text: #E8EDF5;
+  --muted: #6B7A99;
+  --subtle: #3A4A62;
+  --orange: #F97316;
+  --orange-dim: rgba(249,115,22,0.12);
+  --orange-glow: rgba(249,115,22,0.22);
+  --gold: #F5C842;
+  --gold-dim: rgba(245,200,66,0.12);
+  --gold-glow: rgba(245,200,66,0.22);
+  --green: #22C55E;
+  --green-dim: rgba(34,197,94,0.1);
+  --red: #EF4444;
+  --red-dim: rgba(239,68,68,0.1);
+
+  /* Aliases so the rest of this file reads clearly for ACE-specific UI */
+  --ace-bg: var(--bg);
+  --ace-panel: var(--surface);
+  --ace-panel2: var(--surface2);
+  --ace-border: var(--border-med);
+  --ace-text: var(--text);
+  --ace-muted: var(--muted);
+  --ace-accent: var(--gold);
+  --ace-accent2: var(--orange);
+  --ace-good: var(--green);
+  --ace-warn: var(--gold);
+  --ace-bad: var(--red);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  background-image: radial-gradient(ellipse 700px 400px at 50% -10%, rgba(245,200,66,0.08) 0%, transparent 65%);
+  background-repeat: no-repeat;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Header                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.ace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: rgba(8,12,20,0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.ace-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ace-brand img {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  box-shadow: 0 0 18px var(--gold-glow);
+}
+
+.ace-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.ace-header h1 {
+  font-size: 17px;
+  margin: 0;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+.ace-header .tm {
+  font-size: 10px;
+  font-weight: 400;
+  vertical-align: super;
+  color: var(--muted);
+}
+
+.ace-brand-sub {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.ace-nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.ace-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color 0.2s;
+}
+
+.ace-nav a.active,
+.ace-nav a:hover {
+  color: var(--text);
+}
+
+.ace-nav a.active {
+  color: var(--gold);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Layout                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.ace-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 28px 64px;
+}
+
+.ace-card {
+  background: linear-gradient(160deg, rgba(255,255,255,0.025) 0%, transparent 60%), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+.ace-card h3 {
+  font-size: 16px;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+.ace-stat-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ace-stat {
+  flex: 1;
+  min-width: 160px;
+}
+
+.ace-stat .label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+
+.ace-stat .value {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  margin-top: 6px;
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Buttons                                                                 */
+/* ---------------------------------------------------------------------- */
+
+button.ace-btn {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 130%);
+  color: #150f00;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: -0.1px;
+  transition: filter 0.15s, transform 0.1s;
+}
+
+button.ace-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+button.ace-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button.ace-btn.secondary {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-med);
+  color: var(--text);
+}
+
+button.ace-btn.secondary:hover:not(:disabled) {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.2);
+}
+
+button.ace-btn.danger {
+  background: var(--red);
+  color: #fff;
+}
+
+button.ace-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: none;
+}
+
+select, input[type="text"], input:not([type]) {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Table                                                                   */
+/* ---------------------------------------------------------------------- */
+
+table.ace-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+table.ace-table th,
+table.ace-table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+table.ace-table th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+table.ace-table tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Badges                                                                  */
+/* ---------------------------------------------------------------------- */
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.badge.confident { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(245,200,66,0.25); }
+.badge.split { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(249,115,22,0.25); }
+.badge.pending { background: rgba(107,122,153,0.15); color: var(--muted); border: 1px solid var(--border-med); }
+.badge.approved { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.badge.rejected { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+
+.votes-detail {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.6;
+}
+
+.votes-detail strong {
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Login                                                                   */
+/* ---------------------------------------------------------------------- */
+
+.ace-login-box {
+  max-width: 380px;
+  margin: 140px auto 0;
+  text-align: center;
+  padding: 40px 36px;
+  background: linear-gradient(160deg, rgba(245,200,66,0.05) 0%, transparent 60%), var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+
+.ace-login-box img {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  box-shadow: 0 0 32px var(--gold-glow);
+  margin-bottom: 20px;
+}
+
+.ace-login-box h1 {
+  font-size: 24px;
+  margin: 0 0 6px;
+}
+
+.ace-login-box .tagline {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+}
+
+.ace-login-box .subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.ace-error {
+  color: var(--red);
+  font-size: 13px;
+  margin-top: 14px;
+}
