@@ -276,6 +276,7 @@ export function renderToolTrend(container, runs) {
 const JUDGE_SELF_TOOL = {
   claude: 'claude',
   gpt4o: 'chatgpt',
+  copilot: 'copilot',
   perplexity: 'perplexity',
   grok: 'grok',
   gemini: 'gemini',
