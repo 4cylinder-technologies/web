@@ -40,6 +40,24 @@
       </div>
     </div>
 
+    <details class="ace-card" id="methodology-card">
+      <summary style="cursor:pointer; list-style:none;">
+        <h3 style="display:inline; margin: 0;">🧭 How ACE Works — Judging Criteria</h3>
+        <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand — the exact methodology behind every result)</span>
+      </summary>
+      <div style="margin-top: 16px; color: var(--ace-muted); font-size: 14px; line-height: 1.7;">
+        <p><strong style="color: var(--ace-text);">1. Same question, every judge.</strong> Six judges — Claude, ChatGPT (GPT-4o), Microsoft Copilot, Perplexity, Grok, and Gemini — each receive the identical prompt with the identical tool catalog for every category:</p>
+        <pre style="background: var(--ace-panel); border: 1px solid var(--ace-border); border-radius: 8px; padding: 14px; font-size: 12px; white-space: pre-wrap; color: var(--ace-text);">You are an objective AI tool evaluator. For the category "&lt;category&gt;", which AI tool or app is objectively the best choice for a user prompt in this category?
+
+Choose ONE from this list: &lt;tool catalog&gt;
+Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
+        <p><strong style="color: var(--ace-text);">2. Blind and independent.</strong> Judges are polled in parallel. No judge sees another judge's vote, no conversation history, no steering — one fresh prompt, one vote, one stated reason.</p>
+        <p><strong style="color: var(--ace-text);">3. Majority rules.</strong> Most votes wins outright. Ties are re-tallied using only disinterested votes — a judge voting for its own model family (e.g. ChatGPT/Copilot for OpenAI-family tools) is discounted in the tie-break only, never in a clear majority. A still-tied result falls back to deterministic alphabetical order, so re-running the same votes can never flip a winner.</p>
+        <p><strong style="color: var(--ace-text);">4. Human-approved.</strong> Every run is staged here for review. Nothing reaches the apps until it is explicitly approved and published.</p>
+        <p><strong style="color: var(--ace-text);">5. Monthly, from scratch.</strong> Every category is re-judged each run with no memory of prior winners. Winners can and do flip — that's the point.</p>
+      </div>
+    </details>
+
     <details class="ace-card" id="summary-card" style="display:none;" open>
       <summary style="cursor:pointer; list-style:none;">
         <h3 style="display:inline; margin: 0;">Tool Ownership Summary</h3>
