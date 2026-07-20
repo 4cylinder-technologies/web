@@ -123,7 +123,7 @@ export function renderOwnershipChart(container, categories) {
   const maxPct = rows.length ? Math.max(...rows.map(r => r.pct)) : 0;
   const bars = rows.map(r => `
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
-      <div style="width:110px; font-size:13px; color: var(--text); flex-shrink:0; text-transform: capitalize;">${r.tool}</div>
+      <div style="width:170px; font-size:13px; color: var(--text); flex-shrink:0;">${toolLabel(r.tool)}</div>
       <div style="flex:1; background: rgba(255,255,255,0.04); border-radius: 6px; overflow:hidden; height: 20px;">
         <div style="height:100%; width:${maxPct ? (r.pct / maxPct) * 100 : 0}%; background: linear-gradient(90deg, var(--gold), var(--orange)); border-radius: 6px;"></div>
       </div>
@@ -131,11 +131,15 @@ export function renderOwnershipChart(container, categories) {
     </div>
   `).join('');
 
+  const familyNote = rows.some(r => r.tool === 'chatgpt' || r.tool === 'copilot')
+    ? `<div style="font-size:12px; color: var(--muted); margin-top:8px;">ChatGPT and Copilot are separate tools from the same model family (OpenAI) — family votes are discounted in tie-breaks. See Judge Self-Preference Bias.</div>`
+    : '';
+
   const splitNote = splitCount > 0
     ? `<div style="font-size:12px; color: var(--muted); margin-top:8px;">${splitCount} categor${splitCount === 1 ? 'y' : 'ies'} had no consensus and ${splitCount === 1 ? 'is' : 'are'} excluded above.</div>`
     : '';
 
-  container.innerHTML = bars + splitNote;
+  container.innerHTML = bars + familyNote + splitNote;
 }
 
 /**
@@ -273,14 +277,41 @@ export function renderToolTrend(container, runs) {
 // Maps a judge's own provider to the tool it would be self-interested in
 // favoring. Judges with no corresponding entry in TOOL_CATALOG (there
 // isn't one here) would simply never show up as biased.
+// Family-aware: kept in sync with ace/functions/index.js — gpt4o and
+// copilot are both OpenAI-lineage, so each is "interested" in both tools.
+// NOTE (Michael, 2026-07-19): if the bias analytics show the two routinely
+// DIVERGING (they did in early runs), remove the family pairing — this is
+// instrumentation, not dogma.
 const JUDGE_SELF_TOOL = {
-  claude: 'claude',
-  gpt4o: 'chatgpt',
-  copilot: 'copilot',
-  perplexity: 'perplexity',
-  grok: 'grok',
-  gemini: 'gemini',
+  claude: ['claude'],
+  gpt4o: ['chatgpt', 'copilot'],
+  copilot: ['copilot', 'chatgpt'],
+  perplexity: ['perplexity'],
+  grok: ['grok'],
+  gemini: ['gemini'],
 };
+
+// Distinct display labels so the two OpenAI-family TOOLS never read as one
+// entity in charts (raw ids were shown title-cased, "Chatgpt").
+const TOOL_LABELS = {
+  chatgpt: 'ChatGPT (OpenAI)',
+  copilot: 'Copilot (Azure OpenAI)',
+  claude: 'Claude',
+  perplexity: 'Perplexity',
+  grok: 'Grok',
+  gemini: 'Gemini',
+  wolfram: 'Wolfram Alpha',
+  firefly: 'Adobe Firefly',
+  runway: 'Runway',
+  elevenlabs: 'ElevenLabs',
+  suno: 'Suno',
+  kling: 'Kling',
+  canva: 'Canva',
+  cleo: 'Cleo',
+  wysa: 'Wysa',
+  ada: 'Ada',
+};
+export const toolLabel = (id) => TOOL_LABELS[id] || id;
 
 /**
  * For each judge, compares how often it votes for its own corresponding
@@ -295,7 +326,7 @@ export function renderJudgeBias(container, runs) {
     return;
   }
 
-  const rows = Object.entries(JUDGE_SELF_TOOL).map(([judge, selfTool]) => {
+  const rows = Object.entries(JUDGE_SELF_TOOL).map(([judge, selfTools]) => {
     let selfVotesForSelf = 0;
     let selfTotalVotes = 0;
     let othersVotesForSelfTool = 0;
@@ -306,10 +337,10 @@ export function renderJudgeBias(container, runs) {
         if (!vote?.tool) return;
         if (voter === judge) {
           selfTotalVotes += 1;
-          if (vote.tool === selfTool) selfVotesForSelf += 1;
+          if (selfTools.includes(vote.tool)) selfVotesForSelf += 1;
         } else {
           othersTotalVotes += 1;
-          if (vote.tool === selfTool) othersVotesForSelfTool += 1;
+          if (selfTools.includes(vote.tool)) othersVotesForSelfTool += 1;
         }
       });
     });
@@ -318,7 +349,7 @@ export function renderJudgeBias(container, runs) {
     const othersRate = othersTotalVotes ? (othersVotesForSelfTool / othersTotalVotes) * 100 : 0;
     const bias = selfRate - othersRate;
 
-    return { judge, selfTool, selfRate, othersRate, bias, selfTotalVotes };
+    return { judge, selfTool: selfTools.map(toolLabel).join(' + '), selfRate, othersRate, bias, selfTotalVotes };
   }).sort((a, b) => b.bias - a.bias);
 
   const bodyRows = rows.map(r => {
