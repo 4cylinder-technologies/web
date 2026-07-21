@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>MyOwnIQ — 4Cylinder Technologies</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#071426; color:#fff; font-family:-apple-system,'DM Sans',Helvetica,Arial,sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; padding:32px; }
+    .wrap { max-width:420px; }
+    h1 { font-size:26px; margin-bottom:12px; }
+    h1 span { color:#00BFFF; }
+    p { color:#9fb3c8; font-size:15px; line-height:1.7; margin-bottom:24px; }
+    a.btn { display:inline-block; background:#00BFFF; color:#071426; font-weight:800; padding:14px 28px; border-radius:14px; text-decoration:none; margin:6px; }
+    a.plain { color:#9fb3c8; font-size:13px; display:block; margin-top:20px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="label-view" style="display:none;">
+      <h1>This shelf is inventoried with <span>MyOwnIQ</span></h1>
+      <p>You scanned a MyOwnIQ location label. If you own this inventory, open the label in the app. Curious what this is? MyOwnIQ uses AI to catalog everything you own — point your camera at a shelf and know what's on it.</p>
+      <a class="btn" id="open-app" href="#">Open in MyOwnIQ</a>
+    </div>
+    <div id="notfound-view" style="display:none;">
+      <h1>Page not found</h1>
+      <p>The page you're looking for doesn't exist. Head back to the main site.</p>
+      <a class="btn" href="/">4cylindertechnologies.com</a>
+    </div>
+    <a class="plain" href="/">4Cylinder Technologies LLC</a>
+  </div>
+  <script>
+    (function () {
+      var m = location.pathname.match(/^\/l\/([A-Za-z0-9]{10,40})\/?$/);
+      if (m) {
+        document.getElementById('label-view').style.display = 'block';
+        var deep = 'myowniq://location/' + m[1];
+        document.getElementById('open-app').href = deep;
+        // Auto-attempt the app once; stays on this page if not installed.
+        setTimeout(function () { location.href = deep; }, 400);
+      } else {
+        document.getElementById('notfound-view').style.display = 'block';
+      }
+    })();
+  </script>
+</body>
+</html>
