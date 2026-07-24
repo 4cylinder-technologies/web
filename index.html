@@ -203,6 +203,126 @@
       .footer-links { flex-wrap: wrap; gap: 16px; row-gap: 10px; }
     }
   </style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://4cylindertechnologies.com/#org",
+      "name": "4Cylinder Technologies LLC",
+      "url": "https://4cylindertechnologies.com/",
+      "logo": "https://4cylindertechnologies.com/4Cylinder_Technologies_LLC_Logo_dark.png",
+      "email": "support@4cylindertechnologies.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "800 N King Street, Suite 304-2973",
+        "addressLocality": "Wilmington",
+        "addressRegion": "DE",
+        "postalCode": "19801",
+        "addressCountry": "US"
+      },
+      "sameAs": [
+        "https://x.com/4CylinderTech",
+        "https://www.instagram.com/4cylindertech/",
+        "https://www.facebook.com/profile.php?id=61591377227101"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://4cylindertechnologies.com/#website",
+      "url": "https://4cylindertechnologies.com/",
+      "name": "4Cylinder Technologies LLC",
+      "publisher": {
+        "@id": "https://4cylindertechnologies.com/#org"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "DashboardAIR",
+      "operatingSystem": "iOS, Android",
+      "applicationCategory": "ProductivityApplication",
+      "description": "AI routing dashboard for power users — 20+ categories, each routed to the AI chosen by monthly blind consensus of six frontier models.",
+      "publisher": {
+        "@id": "https://4cylindertechnologies.com/#org"
+      },
+      "installUrl": [
+        "https://apps.apple.com/app/id6764654975",
+        "https://play.google.com/store/apps/details?id=com.dashboardair.app"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "AskAIR",
+      "operatingSystem": "iOS, Android",
+      "applicationCategory": "ProductivityApplication",
+      "description": "One prompt, one route, the answer — AskAIR sends your question to the AI that is actually best at it, automatically.",
+      "publisher": {
+        "@id": "https://4cylindertechnologies.com/#org"
+      },
+      "installUrl": [
+        "https://apps.apple.com/us/app/ask-air/id6764843351",
+        "https://play.google.com/store/apps/details?id=com.askair.app"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "MyOwnIQ",
+      "operatingSystem": "iOS, Android",
+      "applicationCategory": "LifestyleApplication",
+      "description": "AI home inventory — answer five questions to build your whole home, sweep your camera to catalog what you own, and stop rebuying what you already have.",
+      "publisher": {
+        "@id": "https://4cylindertechnologies.com/#org"
+      },
+      "url": "https://4cylindertechnologies.com/",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What criteria does the AIR Consensus Engine use to pick the best AI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every month, six frontier AIs — Claude, ChatGPT, Copilot, Perplexity, Grok, and Gemini — each receive the identical prompt for every category and vote blind on which AI tool is objectively best. Majority wins; in a tie, votes a judge casts for its own model family are set aside and the remaining disinterested votes decide."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are AIR routing results influenced by sponsorships?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Results come solely from the monthly blind vote of six independent AI judges. Results are reviewed by a human before going live, but the vote itself is never edited."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How often do routing assignments change?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every category is re-judged from scratch each month with no memory of prior winners, and assignments update live in the apps — no app release required."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
 </head>
 <body>
 
@@ -360,6 +480,15 @@
         <p>Routing assignments update live — no app release required. As AI evolves, your router evolves with it. Automatically. Every month.</p>
       </div>
     </div>
+    <details style="margin: 0 0 32px; border: 1px solid var(--border); border-radius: 14px; background: rgba(255,255,255,0.03);">
+      <summary style="cursor:pointer; padding: 20px 24px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--gold); list-style: none;">The Methodology — what we actually ask ▾</summary>
+      <div style="padding: 0 24px 24px; font-size: 14px; color: var(--muted); line-height: 1.8;">
+        <p style="margin-bottom: 12px;">Every month, each of the six judges receives the <strong style="color: var(--text);">identical prompt</strong> for every category — no judge sees another's vote, no history, no steering:</p>
+        <p style="font-family: monospace; font-size: 13px; background: rgba(0,0,0,0.35); border-radius: 10px; padding: 16px; color: var(--text); margin-bottom: 12px;">"You are an objective AI tool evaluator. For the category ___, which AI tool or app is objectively the best choice for a user prompt in this category?" — answered with one tool and a one-sentence reason.</p>
+        <p style="margin-bottom: 12px;">Votes are tallied blind: <strong style="color: var(--text);">majority wins</strong>. In a tie, votes a judge casts for its own model family are set aside and the remaining disinterested votes decide. Results are reviewed by a human before going live — but the vote itself is never edited.</p>
+        <p>Every category is re-judged from scratch each month. Winners flip when the AI landscape shifts — that's the feature.</p>
+      </div>
+    </details>
     <p class="consensus-tagline">"Routing assignments determined by AI consensus — not by us. Every month, the world's top AI tools vote on who wins each category."</p>
   </div>
 </div>
