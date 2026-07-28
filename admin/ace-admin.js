@@ -174,6 +174,129 @@ function shortDate(ts) {
   return ts?.toDate?.().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) ?? '—';
 }
 
+function longDate(ts) {
+  return ts?.toDate?.().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) ?? '—';
+}
+
+/**
+ * How long has the CURRENT winner actually held a category, in terms of
+ * real assignment changes rather than raw run count?
+ *
+ * Only a run where run.status === 'published' AND that category's own
+ * subdoc status === 'approved' ever touches live routing (see
+ * publishACEResults in ace/functions/index.js — a category left pending or
+ * explicitly rejected within an otherwise-published run is simply never
+ * written to `categories.toolId`, so the prior assignment silently carries
+ * forward). So a rejected/pending/unpublished run must not start OR break a
+ * streak here — it's excluded from the timeline entirely, not just hidden.
+ *
+ * `runs` is fetchRunHistory()'s oldest-first output. Returns one row per
+ * category ever seen (even ones with zero qualifying runs, so a category
+ * that's only ever been rejected/pending doesn't just silently vanish),
+ * sorted longest-current-streak first.
+ */
+export function computeAssignmentStreaks(runs) {
+  const allNames = new Map(); // categoryId -> name, from ANY run regardless of status
+  const events = new Map();   // categoryId -> [{runId, runDate, winner}], published+approved only, oldest first
+
+  runs.forEach(run => {
+    run.categories.forEach(cat => {
+      if (!allNames.has(cat.categoryId)) allNames.set(cat.categoryId, cat.categoryName);
+    });
+    if (run.status !== 'published') return;
+    run.categories.forEach(cat => {
+      if (cat.status !== 'approved' || !cat.winner) return;
+      if (!events.has(cat.categoryId)) events.set(cat.categoryId, []);
+      events.get(cat.categoryId).push({ runId: run.runId, runDate: run.runDate, winner: cat.winner });
+    });
+  });
+
+  const results = [];
+  allNames.forEach((name, categoryId) => {
+    const evs = events.get(categoryId) || [];
+    if (evs.length === 0) {
+      results.push({ categoryId, name, currentTool: null, heldSinceDate: null, streakRuns: 0, totalQualifyingRuns: 0, totalFlips: 0 });
+      return;
+    }
+    const current = evs[evs.length - 1];
+    let streakRuns = 1;
+    let heldSinceIdx = evs.length - 1;
+    for (let i = evs.length - 2; i >= 0; i--) {
+      if (evs[i].winner === current.winner) {
+        streakRuns += 1;
+        heldSinceIdx = i;
+      } else {
+        break;
+      }
+    }
+    const totalFlips = evs.slice(1).filter((e, i) => e.winner !== evs[i].winner).length;
+    results.push({
+      categoryId,
+      name,
+      currentTool: current.winner,
+      heldSinceDate: evs[heldSinceIdx].runDate,
+      streakRuns,
+      totalQualifyingRuns: evs.length,
+      totalFlips,
+    });
+  });
+
+  return results.sort((a, b) => b.streakRuns - a.streakRuns || a.name.localeCompare(b.name));
+}
+
+/**
+ * Renders computeAssignmentStreaks() as a table — current tool, held-since
+ * date, and streak length (in qualifying runs) per category, longest-held
+ * incumbents first so a long-tenured winner (e.g. "how long has Perplexity
+ * hung onto this category") is easy to spot without scrolling the full
+ * run-by-run grid.
+ */
+export function renderAssignmentStreaks(container, runs) {
+  const rows = computeAssignmentStreaks(runs);
+  if (rows.length === 0) {
+    container.innerHTML = '<p style="color: var(--muted); font-size: 13px;">No runs yet for this app.</p>';
+    return;
+  }
+
+  const bodyRows = rows.map(r => {
+    if (!r.currentTool) {
+      return `
+        <tr>
+          <td>${r.name}</td>
+          <td colspan="3" style="color: var(--muted);">No published/approved assignment yet in this window</td>
+        </tr>
+      `;
+    }
+    const longHeld = r.streakRuns >= 3;
+    const streakBadge = `<span class="badge ${longHeld ? 'approved' : 'pending'}">${r.streakRuns} run${r.streakRuns === 1 ? '' : 's'}</span>`;
+    const flipNote = r.totalFlips > 0
+      ? `<span style="color: var(--muted); font-size: 12px; margin-left: 8px;">(${r.totalFlips} flip${r.totalFlips > 1 ? 's' : ''} in window)</span>`
+      : '';
+    return `
+      <tr>
+        <td>${r.name}</td>
+        <td style="text-transform:capitalize;">${toolLabel(r.currentTool)}</td>
+        <td>${longDate(r.heldSinceDate)}</td>
+        <td>${streakBadge}${flipNote}</td>
+      </tr>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="ace-table">
+      <thead><tr><th>Category</th><th>Current Tool</th><th>Held Since</th><th>Streak</th></tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 12px;">
+      "Held since" and streak only count runs that were actually published with this category approved — a rejected,
+      pending, or never-published run never changed live routing, so it can't start or break a streak. Sorted
+      longest-held first. Widen the window (fetchRunHistory's maxRuns) if a long-tenured category's true start
+      predates the oldest loaded run — that case shows its streak as of the oldest qualifying run in view, not
+      necessarily the true original start.
+    </p>
+  `;
+}
+
 /**
  * Per-category winner across every run — each row is a category, each
  * column a run, so you can see at a glance whether a category's winner is
