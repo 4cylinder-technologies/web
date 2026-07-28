@@ -87,15 +87,6 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
           <option value="askair">AskAIR</option>
         </select>
 
-        <details style="margin-bottom: 20px;" open>
-          <summary style="cursor:pointer; list-style:none;">
-            <h4 style="display:inline; margin: 0;">Assignment Tenure</h4>
-            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to collapse — how long has the current tool held each category)</span>
-          </summary>
-          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Current tool per category, held-since date, and streak length — counting only runs that were actually published with that category approved. Longest-held first.</p>
-          <div id="assignment-streaks-table" style="overflow-x:auto;"><p style="color: var(--ace-muted); font-size: 13px;">Expand to load…</p></div>
-        </details>
-
         <details style="margin-bottom: 20px;">
           <summary style="cursor:pointer; list-style:none;">
             <h4 style="display:inline; margin: 0;">Category Winner History</h4>
@@ -170,7 +161,7 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
   <script type="module">
     import {
       AceAdmin, renderOwnershipChart, fetchRunHistory,
-      renderAssignmentStreaks, renderCategoryHistory, renderToolTrend, renderJudgeBias,
+      renderCategoryHistory, renderToolTrend, renderJudgeBias,
     } from './ace-admin.js';
     import {
       collection, doc, deleteDoc, writeBatch,
@@ -329,7 +320,14 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
             else if (s === 'rejected') rejected += 1;
           });
           const decided = approved + rejected;
-          if (total > 0 && decided === total) {
+          if (total > 0 && decided === total && approved === 0) {
+            // Every category in this run was rejected — nothing to publish.
+            // Previously this fell into the "ready to publish" branch below
+            // just because decided === total, which is wrong: 0 approved
+            // categories means there's nothing Publish Approved would
+            // actually do. Show it as rejected, not as ready.
+            badgeHtml = `<span class="badge rejected">rejected</span> <span style="color: var(--ace-muted); font-size:12px;">(all ${rejected} categories rejected)</span>`;
+          } else if (total > 0 && decided === total) {
             badgeHtml = `<span class="badge approved">ready to publish</span> <span style="color: var(--ace-muted); font-size:12px;">(${approved} approved, ${rejected} rejected)</span>`;
           } else {
             badgeHtml = `<span class="badge pending">${decided}/${total} reviewed</span>`;
@@ -456,12 +454,10 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
     let analyticsLoaded = false;
     async function loadAnalytics() {
       const appId = document.getElementById('analytics-app-select').value;
-      const streaksEl = document.getElementById('assignment-streaks-table');
       const catHistEl = document.getElementById('category-history-table');
       const trendEl = document.getElementById('tool-trend-table');
       const biasEl = document.getElementById('judge-bias-table');
 
-      streaksEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
       catHistEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
       trendEl.innerHTML = '';
       biasEl.innerHTML = '';
@@ -470,15 +466,13 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
         // Last 12 runs — enough history to spot flips/trends without pulling
         // every run and every category doc ever created as the run count grows.
         const runs = await fetchRunHistory(AceAdmin.db, appId, 12);
-        renderAssignmentStreaks(streaksEl, runs);
         renderCategoryHistory(catHistEl, runs);
         renderToolTrend(trendEl, runs);
         renderJudgeBias(biasEl, runs);
       } catch (err) {
         console.error('loadAnalytics failed:', err);
         const msg = `<p style="color: var(--ace-danger, #f87171); font-size: 13px;">Couldn't load analytics: ${err.message}</p>`;
-        streaksEl.innerHTML = msg;
-        catHistEl.innerHTML = '';
+        catHistEl.innerHTML = msg;
         trendEl.innerHTML = '';
         biasEl.innerHTML = '';
       }
