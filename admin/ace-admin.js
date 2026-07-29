@@ -437,6 +437,90 @@ const TOOL_LABELS = {
 export const toolLabel = (id) => TOOL_LABELS[id] || id;
 
 /**
+ * Mirrors ace/functions/index.js's TOOL_CATALOG (judging candidates) cross-
+ * referenced against each app's REAL client-side wiring, confirmed by direct
+ * code read on 2026-07-29:
+ *   - dashboardair/functions/index.js: REAL_API_TOOLS (genuine in-app answer
+ *     via a real provider call) + BEST_FIT_ANSWER_ENGINE (honest stand-in
+ *     engine for tools with no API of their own, e.g. cleo -> perplexity).
+ *     Everything else is 'deeplink' — no in-app answer, straight to the tool
+ *     (faking those would be worse than not answering).
+ *   - DashboardAskAir/app/answer.tsx TOOLS map (AskAIR's Continue-button
+ *     deep link target) + dashboardair/deeplinks.js DEEP_LINKS map
+ *     (DashboardAIR's equivalent).
+ * Kept in sync BY HAND, same as JUDGE_SELF_TOOL above — this admin repo is
+ * intentionally isolated and can't import the other two repos' source at
+ * runtime. Update this whenever a tool is added to/removed from
+ * TOOL_CATALOG, or either app's deep-link map changes.
+ *
+ * Found and fixed 2026-07-29: cleo/wysa/ada were missing from
+ * dashboardair/deeplinks.js entirely (DashboardAIR's own ACE run had just
+ * picked Cleo for Finance & Investing via tie-break, with no working
+ * Continue button), and kling was missing from AskAIR's TOOLS map. Both
+ * fixed same day — this table exists so the next gap like that shows up
+ * here, not as a dead button for a real user.
+ */
+const TOOL_WIRING = {
+  claude:     { tier: 'real-api', askair: true, dashboardair: true },
+  chatgpt:    { tier: 'real-api', askair: true, dashboardair: true },
+  perplexity: { tier: 'real-api', askair: true, dashboardair: true },
+  grok:       { tier: 'real-api', askair: true, dashboardair: true },
+  gemini:     { tier: 'real-api', askair: true, dashboardair: true },
+  copilot:    { tier: 'real-api', askair: true, dashboardair: true },
+  wysa:       { tier: 'fallback', askair: true, dashboardair: true },
+  ada:        { tier: 'fallback', askair: true, dashboardair: true },
+  cleo:       { tier: 'fallback', askair: true, dashboardair: true },
+  wolfram:    { tier: 'deeplink', askair: true, dashboardair: true },
+  canva:      { tier: 'deeplink', askair: true, dashboardair: true },
+  firefly:    { tier: 'deeplink', askair: true, dashboardair: true },
+  runway:     { tier: 'deeplink', askair: true, dashboardair: true },
+  elevenlabs: { tier: 'deeplink', askair: true, dashboardair: true },
+  suno:       { tier: 'deeplink', askair: true, dashboardair: true },
+  kling:      { tier: 'deeplink', askair: true, dashboardair: true },
+};
+
+const TIER_LABELS = {
+  'real-api': 'Real API \u2014 genuine in-app answer',
+  'fallback': 'Fallback engine \u2014 honest stand-in answer + recommendation',
+  'deeplink': 'Deeplink-only \u2014 no in-app answer, straight to the tool',
+};
+
+export function renderToolWiringStatus(container) {
+  const gaps = [];
+  const rows = Object.entries(TOOL_WIRING).map(([id, w]) => {
+    if (!w.askair) gaps.push(`${toolLabel(id)} missing from AskAIR`);
+    if (!w.dashboardair) gaps.push(`${toolLabel(id)} missing from DashboardAIR`);
+    const okBadge = (ok) => ok
+      ? '<span class="badge approved">wired</span>'
+      : '<span class="badge rejected">missing</span>';
+    return `
+      <tr>
+        <td>${toolLabel(id)}</td>
+        <td>${TIER_LABELS[w.tier]}</td>
+        <td>${okBadge(w.askair)}</td>
+        <td>${okBadge(w.dashboardair)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const banner = gaps.length === 0
+    ? `<p style="color: var(--ace-muted); font-size: 13px; margin-bottom: 12px;">\u2705 No wiring gaps \u2014 every catalog tool has a working path in both apps.</p>`
+    : `<p style="color: #f87171; font-size: 13px; margin-bottom: 12px; font-weight: 600;">\u26a0\ufe0f ${gaps.length} wiring gap${gaps.length > 1 ? 's' : ''} detected: ${gaps.join('; ')}. A category that resolves to one of these will silently dead-end for real users \u2014 fix before publishing any run that could pick it.</p>`;
+
+  container.innerHTML = `
+    ${banner}
+    <table class="ace-table">
+      <thead><tr><th>Tool</th><th>Answer Tier</th><th>AskAIR</th><th>DashboardAIR</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p style="color: var(--ace-muted); font-size: 12px; margin-top: 12px;">
+      Manually-maintained mirror of the real wiring in each app's code (this admin page can't read the other two
+      repos at runtime) \u2014 update TOOL_WIRING above whenever TOOL_CATALOG or either app's deep-link map changes.
+    </p>
+  `;
+}
+
+/**
  * For each judge, compares how often it votes for its own corresponding
  * tool against how often the OTHER four judges vote for that same tool.
  * A judge picking its own tool meaningfully more than its peers do is a

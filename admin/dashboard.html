@@ -87,6 +87,28 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
           <option value="askair">AskAIR</option>
         </select>
 
+        <details style="margin-bottom: 20px;" open>
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Assignment Tenure</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to collapse — how long has the current tool held each category)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Current tool per category, held-since date, and streak length — counting only runs that were actually published with that category approved. Longest-held first.</p>
+          <div id="assignment-streaks-table" style="overflow-x:auto;"><p style="color: var(--ace-muted); font-size: 13px;">Expand to load…</p></div>
+        </details>
+
+        <details style="margin-bottom: 20px;" open>
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Tool Wiring Status</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to collapse — which catalog tools actually have a working answer/deep-link path in each app)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">
+            The best tool always wins on merit — but "wins" only means something if the app actually knows how to use
+            it. This cross-checks every judgeable tool against both apps' real wiring so a gap (like Cleo/Wysa/Ada
+            missing from DashboardAIR, found 2026-07-29) shows up here instead of as a dead button for a real user.
+          </p>
+          <div id="tool-wiring-table" style="overflow-x:auto;"><p style="color: var(--ace-muted); font-size: 13px;">Loading…</p></div>
+        </details>
+
         <details style="margin-bottom: 20px;">
           <summary style="cursor:pointer; list-style:none;">
             <h4 style="display:inline; margin: 0;">Category Winner History</h4>
@@ -161,7 +183,8 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
   <script type="module">
     import {
       AceAdmin, renderOwnershipChart, fetchRunHistory,
-      renderCategoryHistory, renderToolTrend, renderJudgeBias,
+      renderAssignmentStreaks, renderCategoryHistory, renderToolTrend, renderJudgeBias,
+      renderToolWiringStatus,
     } from './ace-admin.js';
     import {
       collection, doc, deleteDoc, writeBatch,
@@ -454,10 +477,12 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
     let analyticsLoaded = false;
     async function loadAnalytics() {
       const appId = document.getElementById('analytics-app-select').value;
+      const streaksEl = document.getElementById('assignment-streaks-table');
       const catHistEl = document.getElementById('category-history-table');
       const trendEl = document.getElementById('tool-trend-table');
       const biasEl = document.getElementById('judge-bias-table');
 
+      streaksEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
       catHistEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
       trendEl.innerHTML = '';
       biasEl.innerHTML = '';
@@ -466,16 +491,23 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
         // Last 12 runs — enough history to spot flips/trends without pulling
         // every run and every category doc ever created as the run count grows.
         const runs = await fetchRunHistory(AceAdmin.db, appId, 12);
+        renderAssignmentStreaks(streaksEl, runs);
         renderCategoryHistory(catHistEl, runs);
         renderToolTrend(trendEl, runs);
         renderJudgeBias(biasEl, runs);
       } catch (err) {
         console.error('loadAnalytics failed:', err);
         const msg = `<p style="color: var(--ace-danger, #f87171); font-size: 13px;">Couldn't load analytics: ${err.message}</p>`;
+        streaksEl.innerHTML = msg;
         catHistEl.innerHTML = msg;
         trendEl.innerHTML = '';
         biasEl.innerHTML = '';
       }
+
+      // Tool wiring status is static (not per-run) — render once, independent
+      // of the try/catch above so a Firestore hiccup for run history doesn't
+      // also blank out the wiring table.
+      renderToolWiringStatus(document.getElementById('tool-wiring-table'));
     }
 
     document.getElementById('analytics-card').addEventListener('toggle', (e) => {
