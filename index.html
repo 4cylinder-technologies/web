@@ -278,13 +278,15 @@
     {
       "@type": "SoftwareApplication",
       "name": "MyOwnIQ",
-      "operatingSystem": "iOS, Android",
+      "operatingSystem": "Android",
       "applicationCategory": "LifestyleApplication",
       "description": "AI home inventory — answer five questions to build your whole home, sweep your camera to catalog what you own, and stop rebuying what you already have.",
       "publisher": {
         "@id": "https://4cylindertechnologies.com/#org"
       },
-      "url": "https://4cylindertechnologies.com/",
+      "installUrl": [
+        "https://play.google.com/store/apps/details?id=com.fourcylinder.myowniq"
+      ],
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -350,7 +352,7 @@
   <div class="hero-pills">
     <a class="pill" href="#apps"><span class="pill-dot live"></span>DashboardAIR — Live on iOS &amp; Android</a>
     <a class="pill" href="#apps"><span class="pill-dot live"></span>AskAIR — Live on iOS &amp; Android</a>
-    <a class="pill" href="#apps"><span class="pill-dot soon"></span>MyOwnIQ — In Open Beta</a>
+    <a class="pill" href="#apps"><span class="pill-dot live"></span>MyOwnIQ — Live on Android</a>
   </div>
   <div class="hero-scroll">
     <span class="scroll-label">Scroll</span>
@@ -436,14 +438,23 @@
       <div class="app-icon-wrap">
         <img src="MyOwnIQ Icon Tight.png" alt="MyOwnIQ" />
       </div>
-      <div class="app-status soon">
-        <span class="status-dot"></span>
-        In Open Beta
+      <div class="app-status live">
+        <span class="status-dot pulse"></span>
+        Live on Android
       </div>
       <h3>MyOwnIQ<span class="tm">™</span></h3>
       <p>AI-Powered Ownership Intelligence. Point a camera at any space — pantry, garage, closet — and AI inventories everything it sees. Find it, need it, lose it. Know What You Own.</p>
       <div class="app-actions">
-        <span class="coming-soon-label">Currently in open beta testing — public launch coming soon</span>
+        <div class="store-badges">
+          <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.fourcylinder.myowniq" target="_blank" rel="noopener">
+            <svg width="18" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1.22 0L1 .22v23.56l.22.22L13 12.22z" fill="#00C1FF"/><path d="M16.89 8.56L13 4.67 1.22 0l11.5 11.5z" fill="#00E876"/><path d="M16.89 15.44l-3.89 3.89L1.22 24l11.28-11.28z" fill="#FF3D00"/><path d="M22.67 10.89l-5.78-2.33-3.89 3.66 3.89 3.56 5.78-2.33c1-.56 1-.78 1-1.28s0-.72-1-1.28z" fill="#FFC400"/></svg>
+            <div class="store-badge-text">
+              <span class="store-badge-sub">Get it on</span>
+              <span class="store-badge-name">Google Play</span>
+            </div>
+          </a>
+        </div>
+        <span class="coming-soon-label">iOS App Store — pending Apple review</span>
         <a class="app-support-link" href="support.html">Support &amp; FAQ →</a>
       </div>
     </div>
