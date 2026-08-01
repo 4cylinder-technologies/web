@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MyOwnIQ — 4Cylinder Technologies</title>
+<meta name="robots" content="noindex" />
+<!--
+  /myowniq — single short link for every social post, ever.
+  Routes by platform so the SAME link works for Android (Play, live) and
+  iOS (Apple, not live yet — falls back to the website section until it clears
+  review). Once MyOwnIQ ships on the App Store, update ONLY the isIOS line
+  below with the real https://apps.apple.com/... URL — no past or future
+  social post needs to change, because they all point here.
+-->
+<script>
+  (function () {
+    var ua = navigator.userAgent || '';
+    var isIOS = /iPhone|iPad|iPod/i.test(ua);
+    var isAndroid = /Android/i.test(ua);
+    var dest = 'https://4cylindertechnologies.com/#myowniq'; // desktop / default fallback
+
+    if (isAndroid) {
+      dest = 'https://play.google.com/store/apps/details?id=com.fourcylinder.myowniq';
+    } else if (isIOS) {
+      // TODO: replace with the real App Store URL once MyOwnIQ clears Apple review.
+      dest = 'https://4cylindertechnologies.com/#myowniq';
+    }
+
+    location.replace(dest);
+  })();
+</script>
+</head>
+<body>
+  <p>Redirecting to MyOwnIQ&hellip;
+    <a href="https://4cylindertechnologies.com/#myowniq">Continue</a>
+  </p>
+</body>
+</html>
