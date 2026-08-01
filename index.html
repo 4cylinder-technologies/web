@@ -446,21 +446,22 @@
         Live on Android
       </div>
       <!-- 15-second demo: wizard -> create -> pantry scan -> Don't Rebuy check.
-           Drop the exported files at these two paths and this goes live automatically —
-           no further code change needed. See claude/myowniq-demo-video-plan.md for the
-           recording shot list + export specs for all 4 reuses of this same clip.
-           TEMP FIX 8/1: poster was pointing at social/myowniq-demo-poster.jpg, which
-           doesn't exist yet either — with both the <source> AND the poster 404ing,
-           the browser had nothing to paint and rendered the video element's plain
-           #000 background, a solid black box on the live homepage. Pointed the
-           poster at an existing real MyOwnIQ promo image (pantry-themed, matches
-           this card's own "pantry, garage, closet" copy) as a placeholder so this
-           looks intentional instead of broken. Swap back to
-           social/myowniq-demo-poster.jpg once the real demo clip is recorded and
-           exported per the plan doc — no other change needed then. -->
-      <video class="app-demo-video" autoplay muted loop playsinline poster="social/b2_myowniq_pantry_x.png">
-        <source src="social/myowniq-demo.mp4" type="video/mp4">
-      </video>
+           REMOVED 8/1 (was here twice, wrong both times): first version 404'd on
+           both <source> and poster and rendered a solid black box; the "fix" for
+           that pointed poster at social/b2_myowniq_pantry_x.png, one of the
+           b2_ series social-media promo cards — but those all share one shared
+           orange template background (that's DashboardAIR's brand color, not
+           MyOwnIQ's — MyOwnIQ is blue, see .app-card.myowniq h3 above), so it
+           read as a stray orange ad card wedged into an otherwise medialess
+           layout. DashboardAIR and AskAIR's cards above have no media slot at
+           all — just icon/status/heading/copy/badges — so dropping the video
+           element entirely until the real clip exists matches their layout
+           exactly instead of introducing a placeholder. To bring the demo back:
+           see claude/myowniq-demo-video-plan.md for the recording shot list,
+           then re-add <video class="app-demo-video" autoplay muted loop
+           playsinline poster="social/myowniq-demo-poster.jpg"><source
+           src="social/myowniq-demo.mp4" type="video/mp4"></video> here once
+           both real files exist. -->
       <h3>MyOwnIQ<span class="tm">™</span></h3>
       <p>AI-Powered Ownership Intelligence. Point a camera at any space — pantry, garage, closet — and AI inventories everything it sees. Find it, need it, lose it. Know What You Own.</p>
       <div class="app-actions">
