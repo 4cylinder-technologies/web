@@ -96,17 +96,20 @@
     import { AceAdmin } from './ace-admin.js';
     import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
 
-    // Gen2 Cloud Run URL, not the cloudfunctions.net alias — real, documented
-    // gen2 flakiness (firebase/firebase-functions#1447): 2nd gen functions
-    // are supposed to get both a cloudfunctions.net alias AND a .run.app
-    // Cloud Run URL, but sometimes only the .run.app one actually
-    // provisions, with the alias 404ing ("Page not found"). Confirmed here:
-    // the 8/1 gen2 create-deploy printed the cloudfunctions.net form, but
-    // the very next update-deploy (same function, no code change to the
-    // trigger) printed only this .run.app URL. If a future deploy changes
-    // this again, read the real printed "Function URL (...)" line from that
-    // deploy's output — don't assume it's stable across deploys for gen2.
-    const MANUAL_REFRESH_URL = 'https://gaugescollectormanual-pqdh5wrifa-uc.a.run.app';
+    // Gen2 Cloud Run URL flakiness (firebase/firebase-functions#1447) — real,
+    // recurring. Updated again 8/1 (Play Console phase): a stuck "Skipped
+    // (No changes detected)" false-skip (confirmed via grep — the local
+    // source genuinely had the new Play collector code, but two separate
+    // `firebase deploy` runs both skipped both functions) required deleting
+    // gaugesCollector + gaugesCollectorManual and letting the deploy
+    // recreate them fresh. That recreate printed the cloudfunctions.net
+    // alias form this time, not the old .run.app URL that was here before —
+    // and since the function was fully deleted/recreated, the old .run.app
+    // URL is almost certainly dead now, not just stale. Lesson holds: after
+    // ANY gen2 functions deploy (routine or a delete+recreate), read the
+    // actual printed "Function URL (...)" line — never assume this stays
+    // stable across deploys.
+    const MANUAL_REFRESH_URL = 'https://us-central1-dashboard-air-dd713.cloudfunctions.net/gaugesCollectorManual';
 
     function timeAgo(iso) {
       if (!iso) return 'unknown';
