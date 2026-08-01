@@ -97,12 +97,24 @@
       </div>
     </details>
 
+    <details class="ace-card gauge-section" open style="margin-top:18px;">
+      <summary class="gauge-section-summary">
+        <span class="gauge-section-title">Buffer — social engagement</span>
+      </summary>
+      <div style="margin-top:10px;">
+        <button class="gauges-refresh-btn" data-source="buffer" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
+      </div>
+      <div class="gauges-grid" id="buffer-grid">
+        <div class="gauges-empty">Loading gauge data…</div>
+      </div>
+    </details>
+
     <details class="ace-card gauge-section" style="margin-top:18px; opacity:0.7;">
       <summary class="gauge-section-summary">
         <span class="gauge-section-title">Coming in later phases</span>
       </summary>
       <div style="color:var(--muted); font-size:13px; margin-top:10px; line-height:1.7;">
-        Buffer engagement (already live via analytics.js, not yet wired here) · Website performance
+        Website performance
       </div>
     </details>
   </div>
@@ -307,6 +319,39 @@
         </div>`;
     }
 
+    // LED here reflects "is the collector returning data" (same convention as
+    // revenueCatCardHtml/playVitalsCardHtml) — no invented good/bad threshold
+    // for engagement numbers. metricsUpdatedAt is Buffer's own freshness
+    // timestamp for that channel's rollup, separate from our own collector's
+    // updatedAt — shown so a stale Buffer-side number is visible as such.
+    function bufferCardHtml(channelName, c) {
+      if (c.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${channelName}</span>
+              <span class="gauge-led error" title="Collector error"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${c.error}</div>
+          </div>`;
+      }
+      const rows = (c.metrics || [])
+        .map(m => `${m.name}: <span class="dim">${m.unit === 'percentage' ? `${Number(m.value).toFixed(2)}%` : m.value}</span>`)
+        .join('<br>');
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${channelName}</span>
+            <span class="gauge-led ok"></span>
+          </div>
+          <div class="gauge-lcd">${rows || '<span class="dim">No metrics for this window</span>'}</div>
+          <div class="gauge-meta-row">
+            <span>trailing 30 days</span>
+            <span>${c.metricsUpdatedAt ? `Buffer data: ${timeAgo(c.metricsUpdatedAt)}` : ''}</span>
+          </div>
+        </div>`;
+    }
+
     async function loadSection(docId, gridId, cardFn, entriesKey) {
       const grid = document.getElementById(gridId);
       const snap = await getDoc(doc(AceAdmin.db, 'gauges', docId));
@@ -332,6 +377,7 @@
       appstoreconnect: { gridId: 'appstoreconnect-grid', cardFn: appStoreConnectCardHtml, entriesKey: 'apps' },
       playtrack: { gridId: 'playtrack-grid', cardFn: playTrackCardHtml, entriesKey: 'apps' },
       playvitals: { gridId: 'playvitals-grid', cardFn: playVitalsCardHtml, entriesKey: 'apps' },
+      buffer: { gridId: 'buffer-grid', cardFn: bufferCardHtml, entriesKey: 'channels' },
     };
 
     // Tracks each section's own updatedAt independently — refreshing just
