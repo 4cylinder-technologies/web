@@ -55,12 +55,21 @@
       </div>
     </details>
 
+    <details class="ace-card gauge-section" open style="margin-top:18px;">
+      <summary class="gauge-section-summary">
+        <span class="gauge-section-title">App Store Connect — version &amp; release status</span>
+      </summary>
+      <div class="gauges-grid" id="appstoreconnect-grid">
+        <div class="gauges-empty">Loading gauge data…</div>
+      </div>
+    </details>
+
     <details class="ace-card gauge-section" style="margin-top:18px; opacity:0.7;">
       <summary class="gauge-section-summary">
         <span class="gauge-section-title">Coming in later phases</span>
       </summary>
       <div style="color:var(--muted); font-size:13px; margin-top:10px; line-height:1.7;">
-        Play Console + App Store Connect (store status, ratings, crash rate) · Buffer engagement (already live via analytics.js, not yet wired here) · Website performance
+        Google Play Console (store status, ANR/crash rate) · Buffer engagement (already live via analytics.js, not yet wired here) · Website performance
       </div>
     </details>
   </div>
@@ -149,6 +158,48 @@
         </div>`;
     }
 
+    // Scope is deliberately version/release status only, not ratings — see
+    // the 8/1 note in gauges/functions/index.js for why (Apple's API has no
+    // endpoint for the real star rating, only written reviews, which would
+    // misrepresent the actual public rating).
+    const ASC_STATE_LED = {
+      READY_FOR_SALE: 'ok',
+      REJECTED: 'error',
+      DEVELOPER_REJECTED: 'error',
+      METADATA_REJECTED: 'error',
+      INVALID_BINARY: 'error',
+      REMOVED_FROM_SALE: 'error',
+    };
+
+    function appStoreConnectCardHtml(appName, a) {
+      if (a.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${appName}</span>
+              <span class="gauge-led error" title="Collector error"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${a.error}</div>
+          </div>`;
+      }
+      const ledClass = ASC_STATE_LED[a.appStoreState] || 'warn';
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${appName}</span>
+            <span class="gauge-led ${ledClass}" title="${a.platform}"></span>
+          </div>
+          <div class="gauge-lcd">
+            <span class="dim">version</span> ${a.versionString}<br>
+            ${a.appStoreState}
+          </div>
+          <div class="gauge-meta-row">
+            <span>${timeAgo(a.createdDate)}</span>
+            <span>${a.platform || ''}</span>
+          </div>
+        </div>`;
+    }
+
     async function loadSection(docId, gridId, cardFn, entriesKey) {
       const grid = document.getElementById(gridId);
       const snap = await getDoc(doc(AceAdmin.db, 'gauges', docId));
@@ -165,11 +216,12 @@
     }
 
     async function loadAndRender() {
-      const [githubUpdated, rcUpdated] = await Promise.all([
+      const [githubUpdated, rcUpdated, ascUpdated] = await Promise.all([
         loadSection('github', 'github-grid', repoCardHtml, 'repos'),
         loadSection('revenuecat', 'revenuecat-grid', revenueCatCardHtml, 'projects'),
+        loadSection('appstoreconnect', 'appstoreconnect-grid', appStoreConnectCardHtml, 'apps'),
       ]);
-      const latest = [githubUpdated, rcUpdated].filter(Boolean).sort((a, b) => b - a)[0];
+      const latest = [githubUpdated, rcUpdated, ascUpdated].filter(Boolean).sort((a, b) => b - a)[0];
       document.getElementById('last-updated').textContent = latest
         ? `Last collected ${timeAgo(latest.toISOString())}`
         : 'Never run yet';
