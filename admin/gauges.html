@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Gauges — 4Cylinder Technologies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./ace-admin.css" />
+  <link rel="stylesheet" href="./gauges.css" />
+</head>
+<body>
+  <div class="ace-header">
+    <div class="ace-brand">
+      <div class="ace-brand-text">
+        <h1>Gauges</h1>
+        <div class="ace-brand-sub">The instrument cluster for 4Cylinder Technologies</div>
+      </div>
+    </div>
+    <nav class="ace-nav">
+      <a href="./dashboard.html">ACE Dashboard</a>
+      <a href="./gauges.html" class="active">Gauges</a>
+      <a href="#" id="logout-link">Sign out</a>
+    </nav>
+  </div>
+
+  <div class="ace-container">
+    <div class="ace-card">
+      <div class="gauges-toolbar">
+        <div>
+          <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px;">GitHub — build status, all repos</div>
+          <div style="color:var(--muted); font-size:12px; margin-top:2px;" id="last-updated">Loading…</div>
+        </div>
+        <button class="gauges-refresh-btn" id="refresh-btn">Refresh now</button>
+      </div>
+
+      <div class="gauges-grid" id="github-grid">
+        <div class="gauges-empty">Loading gauge data…</div>
+      </div>
+    </div>
+
+    <div class="ace-card" style="margin-top:18px; opacity:0.55;">
+      <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px;">Coming in later phases</div>
+      <div style="color:var(--muted); font-size:13px; margin-top:6px; line-height:1.7;">
+        RevenueCat (revenue/subscribers) · Play Console + App Store Connect (store status, ratings, crash rate) · Buffer engagement (already live via analytics.js, not yet wired here) · Website performance
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { AceAdmin } from './ace-admin.js';
+    import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+    // Same v1 https.onRequest default region as the rest of dashboardair's
+    // functions that don't set .region() explicitly — us-central1.
+    const MANUAL_REFRESH_URL = 'https://us-central1-dashboard-air-dd713.cloudfunctions.net/gaugesCollectorManual';
+
+    function timeAgo(iso) {
+      if (!iso) return 'unknown';
+      const ms = Date.now() - new Date(iso).getTime();
+      const days = Math.floor(ms / 86400000);
+      if (days > 0) return `${days}d ago`;
+      const hours = Math.floor(ms / 3600000);
+      if (hours > 0) return `${hours}h ago`;
+      const mins = Math.floor(ms / 60000);
+      return mins <= 0 ? 'just now' : `${mins}m ago`;
+    }
+
+    function repoCardHtml(repoName, r) {
+      if (r.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${repoName}</span>
+              <span class="gauge-led error" title="Collector error"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${r.error}</div>
+          </div>`;
+      }
+      // "Stale" isn't a real health signal by itself (a quiet repo isn't
+      // broken) — this LED just reflects how recently the collector saw a
+      // commit, so it's a freshness indicator, not a pass/fail judgment.
+      const days = (Date.now() - new Date(r.latestCommitDate).getTime()) / 86400000;
+      const ledClass = days < 3 ? 'ok' : days < 14 ? 'warn' : 'ok';
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${repoName}</span>
+            <span class="gauge-led ${ledClass}" title="${r.defaultBranch} branch"></span>
+          </div>
+          <div class="gauge-lcd">
+            <span class="dim">commit</span> ${r.latestCommitSha}<br>
+            "${r.latestCommitMessage}"
+          </div>
+          <div class="gauge-meta-row">
+            <span>${timeAgo(r.latestCommitDate)}</span>
+            <span>${r.latestReleaseTag ? `release ${r.latestReleaseTag}` : 'no releases'}</span>
+          </div>
+        </div>`;
+    }
+
+    async function loadAndRender() {
+      const grid = document.getElementById('github-grid');
+      const snap = await getDoc(doc(AceAdmin.db, 'gauges', 'github'));
+      if (!snap.exists()) {
+        grid.innerHTML = '<div class="gauges-empty">No data yet — the collector hasn\'t run for the first time. Click "Refresh now" or wait for its 6-hour schedule.</div>';
+        document.getElementById('last-updated').textContent = 'Never run yet';
+        return;
+      }
+      const data = snap.data();
+      grid.innerHTML = Object.entries(data.repos || {}).map(([name, r]) => repoCardHtml(name, r)).join('');
+      const updatedAt = data.updatedAt?.toDate ? data.updatedAt.toDate() : null;
+      document.getElementById('last-updated').textContent = updatedAt
+        ? `Last collected ${timeAgo(updatedAt.toISOString())}`
+        : 'Last collected: unknown';
+    }
+
+    (async () => {
+      await AceAdmin.requireAuth();
+      document.getElementById('logout-link').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await AceAdmin.logout();
+      });
+      await loadAndRender();
+
+      document.getElementById('refresh-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('refresh-btn');
+        btn.disabled = true;
+        btn.textContent = 'Refreshing…';
+        try {
+          await fetch(MANUAL_REFRESH_URL);
+          await loadAndRender();
+        } catch (e) {
+          alert('Refresh failed: ' + e.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Refresh now';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

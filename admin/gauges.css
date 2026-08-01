@@ -1,0 +1,116 @@
+/**
+ * gauges.css — widget styles for Gauges (the instrument cluster for
+ * 4Cylinder Technologies). Loaded AFTER ace-admin.css and reuses its
+ * :root variables (--bg, --surface, --text, --orange, --green, --red, etc.)
+ * rather than redefining a second palette — same admin surface, same look.
+ */
+
+.gauges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.gauge-card {
+  background: var(--surface);
+  border: 1px solid var(--border-med);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.gauge-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--orange), transparent);
+  opacity: 0.7;
+}
+
+.gauge-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.gauge-card-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.2px;
+}
+
+/* LED-style status dot — green/amber/red, like a dashboard warning light */
+.gauge-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+.gauge-led.ok    { background: var(--green); color: var(--green); }
+.gauge-led.warn  { background: var(--gold);  color: var(--gold); }
+.gauge-led.error { background: var(--red);   color: var(--red); }
+
+/* Digital LCD-style readout — glowing monospace on a recessed dark panel,
+   like a car's trip computer. Used for hard facts: commit SHA, timestamps. */
+.gauge-lcd {
+  background: #050a12;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 12.5px;
+  color: #7CFFB2;
+  text-shadow: 0 0 6px rgba(124,255,178,0.45);
+  line-height: 1.6;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+.gauge-lcd .dim { color: var(--muted); text-shadow: none; }
+
+.gauge-lcd.warn-tone { color: var(--gold); text-shadow: 0 0 6px rgba(245,200,66,0.45); }
+.gauge-lcd.error-tone { color: #FF8A8A; text-shadow: 0 0 6px rgba(239,68,68,0.45); }
+
+.gauge-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 10px;
+}
+
+.gauges-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.gauges-refresh-btn {
+  background: var(--orange-dim);
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.gauges-refresh-btn:hover { background: var(--orange-glow); }
+.gauges-refresh-btn:disabled { opacity: 0.5; cursor: default; }
+
+.gauges-empty {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 40px 0;
+  text-align: center;
+}
