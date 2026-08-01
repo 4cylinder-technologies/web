@@ -5,6 +5,34 @@
  * rather than redefining a second palette — same admin surface, same look.
  */
 
+/* Collapsible sections — <details>/<summary>, same pattern already used by
+   #methodology-card on dashboard.html. Marker hidden, custom chevron added
+   via ::after so it matches the rest of the admin UI's look. */
+.gauge-section > summary.gauge-section-summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.gauge-section > summary.gauge-section-summary::-webkit-details-marker { display: none; }
+
+.gauge-section-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.gauge-section > summary.gauge-section-summary::after {
+  content: '▾';
+  color: var(--muted);
+  transition: transform 0.15s ease;
+  font-size: 12px;
+}
+.gauge-section:not([open]) > summary.gauge-section-summary::after {
+  transform: rotate(-90deg);
+}
+
 .gauges-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
