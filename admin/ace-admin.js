@@ -80,9 +80,10 @@ export const AceAdmin = {
   },
 
   // Default client-side callable timeout is 70s, well under a full multi-
-  // category run — matched to the server's 540s timeoutSeconds so the
-  // browser doesn't give up on a run that's still legitimately in progress.
-  runACEVoting: (payload) => httpsCallable(functions, 'runACEVoting', { timeout: 540000 })(payload),
+  // category run — matched to the server's timeoutSeconds (now 1800s on
+  // Gen2) plus a small buffer, so the browser doesn't give up on a run
+  // that's still legitimately in progress on the server.
+  runACEVoting: (payload) => httpsCallable(functions, 'runACEVoting', { timeout: 1830000 })(payload),
   setACEResultStatus: (payload) => httpsCallable(functions, 'setACEResultStatus')(payload),
   publishACEResults: (payload) => httpsCallable(functions, 'publishACEResults')(payload),
 };

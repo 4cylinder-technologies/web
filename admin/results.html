@@ -286,14 +286,28 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
     });
 
     document.getElementById('export-csv-btn').addEventListener('click', () => {
-      const rows = [['Category', 'Winner', 'Confidence', 'Status', ...Object.keys(categories[0]?.votes || {})]];
+      // Fixed 2026-07-31: this used to build the header from
+      // Object.keys(categories[0].votes) but fill every OTHER row via
+      // Object.values(cat.votes) — assuming every category's votes map has
+      // judges in the same key order. Firestore does not guarantee map-field
+      // key order is preserved on read, so a row's actual judge could drift
+      // out from under its header, silently mislabeling which judge said
+      // what (confirmed via a real export where a single judge's error
+      // message appeared to "rotate" across different judge columns).
+      // JUDGE_ORDER is a fixed, explicit column order so every row looks up
+      // each judge by name instead of trusting object iteration order.
+      const JUDGE_ORDER = ['claude', 'gpt4o', 'copilot', 'perplexity', 'grok', 'gemini'];
+      const rows = [['Category', 'Winner', 'Confidence', 'Status', ...JUDGE_ORDER]];
       categories.forEach(cat => {
         rows.push([
           cat.categoryName,
           cat.winner ?? '',
           cat.confidence,
           cat.status,
-          ...Object.values(cat.votes || {}).map(v => `${v.tool ?? ''}: ${v.reason ?? ''}`),
+          ...JUDGE_ORDER.map(judge => {
+            const v = (cat.votes || {})[judge];
+            return v ? `${v.tool ?? ''}: ${v.reason ?? ''}` : '';
+          }),
         ]);
       });
 

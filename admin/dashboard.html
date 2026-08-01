@@ -200,9 +200,10 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
     });
 
     // Populates the checkbox list inside #category-picker-menu. Each item's
-    // value is whatever runACEVoting expects as a categoryId (flat category
-    // id for dashboardair, hub slug for askair) — same IDs the old single
-    // -select used, just multi-selectable now.
+    // value is whatever runACEVoting expects as a categoryId — a real
+    // Firestore doc ID for both apps now (2026-07-31, Option A: askair votes
+    // per spoke, same granularity as dashboardair — see ace/functions/
+    // index.js for why).
     async function loadCategories() {
       const appId = document.getElementById('app-select').value;
       const listEl = document.getElementById('category-picker-list');
@@ -214,18 +215,21 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
       let items; // [{ id, label }]
 
       if (appId === 'askair') {
-        // AskAIR votes per HUB, not per spoke (19 hubs vs. 115 spokes) — and
-        // spokes are matched by !appId || appId === 'askair' since some
-        // legacy docs have no appId field at all; a strict where('appId','
-        // ==','askair') would silently miss them (confirmed against real
-        // Firestore data, 2026-07-16).
+        // One checkbox per spoke doc (115, not 19 hubs) — spokes are matched
+        // by !appId || appId === 'askair' since some legacy docs have no
+        // appId field at all; a strict where('appId','==','askair') would
+        // silently miss them (confirmed against real Firestore data,
+        // 2026-07-16). The hub prefix in the label is purely for readability
+        // in this list — voting no longer groups by it.
         const snap = await getDocs(query(collection(AceAdmin.db, 'categories'), where('active', '==', true)));
-        const hubs = new Set();
-        snap.docs.forEach(d => {
+        const spokeDocs = snap.docs.filter(d => {
           const c = d.data();
-          if (!c.appId || c.appId === 'askair') hubs.add(c.hub || '(uncategorized)');
+          return !c.appId || c.appId === 'askair';
         });
-        items = Array.from(hubs).sort().map(hub => ({ id: slugifyHub(hub), label: hub }));
+        items = spokeDocs
+          .map(d => ({ id: d.id, hub: d.data().hub || '(uncategorized)', spoke: d.data().spoke || d.id }))
+          .sort((a, b) => (a.hub + a.spoke).localeCompare(b.hub + b.spoke))
+          .map(x => ({ id: x.id, label: `${x.hub} — ${x.spoke}` }));
       } else {
         const catsQuery = query(
           collection(AceAdmin.db, 'categories'),
@@ -294,13 +298,6 @@ Respond with exactly one line: TOOL_ID: one-sentence reason</pre>
         document.getElementById('category-picker-menu').style.display = 'none';
       }
     });
-
-    // Must match the backend's slugify() in ace/functions/index.js exactly —
-    // this is how a hub name becomes the categoryId used for a single-hub
-    // test run and for matching spokes back to their hub at publish time.
-    function slugifyHub(s) {
-      return String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    }
 
     document.getElementById('app-select').addEventListener('change', loadCategories);
 
