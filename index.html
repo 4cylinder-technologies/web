@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDMYKTRD5D"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-WDMYKTRD5D');
-  </script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4Cylinder Technologies LLC — AI Apps Built for Real Life</title>
@@ -457,8 +448,17 @@
       <!-- 15-second demo: wizard -> create -> pantry scan -> Don't Rebuy check.
            Drop the exported files at these two paths and this goes live automatically —
            no further code change needed. See claude/myowniq-demo-video-plan.md for the
-           recording shot list + export specs for all 4 reuses of this same clip. -->
-      <video class="app-demo-video" autoplay muted loop playsinline poster="social/myowniq-demo-poster.jpg">
+           recording shot list + export specs for all 4 reuses of this same clip.
+           TEMP FIX 8/1: poster was pointing at social/myowniq-demo-poster.jpg, which
+           doesn't exist yet either — with both the <source> AND the poster 404ing,
+           the browser had nothing to paint and rendered the video element's plain
+           #000 background, a solid black box on the live homepage. Pointed the
+           poster at an existing real MyOwnIQ promo image (pantry-themed, matches
+           this card's own "pantry, garage, closet" copy) as a placeholder so this
+           looks intentional instead of broken. Swap back to
+           social/myowniq-demo-poster.jpg once the real demo clip is recorded and
+           exported per the plan doc — no other change needed then. -->
+      <video class="app-demo-video" autoplay muted loop playsinline poster="social/b2_myowniq_pantry_x.png">
         <source src="social/myowniq-demo.mp4" type="video/mp4">
       </video>
       <h3>MyOwnIQ<span class="tm">™</span></h3>
