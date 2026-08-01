@@ -5,17 +5,42 @@
  * rather than redefining a second palette — same admin surface, same look.
  */
 
-/* Collapsible sections — <details>/<summary>, same pattern already used by
-   #methodology-card on dashboard.html. Marker hidden, custom chevron added
-   via ::after so it matches the rest of the admin UI's look. */
-.gauge-section > summary.gauge-section-summary {
+/* Tabs, added 8/1 — replaces the old <details>/<summary> collapsible
+   sections (Michael: "That page is long! ... can we do something simpler
+   like tabs across the top"). Tab bar + panels are built by
+   buildTabsAndPanels() in gauges.html from the SECTIONS map, so this is
+   just the visual styling — no per-section markup lives here. */
+.gauges-tabcard { padding-top: 14px; }
+
+.gauges-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-med);
+  margin-bottom: 20px;
+}
+
+.gauges-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 10px 16px;
   cursor: pointer;
-  list-style: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.gauges-tab:hover { color: var(--text); }
+.gauges-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+
+.gauge-panel-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 6px;
 }
-.gauge-section > summary.gauge-section-summary::-webkit-details-marker { display: none; }
 
 .gauge-section-title {
   font-family: 'Syne', sans-serif;
@@ -23,14 +48,12 @@
   font-size: 14px;
 }
 
-.gauge-section > summary.gauge-section-summary::after {
-  content: '▾';
+.gauges-footnote {
   color: var(--muted);
-  transition: transform 0.15s ease;
-  font-size: 12px;
-}
-.gauge-section:not([open]) > summary.gauge-section-summary::after {
-  transform: rotate(-90deg);
+  font-size: 12.5px;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
 .gauges-grid {

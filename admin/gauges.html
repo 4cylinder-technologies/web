@@ -34,89 +34,19 @@
       <button class="gauges-refresh-btn" id="refresh-btn">Refresh now</button>
     </div>
 
-    <!-- Sections are <details>, same collapsible pattern already used for
-         the "How ACE Works" card on dashboard.html — open by default so
-         nothing regresses, click the header to collapse. -->
-    <details class="ace-card gauge-section" open style="margin-top:18px;">
-      <summary class="gauge-section-summary">
-        <span class="gauge-section-title">GitHub — build status, all repos</span>
-      </summary>
-      <div style="margin-top:10px;">
-        <button class="gauges-refresh-btn" data-source="github" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
-      </div>
-      <div class="gauges-grid" id="github-grid">
-        <div class="gauges-empty">Loading gauge data…</div>
-      </div>
-    </details>
-
-    <details class="ace-card gauge-section" open style="margin-top:18px;">
-      <summary class="gauge-section-summary">
-        <span class="gauge-section-title">RevenueCat — revenue &amp; subscribers</span>
-      </summary>
-      <div style="margin-top:10px;">
-        <button class="gauges-refresh-btn" data-source="revenuecat" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
-      </div>
-      <div class="gauges-grid" id="revenuecat-grid">
-        <div class="gauges-empty">Loading gauge data…</div>
-      </div>
-    </details>
-
-    <details class="ace-card gauge-section" open style="margin-top:18px;">
-      <summary class="gauge-section-summary">
-        <span class="gauge-section-title">App Store Connect — version &amp; release status</span>
-      </summary>
-      <div style="margin-top:10px;">
-        <button class="gauges-refresh-btn" data-source="appstoreconnect" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
-      </div>
-      <div class="gauges-grid" id="appstoreconnect-grid">
-        <div class="gauges-empty">Loading gauge data…</div>
-      </div>
-    </details>
-
-    <details class="ace-card gauge-section" open style="margin-top:18px;">
-      <summary class="gauge-section-summary">
-        <span class="gauge-section-title">Google Play — track &amp; release status</span>
-      </summary>
-      <div style="margin-top:10px;">
-        <button class="gauges-refresh-btn" data-source="playtrack" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
-      </div>
-      <div class="gauges-grid" id="playtrack-grid">
-        <div class="gauges-empty">Loading gauge data…</div>
-      </div>
-    </details>
-
-    <details class="ace-card gauge-section" open style="margin-top:18px;">
-      <summary class="gauge-section-summary">
-        <span class="gauge-section-title">Google Play — vitals (crash / ANR rate)</span>
-      </summary>
-      <div style="margin-top:10px;">
-        <button class="gauges-refresh-btn" data-source="playvitals" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
-      </div>
-      <div class="gauges-grid" id="playvitals-grid">
-        <div class="gauges-empty">Loading gauge data…</div>
-      </div>
-    </details>
-
-    <details class="ace-card gauge-section" open style="margin-top:18px;">
-      <summary class="gauge-section-summary">
-        <span class="gauge-section-title">Buffer — social engagement</span>
-      </summary>
-      <div style="margin-top:10px;">
-        <button class="gauges-refresh-btn" data-source="buffer" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
-      </div>
-      <div class="gauges-grid" id="buffer-grid">
-        <div class="gauges-empty">Loading gauge data…</div>
-      </div>
-    </details>
-
-    <details class="ace-card gauge-section" style="margin-top:18px; opacity:0.7;">
-      <summary class="gauge-section-summary">
-        <span class="gauge-section-title">Coming in later phases</span>
-      </summary>
-      <div style="color:var(--muted); font-size:13px; margin-top:10px; line-height:1.7;">
-        Website performance
-      </div>
-    </details>
+    <!-- Tabs, added 8/1 (Michael: "That page is long! ... can we do
+         something simpler like tabs across the top") — replaces the old
+         stacked <details> sections, which required scrolling past every
+         other gauge to reach one further down. Tab bar + panels are built
+         entirely from the SECTIONS map in the script below (one source of
+         truth, same "add one entry, not touch the wiring" philosophy the
+         data-loading code already used) — this container is just the
+         mount point. -->
+    <div class="ace-card gauges-tabcard" style="margin-top:18px;">
+      <div class="gauges-tabs" id="gauges-tabs" role="tablist"></div>
+      <div id="gauges-panels"></div>
+      <div class="gauges-footnote">Coming in later phases: Website performance</div>
+    </div>
   </div>
 
   <script type="module">
@@ -367,18 +297,58 @@
       return data.updatedAt?.toDate ? data.updatedAt.toDate() : null;
     }
 
-    // One place describing every section — used for the initial load AND
-    // for per-section refresh, so adding a future source only means adding
-    // one entry here (plus its <details> block + card-html function), not
-    // touching the load/refresh wiring itself.
+    // One place describing every section — used for the initial load, for
+    // per-section refresh, AND (as of 8/1) for building the tab bar/panels
+    // themselves, so adding a future source only means adding one entry
+    // here (plus its card-html function), not touching the tab, load, or
+    // refresh wiring.
     const SECTIONS = {
-      github: { gridId: 'github-grid', cardFn: repoCardHtml, entriesKey: 'repos' },
-      revenuecat: { gridId: 'revenuecat-grid', cardFn: revenueCatCardHtml, entriesKey: 'projects' },
-      appstoreconnect: { gridId: 'appstoreconnect-grid', cardFn: appStoreConnectCardHtml, entriesKey: 'apps' },
-      playtrack: { gridId: 'playtrack-grid', cardFn: playTrackCardHtml, entriesKey: 'apps' },
-      playvitals: { gridId: 'playvitals-grid', cardFn: playVitalsCardHtml, entriesKey: 'apps' },
-      buffer: { gridId: 'buffer-grid', cardFn: bufferCardHtml, entriesKey: 'channels' },
+      github: { gridId: 'github-grid', cardFn: repoCardHtml, entriesKey: 'repos', label: 'GitHub', panelTitle: 'GitHub — build status, all repos' },
+      revenuecat: { gridId: 'revenuecat-grid', cardFn: revenueCatCardHtml, entriesKey: 'projects', label: 'RevenueCat', panelTitle: 'RevenueCat — subscription metrics, all projects' },
+      appstoreconnect: { gridId: 'appstoreconnect-grid', cardFn: appStoreConnectCardHtml, entriesKey: 'apps', label: 'App Store', panelTitle: 'App Store Connect — release status, all apps' },
+      playtrack: { gridId: 'playtrack-grid', cardFn: playTrackCardHtml, entriesKey: 'apps', label: 'Play Track', panelTitle: 'Google Play — release track status, all apps' },
+      playvitals: { gridId: 'playvitals-grid', cardFn: playVitalsCardHtml, entriesKey: 'apps', label: 'Play Vitals', panelTitle: 'Google Play — crash & ANR rates, all apps' },
+      buffer: { gridId: 'buffer-grid', cardFn: bufferCardHtml, entriesKey: 'channels', label: 'Buffer', panelTitle: 'Buffer — social channel engagement' },
     };
+
+    // Builds the tab bar + one hidden panel per SECTIONS entry, entirely from
+    // that map (see comment above) — so this never needs to be hand-edited
+    // when a section is added/removed, only SECTIONS does. Must run before
+    // loadAndRender(), since loadSection() looks up each panel's grid by id.
+    function buildTabsAndPanels() {
+      const tabsEl = document.getElementById('gauges-tabs');
+      const panelsEl = document.getElementById('gauges-panels');
+      const ids = Object.keys(SECTIONS);
+      tabsEl.innerHTML = ids.map((id, i) => {
+        const cfg = SECTIONS[id];
+        return `<button class="gauges-tab${i === 0 ? ' active' : ''}" type="button" role="tab" data-tab="${id}">${cfg.label}</button>`;
+      }).join('');
+      panelsEl.innerHTML = ids.map((id, i) => {
+        const cfg = SECTIONS[id];
+        return `
+          <div class="gauge-panel" data-panel="${id}"${i === 0 ? '' : ' hidden'}>
+            <div class="gauge-panel-head">
+              <span class="gauge-section-title">${cfg.panelTitle}</span>
+              <button class="gauges-refresh-btn" data-source="${id}" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
+            </div>
+            <div class="gauges-grid" id="${cfg.gridId}">
+              <div class="gauges-empty">Loading gauge data…</div>
+            </div>
+          </div>`;
+      }).join('');
+      tabsEl.querySelectorAll('.gauges-tab').forEach(btn => {
+        btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+      });
+    }
+
+    function activateTab(id) {
+      document.querySelectorAll('#gauges-tabs .gauges-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === id);
+      });
+      document.querySelectorAll('#gauges-panels .gauge-panel').forEach(panel => {
+        panel.hidden = panel.dataset.panel !== id;
+      });
+    }
 
     // Tracks each section's own updatedAt independently — refreshing just
     // one section (8/1: Michael wanted per-section refresh, not "scroll up
@@ -434,6 +404,7 @@
         e.preventDefault();
         await AceAdmin.logout();
       });
+      buildTabsAndPanels();
       await loadAndRender();
 
       document.getElementById('refresh-btn').addEventListener('click', (e) => {
