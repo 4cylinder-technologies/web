@@ -64,12 +64,30 @@
       </div>
     </details>
 
+    <details class="ace-card gauge-section" open style="margin-top:18px;">
+      <summary class="gauge-section-summary">
+        <span class="gauge-section-title">Google Play — track &amp; release status</span>
+      </summary>
+      <div class="gauges-grid" id="playtrack-grid">
+        <div class="gauges-empty">Loading gauge data…</div>
+      </div>
+    </details>
+
+    <details class="ace-card gauge-section" open style="margin-top:18px;">
+      <summary class="gauge-section-summary">
+        <span class="gauge-section-title">Google Play — vitals (crash / ANR rate)</span>
+      </summary>
+      <div class="gauges-grid" id="playvitals-grid">
+        <div class="gauges-empty">Loading gauge data…</div>
+      </div>
+    </details>
+
     <details class="ace-card gauge-section" style="margin-top:18px; opacity:0.7;">
       <summary class="gauge-section-summary">
         <span class="gauge-section-title">Coming in later phases</span>
       </summary>
       <div style="color:var(--muted); font-size:13px; margin-top:10px; line-height:1.7;">
-        Google Play Console (store status, ANR/crash rate) · Buffer engagement (already live via analytics.js, not yet wired here) · Website performance
+        Buffer engagement (already live via analytics.js, not yet wired here) · Website performance
       </div>
     </details>
   </div>
@@ -200,6 +218,77 @@
         </div>`;
     }
 
+    // Track status LEDs mirror ASC_STATE_LED's judgment (a real release
+    // state, safe to color-code) — "completed" is Play's equivalent of
+    // READY_FOR_SALE.
+    const PLAY_TRACK_STATE_LED = {
+      completed: 'ok',
+      halted: 'error',
+      inProgress: 'warn',
+      draft: 'warn',
+    };
+
+    function playTrackCardHtml(appName, a) {
+      if (a.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${appName}</span>
+              <span class="gauge-led error" title="Collector error"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${a.error}</div>
+          </div>`;
+      }
+      const ledClass = PLAY_TRACK_STATE_LED[a.status] || 'warn';
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${appName}</span>
+            <span class="gauge-led ${ledClass}" title="${a.track} track"></span>
+          </div>
+          <div class="gauge-lcd">
+            <span class="dim">version</span> ${a.versionName || a.versionCode}<br>
+            ${a.status}
+          </div>
+          <div class="gauge-meta-row">
+            <span>${a.track} track</span>
+            <span>build ${a.versionCode || '—'}</span>
+          </div>
+        </div>`;
+    }
+
+    // LED here reflects "is the collector returning data", not a judgment on
+    // the rate itself — same convention as revenueCatCardHtml. No baseline
+    // for "good" crash/ANR rate has been set, so coloring this red/green
+    // would be an invented threshold, not a real signal.
+    function playVitalsCardHtml(appName, a) {
+      if (a.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${appName}</span>
+              <span class="gauge-led error" title="Collector error"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${a.error}</div>
+          </div>`;
+      }
+      const fmt = (v) => (typeof v === 'number' ? `${(v * 100).toFixed(2)}%` : (v == null ? 'no data' : JSON.stringify(v)));
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${appName}</span>
+            <span class="gauge-led ok"></span>
+          </div>
+          <div class="gauge-lcd">
+            crash rate: <span class="dim">${fmt(a.crashRate)}</span><br>
+            ANR rate: <span class="dim">${fmt(a.anrRate)}</span>
+          </div>
+          <div class="gauge-meta-row">
+            <span>trailing 7 days</span>
+          </div>
+        </div>`;
+    }
+
     async function loadSection(docId, gridId, cardFn, entriesKey) {
       const grid = document.getElementById(gridId);
       const snap = await getDoc(doc(AceAdmin.db, 'gauges', docId));
@@ -216,12 +305,14 @@
     }
 
     async function loadAndRender() {
-      const [githubUpdated, rcUpdated, ascUpdated] = await Promise.all([
+      const [githubUpdated, rcUpdated, ascUpdated, playTrackUpdated, playVitalsUpdated] = await Promise.all([
         loadSection('github', 'github-grid', repoCardHtml, 'repos'),
         loadSection('revenuecat', 'revenuecat-grid', revenueCatCardHtml, 'projects'),
         loadSection('appstoreconnect', 'appstoreconnect-grid', appStoreConnectCardHtml, 'apps'),
+        loadSection('playtrack', 'playtrack-grid', playTrackCardHtml, 'apps'),
+        loadSection('playvitals', 'playvitals-grid', playVitalsCardHtml, 'apps'),
       ]);
-      const latest = [githubUpdated, rcUpdated, ascUpdated].filter(Boolean).sort((a, b) => b - a)[0];
+      const latest = [githubUpdated, rcUpdated, ascUpdated, playTrackUpdated, playVitalsUpdated].filter(Boolean).sort((a, b) => b - a)[0];
       document.getElementById('last-updated').textContent = latest
         ? `Last collected ${timeAgo(latest.toISOString())}`
         : 'Never run yet';
