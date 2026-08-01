@@ -45,7 +45,7 @@
     <div class="ace-card gauges-tabcard" style="margin-top:18px;">
       <div class="gauges-tabs" id="gauges-tabs" role="tablist"></div>
       <div id="gauges-panels"></div>
-      <div class="gauges-footnote">Coming in later phases: Website performance</div>
+      <div class="gauges-footnote">All planned data sources are live — GitHub, RevenueCat, App Store Connect, Google Play (track + vitals), Buffer, and GA4 website traffic.</div>
     </div>
   </div>
 
@@ -282,6 +282,38 @@
         </div>`;
     }
 
+    // LED here reflects "is the collector returning data" (same convention
+    // as revenueCatCardHtml/bufferCardHtml) — no invented good/bad threshold
+    // for traffic numbers. An empty metrics array is a legitimate "no data
+    // yet" state (e.g. right after standing up a brand-new GA4 property),
+    // not necessarily a collector error — shown as its own message rather
+    // than the generic "returned nothing" one loadSection() would otherwise
+    // print.
+    function ga4CardHtml(siteName, s) {
+      if (s.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${siteName}</span>
+              <span class="gauge-led error" title="Collector error"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${s.error}</div>
+          </div>`;
+      }
+      const rows = (s.metrics || []).map(m => `${m.name}: <span class="dim">${m.value}</span>`).join('<br>');
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${siteName}</span>
+            <span class="gauge-led ok"></span>
+          </div>
+          <div class="gauge-lcd">${rows || '<span class="dim">No traffic recorded for this window yet</span>'}</div>
+          <div class="gauge-meta-row">
+            <span>trailing 7 days</span>
+          </div>
+        </div>`;
+    }
+
     async function loadSection(docId, gridId, cardFn, entriesKey) {
       const grid = document.getElementById(gridId);
       const snap = await getDoc(doc(AceAdmin.db, 'gauges', docId));
@@ -309,6 +341,7 @@
       playtrack: { gridId: 'playtrack-grid', cardFn: playTrackCardHtml, entriesKey: 'apps', label: 'Play Track', panelTitle: 'Google Play — release track status, all apps' },
       playvitals: { gridId: 'playvitals-grid', cardFn: playVitalsCardHtml, entriesKey: 'apps', label: 'Play Vitals', panelTitle: 'Google Play — crash & ANR rates, all apps' },
       buffer: { gridId: 'buffer-grid', cardFn: bufferCardHtml, entriesKey: 'channels', label: 'Buffer', panelTitle: 'Buffer — social channel engagement' },
+      ga4: { gridId: 'ga4-grid', cardFn: ga4CardHtml, entriesKey: 'sites', label: 'Website', panelTitle: 'Website — GA4 traffic (trailing 7 days)' },
     };
 
     // Builds the tab bar + one hidden panel per SECTIONS entry, entirely from
