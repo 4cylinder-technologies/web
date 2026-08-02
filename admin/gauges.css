@@ -72,10 +72,17 @@
    back to a single column below 900px so it doesn't get cramped on
    narrower screens. */
 #buffer-grid {
-  grid-template-columns: 1fr minmax(320px, 420px);
+  /* Small-cards region wider than the leaderboard column — round 2 (see
+     reflowBufferGrid's comment in gauges.html): both regions now get an
+     EXPLICIT grid-column below instead of relying on which one auto-places
+     into which track, since that's what put the leaderboard on the wrong
+     side last time. */
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
   align-items: start;
 }
 #buffer-grid .buffer-small-cards {
+  grid-column: 1;
+  grid-row: 1;
   /* Fixed 2 equal columns (not auto-fill) — auto-fill with a 220px minimum
      only fit ONE column given how little width is left after the
      leaderboard's reserved 320-420px, so everything stacked in a single
@@ -87,13 +94,15 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 18px;
 }
-#buffer-grid .gauge-card:last-child {
+#buffer-grid .buffer-leaderboard {
+  grid-column: 2;
   grid-row: 1 / -1;
   height: 100%;
 }
 @media (max-width: 900px) {
   #buffer-grid { grid-template-columns: 1fr; }
-  #buffer-grid .gauge-card:last-child { grid-row: auto; height: auto; }
+  #buffer-grid .buffer-small-cards { grid-column: 1; grid-row: 2; }
+  #buffer-grid .buffer-leaderboard { grid-column: 1; grid-row: 1; height: auto; }
 }
 
 .gauge-card {

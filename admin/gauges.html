@@ -450,14 +450,24 @@
     // by its known title text rather than a class, since cardFn functions
     // return plain HTML strings with no hook to tag "this one's special"
     // without touching bufferCardHtml's return shape for every other card.
+    // 8/2 round 2: switched from position-based CSS (:last-child + relying
+    // on insertBefore's DOM order) to an explicit class + explicit
+    // grid-column on both regions. The position-based version put the
+    // leaderboard on the LEFT (wide column) instead of the right — rather
+    // than keep guessing why DOM order didn't match expectations, this
+    // removes the ambiguity entirely: the leaderboard is tagged directly
+    // and CSS targets that tag, so placement no longer depends on which
+    // element happens to render first/last.
     function reflowBufferGrid(grid) {
       const cards = Array.from(grid.children).filter(el => el.classList.contains('gauge-card'));
       const leaderboard = cards.find(el => el.querySelector('.gauge-card-title')?.textContent.includes('Top 5 Posts'));
       if (!leaderboard || cards.length < 2) return; // nothing to reflow (collector error, or leaderboard-only state)
+      leaderboard.classList.add('buffer-leaderboard');
       const wrap = document.createElement('div');
       wrap.className = 'buffer-small-cards';
       cards.forEach(el => { if (el !== leaderboard) wrap.appendChild(el); }); // moves each small card out of `grid` into `wrap`
-      grid.insertBefore(wrap, leaderboard);
+      grid.appendChild(wrap);
+      grid.appendChild(leaderboard); // re-append (moves, doesn't duplicate) so both are direct children of `grid` regardless of original order
     }
 
     async function loadSection(docId, gridId, cardFn, entriesKey) {
