@@ -47,6 +47,36 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Large, faint background silhouette of the page's own icon — decorative
+   only (Michael, 8/2: "silhouette the respective icons in the background
+   for both ACE and Gauges... this is marketing now, I want to demonstrate
+   this to clients"). Shared here since both admin pages want the identical
+   treatment; each page just points the <img> at its own icon
+   (../ace-icon.png for the ACE dashboard, ./gauges-logo.png for Gauges).
+   `.ace-container` has no background of its own (confirmed below — just a
+   centering wrapper), so this shows through in the empty margin outside the
+   1100px container and in the gaps around cards, without needing z-index
+   surgery on any existing element: fixed positioning + z-index:-1 puts it
+   in the "negative z-index" paint step, which is behind ALL normal-flow
+   (non-positioned) content by spec, so the header/cards/tabs need zero
+   changes to already paint on top of it. */
+.bg-watermark {
+  position: fixed;
+  bottom: -60px;
+  right: -60px;
+  width: 520px;
+  height: 520px;
+  object-fit: contain;
+  opacity: 0.06;
+  filter: grayscale(1) brightness(1.6);
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+}
+@media (max-width: 900px) {
+  .bg-watermark { width: 320px; height: 320px; }
+}
+
 h1, h2, h3 {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
