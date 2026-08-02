@@ -439,6 +439,27 @@
         </div>`;
     }
 
+    // 8/2 (Michael's ask): on the Buffer tab specifically, lock the Top 5
+    // Posts card to the right and let the smaller per-channel cards wrap in
+    // a sub-grid to its left, filling the screen instead of the leaderboard
+    // just flowing wherever it happens to land alphabetically. Buffer-only —
+    // every other section keeps the plain auto-fill grid untouched. Done as
+    // a post-render DOM reflow (move nodes into a wrapper) rather than
+    // changing cardFn/loadSection's generic per-entry rendering, so the
+    // other nine sections need zero changes. Matches the leaderboard card
+    // by its known title text rather than a class, since cardFn functions
+    // return plain HTML strings with no hook to tag "this one's special"
+    // without touching bufferCardHtml's return shape for every other card.
+    function reflowBufferGrid(grid) {
+      const cards = Array.from(grid.children).filter(el => el.classList.contains('gauge-card'));
+      const leaderboard = cards.find(el => el.querySelector('.gauge-card-title')?.textContent.includes('Top 5 Posts'));
+      if (!leaderboard || cards.length < 2) return; // nothing to reflow (collector error, or leaderboard-only state)
+      const wrap = document.createElement('div');
+      wrap.className = 'buffer-small-cards';
+      cards.forEach(el => { if (el !== leaderboard) wrap.appendChild(el); }); // moves each small card out of `grid` into `wrap`
+      grid.insertBefore(wrap, leaderboard);
+    }
+
     async function loadSection(docId, gridId, cardFn, entriesKey) {
       const grid = document.getElementById(gridId);
       const snap = await getDoc(doc(AceAdmin.db, 'gauges', docId));
@@ -451,6 +472,7 @@
       grid.innerHTML = entries.length
         ? entries.map(([name, r]) => cardFn(name, r)).join('')
         : '<div class="gauges-empty">Collector ran but returned nothing — check the underlying error in Firestore.</div>';
+      if (docId === 'buffer') reflowBufferGrid(grid);
       return data.updatedAt?.toDate ? data.updatedAt.toDate() : null;
     }
 

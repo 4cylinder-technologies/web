@@ -63,6 +63,32 @@
   margin-top: 20px;
 }
 
+/* 8/2 (Michael's ask): Buffer tab only — Top 5 Posts locked on the right,
+   spanning the full height of whatever the small per-channel cards take up
+   on the left, which wrap in their own sub-grid to fill the remaining
+   width. reflowBufferGrid() in gauges.html wraps the small cards in
+   .buffer-small-cards and leaves the leaderboard card as #buffer-grid's
+   other direct child, so this is pure CSS on top of that DOM shape. Falls
+   back to a single column below 900px so it doesn't get cramped on
+   narrower screens. */
+#buffer-grid {
+  grid-template-columns: 1fr minmax(320px, 420px);
+  align-items: start;
+}
+#buffer-grid .buffer-small-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+#buffer-grid .gauge-card:last-child {
+  grid-row: 1 / -1;
+  height: 100%;
+}
+@media (max-width: 900px) {
+  #buffer-grid { grid-template-columns: 1fr; }
+  #buffer-grid .gauge-card:last-child { grid-row: auto; height: auto; }
+}
+
 .gauge-card {
   background: var(--surface);
   border: 1px solid var(--border-med);
