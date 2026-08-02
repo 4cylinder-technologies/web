@@ -52,6 +52,26 @@ footer { position: relative; z-index: 1; border-top: 1px solid var(--border); pa
 footer p { font-size: 12px; color: var(--muted); }
 footer a { color: var(--muted); }
 footer a:hover { color: var(--orange); }
+
+/* Large, faint background watermark of the 4Cylinder company logo —
+   decorative only, same treatment as the ACE/Gauges admin pages
+   (see .bg-watermark in website/admin/ace-admin.css). */
+.bg-watermark {
+  position: fixed;
+  bottom: -60px;
+  right: -60px;
+  width: 520px;
+  height: 520px;
+  object-fit: contain;
+  opacity: 0.06;
+  filter: grayscale(1) brightness(1.6);
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+}
+@media (max-width: 900px) {
+  .bg-watermark { width: 320px; height: 320px; }
+}
 </style>
   <script type="application/ld+json">
 {
@@ -75,6 +95,8 @@ footer a:hover { color: var(--orange); }
   </script>
 </head>
 <body>
+
+<img class="bg-watermark" src="4Cylinder Technologies LLC Logo.png" alt="" aria-hidden="true" />
 
 <nav>
   <a class="nav-logo" href="index.html">

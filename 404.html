@@ -23,9 +23,30 @@
     p { color:#9fb3c8; font-size:15px; line-height:1.7; margin-bottom:24px; }
     a.btn { display:inline-block; background:#00BFFF; color:#071426; font-weight:800; padding:14px 28px; border-radius:14px; text-decoration:none; margin:6px; }
     a.plain { color:#9fb3c8; font-size:13px; display:block; margin-top:20px; }
+
+    /* Large, faint background watermark of the 4Cylinder company logo —
+       decorative only, same treatment as the ACE/Gauges admin pages
+       (see .bg-watermark in website/admin/ace-admin.css). */
+    .bg-watermark {
+      position: fixed;
+      bottom: -60px;
+      right: -60px;
+      width: 520px;
+      height: 520px;
+      object-fit: contain;
+      opacity: 0.06;
+      filter: grayscale(1) brightness(1.6);
+      pointer-events: none;
+      user-select: none;
+      z-index: -1;
+    }
+    @media (max-width: 900px) {
+      .bg-watermark { width: 320px; height: 320px; }
+    }
   </style>
 </head>
 <body>
+  <img class="bg-watermark" src="4Cylinder Technologies LLC Logo.png" alt="" aria-hidden="true" />
   <div class="wrap">
     <div id="label-view" style="display:none;">
       <h1>This shelf is inventoried with <span>MyOwnIQ</span></h1>
