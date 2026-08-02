@@ -45,7 +45,7 @@
     <div class="ace-card gauges-tabcard" style="margin-top:18px;">
       <div class="gauges-tabs" id="gauges-tabs" role="tablist"></div>
       <div id="gauges-panels"></div>
-      <div class="gauges-footnote">All planned data sources are live — GitHub, RevenueCat, App Store Connect, Google Play (track + vitals), Buffer, and GA4 website traffic.</div>
+      <div class="gauges-footnote">All planned data sources are live — GitHub, RevenueCat, App Store Connect, Google Play (track + vitals), Buffer, GA4 website traffic, Firebase (Auth + Firestore, all projects), and website uptime.</div>
     </div>
   </div>
 
@@ -314,6 +314,58 @@
         </div>`;
     }
 
+    // Same "LED = is the collector returning data" convention as the other
+    // cards. Firebase metrics are plain counts (Auth users, users/ doc
+    // count) per project — the entriesKey is 'projects' so this scales to
+    // however many FIREBASE_PROJECTS entries the backend defines, with zero
+    // changes needed here when a future app/project is added.
+    function firebaseCardHtml(projectLabel, p) {
+      if (p.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${projectLabel}</span>
+              <span class="gauge-led error" title="Collector error"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${p.error}</div>
+          </div>`;
+      }
+      const rows = (p.metrics || []).map(m => `${m.name}: <span class="dim">${m.value}</span>`).join('<br>');
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${projectLabel}</span>
+            <span class="gauge-led ok"></span>
+          </div>
+          <div class="gauge-lcd">${rows || '<span class="dim">No data yet</span>'}</div>
+        </div>`;
+    }
+
+    // Uptime's "Response time" metric carries a unit ('ms') the other
+    // gauges don't have, so it gets its own light formatting rather than
+    // reusing firebaseCardHtml/ga4CardHtml's bare-value rows verbatim.
+    function uptimeCardHtml(siteName, s) {
+      if (s.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${siteName}</span>
+              <span class="gauge-led error" title="Non-2xx or unreachable"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${s.error}</div>
+          </div>`;
+      }
+      const rows = (s.metrics || []).map(m => `${m.name}: <span class="dim">${m.value}${m.unit === 'ms' ? 'ms' : ''}</span>`).join('<br>');
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${siteName}</span>
+            <span class="gauge-led ok"></span>
+          </div>
+          <div class="gauge-lcd">${rows || '<span class="dim">No data yet</span>'}</div>
+        </div>`;
+    }
+
     async function loadSection(docId, gridId, cardFn, entriesKey) {
       const grid = document.getElementById(gridId);
       const snap = await getDoc(doc(AceAdmin.db, 'gauges', docId));
@@ -342,6 +394,8 @@
       playvitals: { gridId: 'playvitals-grid', cardFn: playVitalsCardHtml, entriesKey: 'apps', label: 'Play Vitals', panelTitle: 'Google Play — crash & ANR rates, all apps' },
       buffer: { gridId: 'buffer-grid', cardFn: bufferCardHtml, entriesKey: 'channels', label: 'Buffer', panelTitle: 'Buffer — social channel engagement' },
       ga4: { gridId: 'ga4-grid', cardFn: ga4CardHtml, entriesKey: 'sites', label: 'Website', panelTitle: 'Website — GA4 traffic (trailing 7 days)' },
+      firebase: { gridId: 'firebase-grid', cardFn: firebaseCardHtml, entriesKey: 'projects', label: 'Firebase', panelTitle: 'Firebase — Auth + Firestore user counts, all projects' },
+      uptime: { gridId: 'uptime-grid', cardFn: uptimeCardHtml, entriesKey: 'sites', label: 'Uptime', panelTitle: 'Uptime — website availability & response time' },
     };
 
     // Builds the tab bar + one hidden panel per SECTIONS entry, entirely from
