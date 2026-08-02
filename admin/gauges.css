@@ -76,13 +76,15 @@
   align-items: start;
 }
 #buffer-grid .buffer-small-cards {
-  /* Fixed column width (not minmax(…, 1fr)) so every small card is the same
-     size regardless of how many land in a given row — 1fr was stretching
-     cards wider on a row with fewer of them, making rows visibly mismatched
-     (Michael: "make the smaller rectangles... the same size"). Leftover
-     space in the last row just sits empty instead of inflating those cards. */
+  /* Fixed 2 equal columns (not auto-fill) — auto-fill with a 220px minimum
+     only fit ONE column given how little width is left after the
+     leaderboard's reserved 320-420px, so everything stacked in a single
+     column instead of the intended grid. repeat(2, 1fr) guarantees exactly
+     2-per-row and both columns always match each other's width, whatever
+     the available space is (Michael: "2x2 on the left, same size
+     rectangles"). */
   display: grid;
-  grid-template-columns: repeat(auto-fill, 220px);
+  grid-template-columns: repeat(2, 1fr);
   gap: 18px;
 }
 #buffer-grid .gauge-card:last-child {
