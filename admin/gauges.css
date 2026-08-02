@@ -76,8 +76,13 @@
   align-items: start;
 }
 #buffer-grid .buffer-small-cards {
+  /* Fixed column width (not minmax(…, 1fr)) so every small card is the same
+     size regardless of how many land in a given row — 1fr was stretching
+     cards wider on a row with fewer of them, making rows visibly mismatched
+     (Michael: "make the smaller rectangles... the same size"). Leftover
+     space in the last row just sits empty instead of inflating those cards. */
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, 220px);
   gap: 18px;
 }
 #buffer-grid .gauge-card:last-child {
