@@ -253,6 +253,15 @@
     // for engagement numbers. metricsUpdatedAt is Buffer's own freshness
     // timestamp for that channel's rollup, separate from our own collector's
     // updatedAt — shown so a stale Buffer-side number is visible as such.
+    // 8/2: escapes post caption text specifically — unlike the rest of this
+    // file's card-html functions (which only ever render trusted API field
+    // names Michael doesn't author, e.g. repo/project names), the leaderboard
+    // below renders his own freeform post captions, which can contain
+    // &/</>/quotes.
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
     function bufferCardHtml(channelName, c) {
       if (c.error) {
         return `
@@ -262,6 +271,23 @@
               <span class="gauge-led error" title="Collector error"></span>
             </div>
             <div class="gauge-lcd error-tone">ERROR<br>${c.error}</div>
+          </div>`;
+      }
+      // isLeaderboard: the synthetic "Top 5 Posts" entry collectBufferGauge()
+      // inserts alongside the normal per-channel entries (see its comment) —
+      // same card shell, different body (ranked post list vs metric list).
+      if (c.isLeaderboard) {
+        const rows = (c.posts || []).length
+          ? c.posts.map((p, i) => `${i + 1}. <span class="dim">${escapeHtml(p.channel)}</span> — ${escapeHtml(p.text)}${(p.text || '').length >= 90 ? '…' : ''}<br><span class="dim">${p.reactions} reactions · ${p.comments} comments</span>`).join('<br><br>')
+          : '<span class="dim">No sent posts in this window</span>';
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${channelName}</span>
+              <span class="gauge-led ${c.error ? 'error' : 'ok'}" ${c.error ? `title="${escapeHtml(c.error)}"` : ''}></span>
+            </div>
+            <div class="gauge-lcd">${c.error ? `ERROR<br>${escapeHtml(c.error)}` : rows}</div>
+            <div class="gauge-meta-row"><span>trailing 30 days, across all channels</span><span></span></div>
           </div>`;
       }
       const rows = (c.metrics || [])
