@@ -45,7 +45,7 @@
     <div class="ace-card gauges-tabcard" style="margin-top:18px;">
       <div class="gauges-tabs" id="gauges-tabs" role="tablist"></div>
       <div id="gauges-panels"></div>
-      <div class="gauges-footnote">All planned data sources are live — GitHub, RevenueCat, App Store Connect, Google Play (track + vitals), Buffer, GA4 website traffic, Firebase (Auth + Firestore, all projects), and website uptime.</div>
+      <div class="gauges-footnote">All planned data sources are live — GitHub, RevenueCat, App Store Connect, Google Play (track + vitals), Buffer, GA4 website traffic, Firebase (Auth + Firestore, all projects), website uptime, and Latest Updates (ACE run status + OTA version, all apps). Every tab also has a "Launch" link to the actual tool.</div>
     </div>
   </div>
 
@@ -366,6 +366,65 @@
         </div>`;
     }
 
+    // Added 8/2 (~12:30am), Michael's ask: see the latest ACE run status
+    // from Gauges, not just the separate ACE Dashboard. LED reflects
+    // whether there's a run sitting unpublished (warn) vs. everything
+    // that's run has been published (ok) — same "collector health, not an
+    // invented business threshold" convention as the other cards, just
+    // applied to "does something need your review" instead of an API error.
+    // "board" = category count on the run doc (how many categories were
+    // voted on), not how many were approved/published — see the backend
+    // comment for why that distinction matters and isn't collapsed here.
+    // Renamed 8/2 AM from aceCardHtml — now shows BOTH the ACE run status
+    // (DashboardAIR/AskAIR only, since MyOwnIQ doesn't use ACE) and the
+    // latest OTA/EAS Update (all three apps) in one card per app, per
+    // Michael's "Latest Updates" consolidation idea. `a.ace` and `a.ota` are
+    // each independently nullable/error-able — MyOwnIQ legitimately has no
+    // `ace` section rather than a fake empty one. "board" = category count
+    // on the ACE run doc (how many categories were voted on), not how many
+    // were approved/published — see the backend comment for why that
+    // distinction isn't collapsed here.
+    function latestUpdatesCardHtml(appLabel, a) {
+      const ace = a.ace;
+      const ota = a.ota;
+      const hasPending = ace && ace.latestRunStatus === 'awaiting_review';
+      const hasAceError = !!(ace && ace.error);
+      const hasOtaError = !!(ota && ota.error);
+      const ledClass = (hasAceError || hasOtaError) ? 'error' : (hasPending ? 'warn' : 'ok');
+      const ledTitle = hasAceError ? 'ACE collector error' : hasOtaError ? 'OTA collector error' : hasPending ? 'An ACE run is awaiting review' : 'Up to date';
+
+      const aceHtml = !ace ? '' : ace.error
+        ? `<span class="dim">ACE</span> <span class="error-tone">ERROR — ${ace.error}</span>`
+        : (() => {
+            const publishedLine = ace.publishedRunId
+              ? `${ace.publishedBoardSize}-category board, ${timeAgo(ace.publishedAt)}`
+              : 'never published';
+            const latestLine = ace.latestRunId
+              ? `${ace.latestRunStatus} — ${ace.latestRunBoardSize}-category board, ${timeAgo(ace.latestRunDate)}`
+              : 'no runs yet';
+            const pendingNote = hasPending && ace.pendingReviewCount != null ? ` (${ace.pendingReviewCount} awaiting review)` : '';
+            return `<span class="dim">ACE published</span> ${publishedLine}<br><span class="dim">ACE latest run</span> ${latestLine}${pendingNote}`;
+          })();
+
+      const otaHtml = !ota ? '' : ota.error
+        ? `<span class="dim">OTA</span> <span class="error-tone">ERROR — ${ota.error}</span>`
+        : `<span class="dim">OTA latest</span> runtime ${ota.runtimeVersion}, "${ota.branch}" branch, ${timeAgo(ota.publishedAt)}${ota.message ? `<br>"${ota.message.slice(0, 100)}"` : ''}`;
+
+      const otaLink = ota && ota.expoUrl ? `<a href="${ota.expoUrl}" target="_blank" rel="noopener">Expo →</a>` : '';
+
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${appLabel}</span>
+            <span class="gauge-led ${ledClass}" title="${ledTitle}"></span>
+          </div>
+          <div class="gauge-lcd">
+            ${[aceHtml, otaHtml].filter(Boolean).join('<br><br>')}
+          </div>
+          ${otaLink ? `<div class="gauge-meta-row"><span></span><span>${otaLink}</span></div>` : ''}
+        </div>`;
+    }
+
     async function loadSection(docId, gridId, cardFn, entriesKey) {
       const grid = document.getElementById(gridId);
       const snap = await getDoc(doc(AceAdmin.db, 'gauges', docId));
@@ -386,16 +445,33 @@
     // themselves, so adding a future source only means adding one entry
     // here (plus its card-html function), not touching the tab, load, or
     // refresh wiring.
+    // launchUrl (added 8/2 AM, Michael's ask): one "Launch <tool> ->" link
+    // per TAB, opening the actual external tool that tab's data comes from,
+    // in a new tab. Most of these are the tool's general dashboard/home,
+    // not a per-entry deep link, since a tab can cover several repos/
+    // projects/apps at once (e.g. GitHub covers 4 repos) and "on each tab"
+    // means one button per section, not one per card. Two known honest
+    // gaps, flagged rather than silently wrong:
+    //   - firebase covers TWO separate GCP projects (dashboard-air-dd713 +
+    //     myowniq-prod) but only one link fits a single tab-level button —
+    //     points at dashboard-air-dd713 (this Cloud Function's own home
+    //     project, covers 2 of 3 apps). Ask if you want a second link.
+    //   - ga4's exact deep-link path (analytics.google.com/.../reports/
+    //     intelligenthome) is a best-effort based on the property ID
+    //     already in use elsewhere in this file — Google's UI has changed
+    //     this path before, so if it 404s, the property overview is at
+    //     Admin > Property Access Management for property 548106750.
     const SECTIONS = {
-      github: { gridId: 'github-grid', cardFn: repoCardHtml, entriesKey: 'repos', label: 'GitHub', panelTitle: 'GitHub — build status, all repos' },
-      revenuecat: { gridId: 'revenuecat-grid', cardFn: revenueCatCardHtml, entriesKey: 'projects', label: 'RevenueCat', panelTitle: 'RevenueCat — subscription metrics, all projects' },
-      appstoreconnect: { gridId: 'appstoreconnect-grid', cardFn: appStoreConnectCardHtml, entriesKey: 'apps', label: 'App Store', panelTitle: 'App Store Connect — release status, all apps' },
-      playtrack: { gridId: 'playtrack-grid', cardFn: playTrackCardHtml, entriesKey: 'apps', label: 'Play Track', panelTitle: 'Google Play — release track status, all apps' },
-      playvitals: { gridId: 'playvitals-grid', cardFn: playVitalsCardHtml, entriesKey: 'apps', label: 'Play Vitals', panelTitle: 'Google Play — crash & ANR rates, all apps' },
-      buffer: { gridId: 'buffer-grid', cardFn: bufferCardHtml, entriesKey: 'channels', label: 'Buffer', panelTitle: 'Buffer — social channel engagement' },
-      ga4: { gridId: 'ga4-grid', cardFn: ga4CardHtml, entriesKey: 'sites', label: 'Website', panelTitle: 'Website — GA4 traffic (trailing 7 days)' },
-      firebase: { gridId: 'firebase-grid', cardFn: firebaseCardHtml, entriesKey: 'projects', label: 'Firebase', panelTitle: 'Firebase — Auth + Firestore user counts, all projects' },
-      uptime: { gridId: 'uptime-grid', cardFn: uptimeCardHtml, entriesKey: 'sites', label: 'Uptime', panelTitle: 'Uptime — website availability & response time' },
+      github: { gridId: 'github-grid', cardFn: repoCardHtml, entriesKey: 'repos', label: 'GitHub', panelTitle: 'GitHub — build status, all repos', launchUrl: 'https://github.com/4cylinder-technologies' },
+      revenuecat: { gridId: 'revenuecat-grid', cardFn: revenueCatCardHtml, entriesKey: 'projects', label: 'RevenueCat', panelTitle: 'RevenueCat — subscription metrics, all projects', launchUrl: 'https://app.revenuecat.com/' },
+      appstoreconnect: { gridId: 'appstoreconnect-grid', cardFn: appStoreConnectCardHtml, entriesKey: 'apps', label: 'App Store', panelTitle: 'App Store Connect — release status, all apps', launchUrl: 'https://appstoreconnect.apple.com/apps' },
+      playtrack: { gridId: 'playtrack-grid', cardFn: playTrackCardHtml, entriesKey: 'apps', label: 'Play Track', panelTitle: 'Google Play — release track status, all apps', launchUrl: 'https://play.google.com/console/u/0/developers' },
+      playvitals: { gridId: 'playvitals-grid', cardFn: playVitalsCardHtml, entriesKey: 'apps', label: 'Play Vitals', panelTitle: 'Google Play — crash & ANR rates, all apps', launchUrl: 'https://play.google.com/console/u/0/developers' },
+      buffer: { gridId: 'buffer-grid', cardFn: bufferCardHtml, entriesKey: 'channels', label: 'Buffer', panelTitle: 'Buffer — social channel engagement', launchUrl: 'https://publish.buffer.com/' },
+      ga4: { gridId: 'ga4-grid', cardFn: ga4CardHtml, entriesKey: 'sites', label: 'Website', panelTitle: 'Website — GA4 traffic (trailing 7 days)', launchUrl: 'https://analytics.google.com/analytics/web/#/p548106750/reports/intelligenthome' },
+      firebase: { gridId: 'firebase-grid', cardFn: firebaseCardHtml, entriesKey: 'projects', label: 'Firebase', panelTitle: 'Firebase — Auth + Firestore user counts, all projects', launchUrl: 'https://console.firebase.google.com/project/dashboard-air-dd713/overview' },
+      uptime: { gridId: 'uptime-grid', cardFn: uptimeCardHtml, entriesKey: 'sites', label: 'Uptime', panelTitle: 'Uptime — website availability & response time', launchUrl: 'https://4cylindertechnologies.com' },
+      latestupdates: { gridId: 'latestupdates-grid', cardFn: latestUpdatesCardHtml, entriesKey: 'apps', label: 'Latest Updates', panelTitle: 'Latest Updates — ACE run + OTA version, all apps', launchUrl: './dashboard.html' },
     };
 
     // Builds the tab bar + one hidden panel per SECTIONS entry, entirely from
@@ -416,7 +492,10 @@
           <div class="gauge-panel" data-panel="${id}"${i === 0 ? '' : ' hidden'}>
             <div class="gauge-panel-head">
               <span class="gauge-section-title">${cfg.panelTitle}</span>
-              <button class="gauges-refresh-btn" data-source="${id}" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
+              <div style="display:flex; gap:8px;">
+                ${cfg.launchUrl ? `<a class="gauges-refresh-btn" href="${cfg.launchUrl}" target="_blank" rel="noopener" style="font-size:12px; padding:4px 12px; text-decoration:none; display:inline-block;">Launch ${cfg.label} →</a>` : ''}
+                <button class="gauges-refresh-btn" data-source="${id}" style="font-size:12px; padding:4px 12px;">Refresh this section</button>
+              </div>
             </div>
             <div class="gauges-grid" id="${cfg.gridId}">
               <div class="gauges-empty">Loading gauge data…</div>
