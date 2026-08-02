@@ -34,6 +34,28 @@
       <button class="gauges-refresh-btn" id="refresh-btn">Refresh now</button>
     </div>
 
+    <!-- User tier admin — added 8/2, replaces the admin-manageTier.js
+         terminal script (needed a local serviceAccountKey.json + direct
+         network access that proved unreliable through the remote device
+         bridge — see gauges/functions/index.js's checkUserTier/
+         promoteUserTier header comment). Sits above the tabs, not inside
+         one, since it's a standalone action independent of any single
+         gauge section. -->
+    <div class="ace-card" style="margin-top:18px; padding:20px;">
+      <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px; margin-bottom:12px;">User tier admin</div>
+      <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+        <input id="tier-uid-input" type="text" placeholder="Firestore UID" style="flex:1; min-width:220px; background:#050a12; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-family:'SF Mono','Menlo','Consolas',monospace; font-size:13px;" />
+        <select id="tier-app-select" style="background:#050a12; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px;">
+          <option value="askair">AskAIR</option>
+          <option value="dashboardair">DashboardAIR</option>
+          <option value="both">Both</option>
+        </select>
+        <button class="gauges-refresh-btn" id="tier-check-btn" type="button">Check</button>
+        <button class="gauges-refresh-btn" id="tier-promote-btn" type="button" style="background:var(--orange); color:#050a12; border-color:var(--orange);">Set Pro</button>
+      </div>
+      <div id="tier-result" class="gauge-lcd" style="margin-top:14px; display:none;"></div>
+    </div>
+
     <!-- Tabs, added 8/1 (Michael: "That page is long! ... can we do
          something simpler like tabs across the top") — replaces the old
          stacked <details> sections, which required scrolling past every
@@ -51,6 +73,7 @@
   <script type="module">
     import { AceAdmin } from './ace-admin.js';
     import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+    import { httpsCallable } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-functions.js';
 
     // Gen2 Cloud Run URL flakiness (firebase/firebase-functions#1447) — real,
     // recurring. Updated again 8/1 (Play Console phase): a stuck "Skipped
@@ -609,12 +632,77 @@
       }
     }
 
+    // User tier admin — calls checkUserTier/promoteUserTier in
+    // gauges/functions/index.js (see that file's header comment for why
+    // this replaces the old admin-manageTier.js terminal script). Auth is
+    // enforced server-side by requireAdmin() in each callable — this page's
+    // own AceAdmin.requireAuth() gate is the client-side UX layer, not the
+    // real security boundary.
+    const checkUserTier = (data) => httpsCallable(AceAdmin.functions, 'checkUserTier')(data);
+    const promoteUserTier = (data) => httpsCallable(AceAdmin.functions, 'promoteUserTier')(data);
+
+    function renderTierResult(html, isError = false) {
+      const el = document.getElementById('tier-result');
+      el.style.display = 'block';
+      el.className = 'gauge-lcd' + (isError ? ' error-tone' : '');
+      el.innerHTML = html;
+    }
+
+    function fmtSub(appId, sub) {
+      return sub
+        ? `${appId}: <span class="dim">${escapeHtml(JSON.stringify(sub))}</span>`
+        : `${appId}: <span class="dim">no subscription doc (defaults to FREE)</span>`;
+    }
+
+    function wireTierAdmin() {
+      document.getElementById('tier-check-btn').addEventListener('click', async () => {
+        const uid = document.getElementById('tier-uid-input').value.trim();
+        if (!uid) { renderTierResult('Enter a UID first.', true); return; }
+        const btn = document.getElementById('tier-check-btn');
+        btn.disabled = true; btn.textContent = 'Checking…';
+        try {
+          const { data } = await checkUserTier({ uid });
+          const lines = [
+            data.exists ? `Account: ${escapeHtml(data.email || '(no email field)')}` : 'No users/{uid} doc found — UID may not exist.',
+            fmtSub('dashboardair', data.subscriptions.dashboardair),
+            fmtSub('askair', data.subscriptions.askair),
+          ];
+          renderTierResult(lines.join('<br>'), !data.exists);
+        } catch (e) {
+          renderTierResult('Error: ' + escapeHtml(e.message), true);
+        } finally {
+          btn.disabled = false; btn.textContent = 'Check';
+        }
+      });
+
+      document.getElementById('tier-promote-btn').addEventListener('click', async () => {
+        const uid = document.getElementById('tier-uid-input').value.trim();
+        const appId = document.getElementById('tier-app-select').value;
+        if (!uid) { renderTierResult('Enter a UID first.', true); return; }
+        if (!confirm(`Set PRO tier for UID\n${uid}\non ${appId}?`)) return;
+        const btn = document.getElementById('tier-promote-btn');
+        btn.disabled = true; btn.textContent = 'Setting…';
+        try {
+          const { data } = await promoteUserTier({ uid, appId, tier: 'pro' });
+          const lines = Object.entries(data.results).map(([app, r]) =>
+            `${app}: <span class="dim">before</span> ${r.before ? escapeHtml(JSON.stringify(r.before)) : '(no doc)'} → <span class="dim">after</span> ${escapeHtml(JSON.stringify(r.after))}`
+          );
+          renderTierResult('✅ Done.<br>' + lines.join('<br>'));
+        } catch (e) {
+          renderTierResult('Error: ' + escapeHtml(e.message), true);
+        } finally {
+          btn.disabled = false; btn.textContent = 'Set Pro';
+        }
+      });
+    }
+
     (async () => {
       await AceAdmin.requireAuth();
       document.getElementById('logout-link').addEventListener('click', async (e) => {
         e.preventDefault();
         await AceAdmin.logout();
       });
+      wireTierAdmin();
       buildTabsAndPanels();
       await loadAndRender();
 
