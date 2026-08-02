@@ -45,7 +45,6 @@
     <div class="ace-card gauges-tabcard" style="margin-top:18px;">
       <div class="gauges-tabs" id="gauges-tabs" role="tablist"></div>
       <div id="gauges-panels"></div>
-      <div class="gauges-footnote">All planned data sources are live — GitHub, RevenueCat, App Store Connect, Google Play (track + vitals), Buffer, GA4 website traffic, Firebase (Auth + Firestore, all projects), website uptime, and Latest Updates (ACE run status + OTA version, all apps). Every tab also has a "Launch" link to the actual tool.</div>
     </div>
   </div>
 
@@ -289,27 +288,41 @@
     // not necessarily a collector error — shown as its own message rather
     // than the generic "returned nothing" one loadSection() would otherwise
     // print.
-    function ga4CardHtml(siteName, s) {
-      if (s.error) {
-        return `
-          <div class="gauge-card">
-            <div class="gauge-card-head">
-              <span class="gauge-card-title">${siteName}</span>
-              <span class="gauge-led error" title="Collector error"></span>
-            </div>
-            <div class="gauge-lcd error-tone">ERROR<br>${s.error}</div>
-          </div>`;
-      }
-      const rows = (s.metrics || []).map(m => `${m.name}: <span class="dim">${m.value}</span>`).join('<br>');
+    // Merged 8/2 AM (Michael: "move everything in uptime to the website tab
+    // and get rid of uptime") — same pattern as latestUpdatesCardHtml:
+    // `s.ga4` and `s.uptime` are independently nullable/error-able sub-
+    // objects from collectWebsiteGauge, both keyed by the same site label.
+    function websiteCardHtml(siteName, s) {
+      const ga4 = s.ga4;
+      const uptime = s.uptime;
+      const hasGa4Error = !!(ga4 && ga4.error);
+      const hasUptimeError = !!(uptime && uptime.error);
+      const ledClass = (hasGa4Error || hasUptimeError) ? 'error' : 'ok';
+      const ledTitle = hasGa4Error ? 'GA4 collector error' : hasUptimeError ? 'Non-2xx or unreachable' : 'Up to date';
+
+      const ga4Html = !ga4 ? '' : ga4.error
+        ? `<span class="dim">GA4</span> <span class="error-tone">ERROR — ${ga4.error}</span>`
+        : (() => {
+            const rows = (ga4.metrics || []).map(m => `${m.name}: <span class="dim">${m.value}</span>`).join('<br>');
+            return rows || '<span class="dim">No traffic recorded for this window yet</span>';
+          })();
+
+      const uptimeHtml = !uptime ? '' : uptime.error
+        ? `<span class="dim">Uptime</span> <span class="error-tone">ERROR — ${uptime.error}</span>`
+        : (uptime.metrics || []).map(m => `${m.name}: <span class="dim">${m.value}${m.unit === 'ms' ? 'ms' : ''}</span>`).join('<br>');
+
       return `
         <div class="gauge-card">
           <div class="gauge-card-head">
             <span class="gauge-card-title">${siteName}</span>
-            <span class="gauge-led ok"></span>
+            <span class="gauge-led ${ledClass}" title="${ledTitle}"></span>
           </div>
-          <div class="gauge-lcd">${rows || '<span class="dim">No traffic recorded for this window yet</span>'}</div>
+          <div class="gauge-lcd">
+            ${[ga4Html, uptimeHtml].filter(Boolean).join('<br><br>')}
+          </div>
           <div class="gauge-meta-row">
-            <span>trailing 7 days</span>
+            <span>GA4: trailing 7 days</span>
+            <span><a href="${siteName.startsWith('http') ? siteName : `https://${siteName}`}" target="_blank" rel="noopener">Visit site →</a></span>
           </div>
         </div>`;
     }
@@ -335,31 +348,6 @@
         <div class="gauge-card">
           <div class="gauge-card-head">
             <span class="gauge-card-title">${projectLabel}</span>
-            <span class="gauge-led ok"></span>
-          </div>
-          <div class="gauge-lcd">${rows || '<span class="dim">No data yet</span>'}</div>
-        </div>`;
-    }
-
-    // Uptime's "Response time" metric carries a unit ('ms') the other
-    // gauges don't have, so it gets its own light formatting rather than
-    // reusing firebaseCardHtml/ga4CardHtml's bare-value rows verbatim.
-    function uptimeCardHtml(siteName, s) {
-      if (s.error) {
-        return `
-          <div class="gauge-card">
-            <div class="gauge-card-head">
-              <span class="gauge-card-title">${siteName}</span>
-              <span class="gauge-led error" title="Non-2xx or unreachable"></span>
-            </div>
-            <div class="gauge-lcd error-tone">ERROR<br>${s.error}</div>
-          </div>`;
-      }
-      const rows = (s.metrics || []).map(m => `${m.name}: <span class="dim">${m.value}${m.unit === 'ms' ? 'ms' : ''}</span>`).join('<br>');
-      return `
-        <div class="gauge-card">
-          <div class="gauge-card-head">
-            <span class="gauge-card-title">${siteName}</span>
             <span class="gauge-led ok"></span>
           </div>
           <div class="gauge-lcd">${rows || '<span class="dim">No data yet</span>'}</div>
@@ -408,7 +396,7 @@
 
       const otaHtml = !ota ? '' : ota.error
         ? `<span class="dim">OTA</span> <span class="error-tone">ERROR — ${ota.error}</span>`
-        : `<span class="dim">OTA latest</span> runtime ${ota.runtimeVersion}, "${ota.branch}" branch, ${timeAgo(ota.publishedAt)}${ota.message ? `<br>"${ota.message.slice(0, 100)}"` : ''}`;
+        : `<span class="dim">OTA latest</span> runtime ${ota.runtimeVersion}, "${ota.branch}" branch, ${timeAgo(ota.publishedAt)}<br><span class="dim">update ID</span> ${ota.updateId || 'unknown'}${ota.message ? `<br>"${ota.message.slice(0, 100)}"` : ''}`;
 
       const otaLink = ota && ota.expoUrl ? `<a href="${ota.expoUrl}" target="_blank" rel="noopener">Expo →</a>` : '';
 
@@ -468,9 +456,8 @@
       playtrack: { gridId: 'playtrack-grid', cardFn: playTrackCardHtml, entriesKey: 'apps', label: 'Play Track', panelTitle: 'Google Play — release track status, all apps', launchUrl: 'https://play.google.com/console/u/0/developers' },
       playvitals: { gridId: 'playvitals-grid', cardFn: playVitalsCardHtml, entriesKey: 'apps', label: 'Play Vitals', panelTitle: 'Google Play — crash & ANR rates, all apps', launchUrl: 'https://play.google.com/console/u/0/developers' },
       buffer: { gridId: 'buffer-grid', cardFn: bufferCardHtml, entriesKey: 'channels', label: 'Buffer', panelTitle: 'Buffer — social channel engagement', launchUrl: 'https://publish.buffer.com/' },
-      ga4: { gridId: 'ga4-grid', cardFn: ga4CardHtml, entriesKey: 'sites', label: 'Website', panelTitle: 'Website — GA4 traffic (trailing 7 days)', launchUrl: 'https://analytics.google.com/analytics/web/#/p548106750/reports/intelligenthome' },
+      website: { gridId: 'website-grid', cardFn: websiteCardHtml, entriesKey: 'sites', label: 'Website', panelTitle: 'Website — GA4 traffic + uptime, merged 8/2 (was two tabs)', launchUrl: 'https://analytics.google.com/analytics/web/#/p548106750/reports/intelligenthome' },
       firebase: { gridId: 'firebase-grid', cardFn: firebaseCardHtml, entriesKey: 'projects', label: 'Firebase', panelTitle: 'Firebase — Auth + Firestore user counts, all projects', launchUrl: 'https://console.firebase.google.com/project/dashboard-air-dd713/overview' },
-      uptime: { gridId: 'uptime-grid', cardFn: uptimeCardHtml, entriesKey: 'sites', label: 'Uptime', panelTitle: 'Uptime — website availability & response time', launchUrl: 'https://4cylindertechnologies.com' },
       latestupdates: { gridId: 'latestupdates-grid', cardFn: latestUpdatesCardHtml, entriesKey: 'apps', label: 'Latest Updates', panelTitle: 'Latest Updates — ACE run + OTA version, all apps', launchUrl: './dashboard.html' },
     };
 
