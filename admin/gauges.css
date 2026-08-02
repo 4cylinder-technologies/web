@@ -114,13 +114,38 @@
   overflow: hidden;
 }
 
+/* 8/2: three-stop gold->orange->red, echoing the tachometer redline arc on
+   Michael's new Gauges logo (gauges-logo.png) — same "instrument cluster"
+   idea the file header already describes, now actually reflected in the
+   accent color instead of a flat single-color fade. Scoped to gauges.css
+   only (not ace-admin.css's shared .ace-card) so the ACE dashboard's card
+   styling is untouched. */
 .gauge-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--orange), transparent);
-  opacity: 0.7;
+  background: linear-gradient(90deg, var(--gold), var(--orange) 55%, var(--red));
+  opacity: 0.75;
+}
+
+/* Same tachometer-redline accent applied to the two top-level page cards
+   (toolbar + tab card) — both are gauges.html-only modifier classes
+   (.gauges-toolbar / .gauges-tabcard on top of the shared .ace-card), so
+   this stays scoped to Gauges without touching ACE's plain .ace-card look. */
+.gauges-toolbar,
+.gauges-tabcard {
+  position: relative;
+  overflow: hidden;
+}
+.gauges-toolbar::before,
+.gauges-tabcard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--orange) 55%, var(--red));
+  opacity: 0.75;
 }
 
 .gauge-card-head {
