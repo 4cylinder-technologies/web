@@ -638,14 +638,17 @@
 
     // Tier vocabulary differs by app — MUST match gauges/functions/
     // index.js's MYOWNIQ_TIERS/AIR_TIERS exactly, or a selection here would
-    // just bounce off the server's own validation. MyOwnIQ's 4 tiers and
+    // just bounce off the server's own validation. MyOwnIQ's 3 tiers and
     // separate Firebase project confirmed by reading myowniq/functions/src/
-    // index.ts + its admin-set*.js scripts, not guessed.
+    // index.ts + its admin-set*.js scripts, not guessed. AIR tiers now split
+    // per-app: DashboardAIR's paid household tier is 'teams', AskAIR's is
+    // 'family' — confirmed via HOUSEHOLD_TARGET_TIER in dashboardair/
+    // functions/index.js, not guessed.
     const TIER_OPTIONS = {
-      askair: ['free', 'pro'],
-      dashboardair: ['free', 'pro'],
+      askair: ['free', 'pro', 'family'],
+      dashboardair: ['free', 'pro', 'teams'],
       both: ['free', 'pro'],
-      myowniq: ['free', 'personal', 'family', 'owner'],
+      myowniq: ['free', 'personal', 'owner'],
     };
 
     function tierAdminHtml() {
