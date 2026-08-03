@@ -88,6 +88,16 @@ details[open] summary::after { content: '−'; }
 details[open] summary { color: var(--orange); }
 .faq-body { padding: 16px 22px 20px; color: var(--muted); font-size: 14px; line-height: 1.8; border-top: 1px solid var(--border); }
 .faq-body a { color: var(--orange); text-decoration: none; }
+.plan-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
+.plan-table th, .plan-table td { padding: 9px 10px; text-align: center; border-bottom: 1px solid var(--border); }
+.plan-table th:first-child, .plan-table td:first-child { text-align: left; }
+.plan-table td:first-child { color: var(--text); font-weight: 500; }
+.plan-table th { color: var(--orange); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.plan-table th .price { display: block; font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--muted); margin-top: 2px; }
+.plan-table td { color: var(--muted); }
+.plan-table td.yes { color: #3fb950; font-weight: 700; }
+.plan-table td.no { color: var(--border); }
+.plan-note { font-size: 12.5px; color: var(--muted); margin-top: 10px; }
 .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 56px; }
 .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
 .info-card .icon { font-size: 22px; margin-bottom: 12px; }
@@ -185,14 +195,21 @@ footer a:hover { color: var(--orange); }
       </details>
       <details>
         <summary>What AI tools does DashboardAIR use?</summary>
-        <div class="faq-body">DashboardAIR routes to the best AI for each task — including Claude, ChatGPT, Grok, Perplexity, Gemini, Microsoft Copilot, Wolfram Alpha, Canva, Adobe Firefly, Suno, and ElevenLabs. Free users get access to Perplexity, ChatGPT, and Grok. Pro and Teams unlock all tools.</div>
+        <div class="faq-body">DashboardAIR routes to the best AI for each task — including Claude, ChatGPT, Grok, Perplexity, Gemini, Microsoft Copilot, Wolfram Alpha, Canva, Adobe Firefly, Suno, Runway, Kling AI, and ElevenLabs (13 tools). Free users get access to Perplexity, ChatGPT, and Grok. Pro and Teams unlock all tools.</div>
       </details>
       <details>
         <summary>What's included in each plan?</summary>
         <div class="faq-body">
-          <strong>Free:</strong> 3 routes/day, Perplexity, ChatGPT, and Grok.<br><br>
-          <strong>Pro ($4.99/mo or $47.99/yr):</strong> Unlimited routes, all AI tools, prompt history, themes, AI Advisor monthly report.<br><br>
-          <strong>Teams ($12.99/mo or $124.99/yr):</strong> Everything in Pro, plus shared categories, multi-user access, and team analytics.
+          <table class="plan-table">
+            <tr><th></th><th>Free<span class="price">$0</span></th><th>Pro<span class="price">$4.99/mo · $47.99/yr</span></th><th>Teams<span class="price">$12.99/mo · $124.99/yr</span></th></tr>
+            <tr><td>Routes / day</td><td>3</td><td>Unlimited</td><td>Unlimited</td></tr>
+            <tr><td>AI Tools</td><td>3</td><td>13</td><td>13</td></tr>
+            <tr><td>Categories</td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+            <tr><td>Prompt History</td><td>None</td><td>30 days</td><td>90 days</td></tr>
+            <tr><td>AI Advisor</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Priority Support</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+            <tr><td>Team Members</td><td class="no">✗</td><td class="no">✗</td><td>Up to 5</td></tr>
+          </table>
         </div>
       </details>
       <details>
@@ -255,9 +272,17 @@ footer a:hover { color: var(--orange); }
       <details>
         <summary>What's included in each plan?</summary>
         <div class="faq-body">
-          <strong>Free:</strong> 5 questions/day, Tier 1 categories.<br><br>
-          <strong>Pro ($4.99/mo or $47.99/yr):</strong> Unlimited questions, all categories, question history, themes, Ask Advisor monthly insights, AIR Translate (answers in your language).<br><br>
-          <strong>Family ($14.99/mo or $143.99/yr):</strong> Pro access for up to 5 family members.
+          <table class="plan-table">
+            <tr><th></th><th>Free<span class="price">$0</span></th><th>Pro<span class="price">$4.99/mo · $47.99/yr</span></th><th>Family<span class="price">$14.99/mo · $143.99/yr</span></th></tr>
+            <tr><td>Questions / day</td><td>5</td><td>Unlimited</td><td>Unlimited</td></tr>
+            <tr><td>AI Tools</td><td>3</td><td>15</td><td>15</td></tr>
+            <tr><td>Categories</td><td>Tier 1 only</td><td>All</td><td>All</td></tr>
+            <tr><td>Question History</td><td>None</td><td>30 days</td><td>30 days</td></tr>
+            <tr><td>AIR Translate</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Ask Advisor</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Priority Support</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+            <tr><td>Family Members</td><td class="no">✗</td><td class="no">✗</td><td>Up to 5</td></tr>
+          </table>
         </div>
       </details>
       <details>
@@ -312,10 +337,16 @@ footer a:hover { color: var(--orange); }
       <details>
         <summary>What's included in each plan?</summary>
         <div class="faq-body">
-          <strong>Free:</strong> 1 property, full Property Setup Wizard, up to 15 areas, 10 AI scans/month.<br><br>
-          <strong>Personal:</strong> More monthly scans, plus Purge Engine, Don't Rebuy, and QRIQ™ shelf labels.<br><br>
-          <strong>Owner:</strong> Everything in Personal, plus unlimited properties and Family Sharing (share one property with up to 4 family members).<br><br>
-          Current pricing is shown in-app on the upgrade screen and may change as MyOwnIQ moves toward general release.
+          <table class="plan-table">
+            <tr><th></th><th>Free<span class="price">$0</span></th><th>Personal<span class="price">$9.99/mo · $79/yr</span></th><th>Owner<span class="price">$14.99/mo · $119.99/yr</span></th></tr>
+            <tr><td>Properties</td><td>1</td><td>Unlimited</td><td>Unlimited</td></tr>
+            <tr><td>Secure Properties</td><td>0</td><td>3</td><td>Unlimited</td></tr>
+            <tr><td>AI Scans / month</td><td>10</td><td>100</td><td>Unlimited</td></tr>
+            <tr><td>Purge Engine</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Keep Forever</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Family Sharing</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+          </table>
+          <p class="plan-note">Free also includes the full Property Setup Wizard and up to 15 areas per property. Family Sharing lets an Owner share one property with up to 4 family members.</p>
         </div>
       </details>
       <details>
@@ -339,7 +370,7 @@ footer a:hover { color: var(--orange); }
       </details>
       <details>
         <summary>What happens to my photos when I scan an item?</summary>
-        <div class="faq-body">Scan photos are sent securely for AI identification, then discarded — they are never stored on our servers and never used to train AI models. Only the resulting item record (name, category, estimated value, etc.) is saved to your inventory.</div>
+        <div class="faq-body">Scan photos are scanned and analyzed by AI to identify what's in them, then discarded — they are never stored on our servers and never used to train AI models. Only the resulting item record (name, category, estimated value, etc.) is saved to your inventory.</div>
       </details>
       <details>
         <summary>What is Secure Location?</summary>
@@ -369,7 +400,7 @@ footer a:hover { color: var(--orange); }
     <div class="info-card">
       <div class="icon">📱</div>
       <h3>Platform</h3>
-      <p>DashboardAIR and AskAIR available on iOS and Android. iOS 16 or later required. Android 8.0 or later required.</p>
+      <p>DashboardAIR and AskAIR available on iOS and Android. MyOwnIQ available on Android now, with iOS pending Apple review. iOS 16 or later required. Android 8.0 or later required.</p>
     </div>
     <div class="info-card">
       <div class="icon">💳</div>
