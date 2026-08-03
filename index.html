@@ -89,6 +89,11 @@
     .app-card.askair h3 { color: var(--lavender); }
     .app-card.myowniq h3 { color: var(--blue); }
     .app-card p { font-size: 14px; color: var(--muted); line-height: 1.75; flex: 1; }
+    .app-plans { display: flex; gap: 8px; flex-wrap: wrap; }
+    .plan-chip { font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 100px; border: 1px solid var(--border-med); background: rgba(255,255,255,0.03); color: var(--muted); }
+    .app-card.dashboard .plan-chip.paid { border-color: rgba(249,115,22,0.35); background: var(--orange-dim); color: var(--orange); }
+    .app-card.askair .plan-chip.paid { border-color: rgba(124,111,205,0.35); background: var(--lavender-dim); color: var(--lavender); }
+    .app-card.myowniq .plan-chip.paid { border-color: rgba(0,191,255,0.35); background: var(--blue-dim); color: var(--blue); }
     .app-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
     .store-badges { display: flex; flex-direction: row; gap: 8px; align-items: stretch; flex-wrap: nowrap; }
     .store-badge {
@@ -405,6 +410,7 @@
       </div>
       <h3>DashboardAIR<span class="tm">™</span></h3>
       <p>The AI power user command center. Type a prompt once — DashboardAIR routes it to the best AI tool automatically, renders the answer in-app, and shows the confidence score. AI routing intelligence for power users.</p>
+      <div class="app-plans"><span class="plan-chip">Free</span><span class="plan-chip paid">Pro $4.99/mo</span><span class="plan-chip paid">Teams $12.99/mo</span></div>
       <div class="app-actions">
         <div class="store-badges">
           <a class="store-badge" href="https://apps.apple.com/app/id6764654975" target="_blank" rel="noopener">
@@ -437,6 +443,7 @@
       </div>
       <h3>AskAIR<span class="tm">™</span></h3>
       <p>The consumer AI guide. Tap a life category, ask your question, get an answer from the right AI — all inside the app. Health, family, money, sports, travel, and more. One Prompt. One Route. THE Answer.</p>
+      <div class="app-plans"><span class="plan-chip">Free</span><span class="plan-chip paid">Pro $4.99/mo</span><span class="plan-chip paid">Family $14.99/mo</span></div>
       <div class="app-actions">
         <div class="store-badges">
           <a class="store-badge" href="https://apps.apple.com/us/app/ask-air/id6764843351" target="_blank" rel="noopener">
@@ -486,6 +493,7 @@
            both real files exist. -->
       <h3>MyOwnIQ<span class="tm">™</span></h3>
       <p>AI-Powered Ownership Intelligence. Point a camera at any space — pantry, garage, closet — and AI inventories everything it sees. Find it, need it, lose it. Know What You Own.</p>
+      <div class="app-plans"><span class="plan-chip">Free</span><span class="plan-chip paid">Personal $9.99/mo</span><span class="plan-chip paid">Owner $14.99/mo</span></div>
       <div class="app-actions">
         <div class="store-badges">
           <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.fourcylinder.myowniq" target="_blank" rel="noopener">
