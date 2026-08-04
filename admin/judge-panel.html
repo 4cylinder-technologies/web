@@ -19,6 +19,16 @@
     .jp-response-actions button { font-size:12px; line-height:1; padding:5px 9px; border-radius:6px; border:1px solid var(--ace-border); background: transparent; color: var(--ace-text); cursor:pointer; font-family:'DM Sans', sans-serif; }
     .jp-response-actions button:hover { background: var(--ace-border); }
     .jp-copy-feedback { font-size:11px; color:#22c55e; white-space:nowrap; }
+
+    .jp-history-run { border-bottom:1px solid var(--ace-border); }
+    .jp-history-run:last-child { border-bottom:none; }
+    .jp-history-run summary { cursor:pointer; list-style:none; padding:12px 0; display:flex; align-items:flex-start; gap:8px; }
+    .jp-history-run summary::-webkit-details-marker { display:none; }
+    .jp-history-run summary .jp-caret { display:inline-block; font-size:11px; color: var(--ace-muted); margin-top:3px; transition: transform 0.15s ease; }
+    .jp-history-run[open] summary .jp-caret { transform: rotate(90deg); }
+    .jp-history-run-prompt { color: var(--ace-text); font-size:13px; margin-bottom:4px; }
+    .jp-history-run-meta { font-size:11px; color: var(--ace-muted); }
+    .jp-history-run-body { padding:4px 0 14px 19px; }
   </style>
 </head>
 <body>
@@ -110,13 +120,83 @@
     const resultsGrid = document.getElementById('jp-results-grid');
     const clearAllBtn = document.getElementById('jp-clear-all-btn');
 
-    // Holds the responses currently rendered, indexed to match each card's
-    // data-index — copy reads the raw (unescaped) text from here rather than
-    // pulling it back out of the DOM.
-    let currentResponses = [];
+    // Every rendered response card (live Ask Panel results AND past runs
+    // under Recent Runs) gets a unique uid and is stashed here — copy reads
+    // the raw (unescaped) text from this map rather than pulling it back out
+    // of the DOM, and it's shared across both containers since they use the
+    // same card markup/click handling.
+    const answerStore = new Map();
 
     function escapeHtml(s) {
       return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Shared by the live Ask Panel grid and the Recent Runs history — same
+    // card, same Copy button. Clear only makes sense for the live grid (a
+    // stored past run has nothing to "clear"), so it's opt-in.
+    function buildResponseCardHtml(r, uid, { showClear = false } = {}) {
+      answerStore.set(uid, r);
+      const label = JUDGE_LABELS[r.judge] || r.judge;
+      const latency = r.latencyMs != null ? (r.latencyMs / 1000).toFixed(1) + 's' : '';
+      const bodyHtml = r.error
+        ? `<div style="color: var(--ace-bad); font-size:13px;">Error: ${escapeHtml(r.error)}</div>`
+        : `<div style="font-size:14px; line-height:1.6; white-space:pre-wrap;">${escapeHtml(r.answer || '')}</div>`;
+      const clearBtnHtml = showClear
+        ? `<button type="button" class="jp-clear-btn" data-uid="${uid}" title="Clear this response">✕</button>`
+        : '';
+      return `
+        <details class="jp-response" data-uid="${uid}" open>
+          <summary>
+            <span><span class="jp-caret">▶</span><strong style="font-family:'Syne', sans-serif;">${label}</strong></span>
+            <span class="jp-response-actions">
+              <span class="jp-copy-feedback" data-uid="${uid}"></span>
+              <span style="font-size:11px; color: var(--ace-muted);">${latency}</span>
+              <button type="button" class="jp-copy-btn" data-uid="${uid}" title="Copy answer">📋</button>
+              ${clearBtnHtml}
+            </span>
+          </summary>
+          <div class="jp-body">
+            ${bodyHtml}
+          </div>
+        </details>`;
+    }
+
+    // Shared click handler — attached to both the live results grid and the
+    // history container below, since both hold the same card markup.
+    async function handleCardClick(e) {
+      const copyBtn = e.target.closest('.jp-copy-btn');
+      const clearBtn = e.target.closest('.jp-clear-btn');
+
+      // Both buttons live inside <summary> so they sit in the always-visible
+      // header row — without this, clicking either one would also toggle
+      // the card open/closed, since any click inside a <summary> does that
+      // by default.
+      if (copyBtn || clearBtn) e.preventDefault();
+
+      if (copyBtn) {
+        const uid = copyBtn.dataset.uid;
+        const r = answerStore.get(uid);
+        const text = r?.error ? `Error: ${r.error}` : (r?.answer || '');
+        const ok = await copyText(text);
+        const feedback = copyBtn.closest('.jp-response')?.querySelector(`.jp-copy-feedback[data-uid="${uid}"]`);
+        if (feedback) {
+          feedback.textContent = ok ? 'Copied!' : 'Copy failed';
+          feedback.style.color = ok ? '#22c55e' : 'var(--ace-bad)';
+          setTimeout(() => { feedback.textContent = ''; }, 1500);
+        }
+        return;
+      }
+
+      if (clearBtn) {
+        const card = clearBtn.closest('.jp-response');
+        if (card) {
+          answerStore.delete(card.dataset.uid);
+          card.remove();
+        }
+        if (!resultsGrid.querySelector('.jp-response')) {
+          resultsWrap.style.display = 'none';
+        }
+      }
     }
 
     async function copyText(text) {
@@ -139,76 +219,28 @@
     }
 
     function renderResponses(responses) {
-      currentResponses = responses;
       if (!responses.length) {
         resultsGrid.innerHTML = '';
         resultsWrap.style.display = 'none';
         return;
       }
-      resultsGrid.innerHTML = responses.map((r, i) => {
-        const label = JUDGE_LABELS[r.judge] || r.judge;
-        const latency = r.latencyMs != null ? (r.latencyMs / 1000).toFixed(1) + 's' : '';
-        const bodyHtml = r.error
-          ? `<div style="color: var(--ace-bad); font-size:13px;">Error: ${escapeHtml(r.error)}</div>`
-          : `<div style="font-size:14px; line-height:1.6; white-space:pre-wrap;">${escapeHtml(r.answer || '')}</div>`;
-        return `
-          <details class="jp-response" data-index="${i}" open>
-            <summary>
-              <span><span class="jp-caret">▶</span><strong style="font-family:'Syne', sans-serif;">${label}</strong></span>
-              <span class="jp-response-actions">
-                <span class="jp-copy-feedback" data-index="${i}"></span>
-                <span style="font-size:11px; color: var(--ace-muted);">${latency}</span>
-                <button type="button" class="jp-copy-btn" data-index="${i}" title="Copy answer">📋</button>
-                <button type="button" class="jp-clear-btn" data-index="${i}" title="Clear this response">✕</button>
-              </span>
-            </summary>
-            <div class="jp-body">
-              ${bodyHtml}
-            </div>
-          </details>`;
-      }).join('');
+      resultsGrid.innerHTML = responses
+        .map((r, i) => buildResponseCardHtml(r, `live-${i}`, { showClear: true }))
+        .join('');
       resultsWrap.style.display = 'block';
     }
 
-    // Event delegation on the grid — cards are re-rendered wholesale on
-    // every ask, so listeners live on the stable parent instead of each card.
-    resultsGrid.addEventListener('click', async (e) => {
-      const copyBtn = e.target.closest('.jp-copy-btn');
-      const clearBtn = e.target.closest('.jp-clear-btn');
-
-      // Both buttons live inside <summary> so they sit in the always-visible
-      // header row — without this, clicking either one would also toggle
-      // the card open/closed, since any click inside a <summary> does that
-      // by default.
-      if (copyBtn || clearBtn) e.preventDefault();
-
-      if (copyBtn) {
-        const idx = Number(copyBtn.dataset.index);
-        const r = currentResponses[idx];
-        const text = r?.error ? `Error: ${r.error}` : (r?.answer || '');
-        const ok = await copyText(text);
-        const feedback = resultsGrid.querySelector(`.jp-copy-feedback[data-index="${idx}"]`);
-        if (feedback) {
-          feedback.textContent = ok ? 'Copied!' : 'Copy failed';
-          feedback.style.color = ok ? '#22c55e' : 'var(--ace-bad)';
-          setTimeout(() => { feedback.textContent = ''; }, 1500);
-        }
-        return;
-      }
-
-      if (clearBtn) {
-        const card = clearBtn.closest('.jp-response');
-        if (card) card.remove();
-        if (!resultsGrid.querySelector('.jp-response')) {
-          resultsWrap.style.display = 'none';
-        }
-      }
-    });
+    // Cards are re-rendered wholesale on every ask/history-load, so
+    // listeners live on the stable parent containers instead of each card.
+    resultsGrid.addEventListener('click', handleCardClick);
+    document.getElementById('jp-history').addEventListener('click', handleCardClick);
 
     clearAllBtn.addEventListener('click', () => {
+      for (const uid of Array.from(answerStore.keys())) {
+        if (uid.startsWith('live-')) answerStore.delete(uid);
+      }
       resultsGrid.innerHTML = '';
       resultsWrap.style.display = 'none';
-      currentResponses = [];
     });
 
     async function loadHistory() {
@@ -223,11 +255,21 @@
         el.innerHTML = snap.docs.map(d => {
           const r = d.data();
           const when = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString() : '—';
+          const judgesLabel = (r.judges || []).map(j => JUDGE_LABELS[j] || j).join(', ');
+          const cardsHtml = (r.responses || [])
+            .map((resp, i) => buildResponseCardHtml(resp, `hist-${d.id}-${i}`))
+            .join('');
           return `
-            <div style="border-bottom:1px solid var(--ace-border); padding:10px 0;">
-              <div style="color: var(--ace-text); font-size:13px; margin-bottom:4px;">${(r.prompt || '').replace(/</g, '&lt;')}</div>
-              <div style="font-size:11px; color: var(--ace-muted);">${when} · ${(r.judges || []).map(j => JUDGE_LABELS[j] || j).join(', ')}</div>
-            </div>`;
+            <details class="jp-history-run">
+              <summary>
+                <span class="jp-caret">▶</span>
+                <span>
+                  <div class="jp-history-run-prompt">${escapeHtml(r.prompt || '')}</div>
+                  <div class="jp-history-run-meta">${when} · ${judgesLabel}</div>
+                </span>
+              </summary>
+              <div class="jp-history-run-body">${cardsHtml || '<p style="color: var(--ace-muted); font-size:12px;">No stored responses for this run.</p>'}</div>
+            </details>`;
         }).join('');
       } catch (err) {
         el.innerHTML = `<p style="color: var(--ace-bad);">Failed to load: ${err.message}</p>`;
