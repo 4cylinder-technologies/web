@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ACE Admin — Judge Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./ace-admin.css" />
+</head>
+<body>
+  <img class="bg-watermark" src="../ace-icon.png" alt="" aria-hidden="true" />
+  <div class="ace-header">
+    <div class="ace-brand">
+      <img src="../ace-icon.png" alt="AIR Consensus Engine" />
+      <div class="ace-brand-text">
+        <h1>AIR Consensus Engine<span class="tm">™</span></h1>
+        <div class="ace-brand-sub">Multiple Intelligences. One Truth.</div>
+      </div>
+    </div>
+    <nav class="ace-nav">
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./results.html">Results</a>
+      <a href="./assignments.html">Assignments</a>
+      <a href="./judge-panel.html" class="active">Judge Panel</a>
+      <a href="./gauges.html">Gauges</a>
+      <a href="#" id="logout-link">Sign out</a>
+    </nav>
+  </div>
+
+  <div class="ace-container">
+    <div class="ace-card">
+      <h3 style="margin-top:0;">🧑‍⚖️ Judge Panel</h3>
+      <p style="color: var(--ace-muted); font-size: 13px; margin-top: -8px;">
+        Ask the six judges anything directly — a plain question, not a category vote. Each selected judge answers independently, in parallel, with no shared context. Logged here for reference, capped at the last 5 runs.
+      </p>
+
+      <label for="jp-prompt" style="display:block; font-size:13px; color: var(--ace-muted); margin-bottom:6px;">Question</label>
+      <textarea id="jp-prompt" rows="3" placeholder="Ask anything…" style="width:100%; padding:12px; border-radius:8px; background: var(--ace-panel); color: var(--ace-text); border:1px solid var(--ace-border); font-family:'DM Sans', sans-serif; font-size:14px; resize:vertical;"></textarea>
+
+      <div id="jp-judges" style="display:flex; flex-wrap:wrap; gap:16px; margin:14px 0;">
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color: var(--ace-text);"><input type="checkbox" value="claude" checked /> Claude</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color: var(--ace-text);"><input type="checkbox" value="gpt4o" checked /> ChatGPT (OpenAI)</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color: var(--ace-text);"><input type="checkbox" value="copilot" checked /> Copilot (Azure OpenAI)</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color: var(--ace-text);"><input type="checkbox" value="perplexity" checked /> Perplexity</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color: var(--ace-text);"><input type="checkbox" value="grok" checked /> Grok</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color: var(--ace-text);"><input type="checkbox" value="gemini" checked /> Gemini</label>
+      </div>
+
+      <button id="jp-ask-btn" class="ace-btn">Ask Panel</button>
+      <span id="jp-status" style="margin-left:12px; font-size:13px; color: var(--ace-muted);"></span>
+      <div id="jp-error" class="ace-error"></div>
+    </div>
+
+    <div id="jp-results" style="display:none;" class="ace-card">
+      <h3 style="margin-top:0;">Responses</h3>
+      <div id="jp-results-grid"></div>
+    </div>
+
+    <details class="ace-card" id="jp-history-card">
+      <summary style="cursor:pointer; list-style:none;">
+        <h3 style="display:inline; margin: 0;">🕘 Recent Runs</h3>
+        <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand — last 5 ad-hoc questions asked)</span>
+      </summary>
+      <div id="jp-history" style="margin-top:16px; color: var(--ace-muted); font-size: 13px;">Expand to load…</div>
+    </details>
+  </div>
+
+  <script type="module">
+    import { AceAdmin } from './ace-admin.js';
+    import { collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+    await AceAdmin.requireAuth();
+
+    document.getElementById('logout-link').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await AceAdmin.logout();
+    });
+
+    const JUDGE_LABELS = {
+      claude: 'Claude',
+      gpt4o: 'ChatGPT (OpenAI)',
+      copilot: 'Copilot (Azure OpenAI)',
+      perplexity: 'Perplexity',
+      grok: 'Grok',
+      gemini: 'Gemini',
+    };
+
+    const promptEl = document.getElementById('jp-prompt');
+    const askBtn = document.getElementById('jp-ask-btn');
+    const statusEl = document.getElementById('jp-status');
+    const errorEl = document.getElementById('jp-error');
+    const resultsWrap = document.getElementById('jp-results');
+    const resultsGrid = document.getElementById('jp-results-grid');
+
+    function renderResponses(responses) {
+      resultsGrid.innerHTML = responses.map(r => {
+        const label = JUDGE_LABELS[r.judge] || r.judge;
+        if (r.error) {
+          return `
+            <div style="border:1px solid var(--ace-border); border-radius:10px; padding:14px; margin-bottom:12px; background: var(--ace-panel);">
+              <div style="font-weight:700; font-family:'Syne', sans-serif; margin-bottom:6px;">${label}</div>
+              <div style="color: var(--ace-bad); font-size:13px;">Error: ${r.error}</div>
+            </div>`;
+        }
+        return `
+          <div style="border:1px solid var(--ace-border); border-radius:10px; padding:14px; margin-bottom:12px; background: var(--ace-panel);">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+              <div style="font-weight:700; font-family:'Syne', sans-serif;">${label}</div>
+              <div style="font-size:11px; color: var(--ace-muted);">${r.latencyMs != null ? (r.latencyMs / 1000).toFixed(1) + 's' : ''}</div>
+            </div>
+            <div style="font-size:14px; line-height:1.6; white-space:pre-wrap;">${(r.answer || '').replace(/</g, '&lt;')}</div>
+          </div>`;
+      }).join('');
+      resultsWrap.style.display = 'block';
+    }
+
+    async function loadHistory() {
+      const el = document.getElementById('jp-history');
+      try {
+        const q = query(collection(AceAdmin.db, 'judge_panel_runs'), orderBy('createdAt', 'desc'), limit(5));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          el.innerHTML = '<p>No runs yet.</p>';
+          return;
+        }
+        el.innerHTML = snap.docs.map(d => {
+          const r = d.data();
+          const when = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString() : '—';
+          return `
+            <div style="border-bottom:1px solid var(--ace-border); padding:10px 0;">
+              <div style="color: var(--ace-text); font-size:13px; margin-bottom:4px;">${(r.prompt || '').replace(/</g, '&lt;')}</div>
+              <div style="font-size:11px; color: var(--ace-muted);">${when} · ${(r.judges || []).map(j => JUDGE_LABELS[j] || j).join(', ')}</div>
+            </div>`;
+        }).join('');
+      } catch (err) {
+        el.innerHTML = `<p style="color: var(--ace-bad);">Failed to load: ${err.message}</p>`;
+      }
+    }
+    document.getElementById('jp-history-card').addEventListener('toggle', (e) => {
+      if (e.target.open) loadHistory();
+    }, { once: true });
+
+    askBtn.addEventListener('click', async () => {
+      errorEl.textContent = '';
+      const prompt = promptEl.value.trim();
+      if (!prompt) {
+        errorEl.textContent = 'Type a question first.';
+        return;
+      }
+      const judges = Array.from(document.querySelectorAll('#jp-judges input[type="checkbox"]:checked')).map(cb => cb.value);
+      if (judges.length === 0) {
+        errorEl.textContent = 'Select at least one judge.';
+        return;
+      }
+
+      askBtn.disabled = true;
+      statusEl.textContent = `Asking ${judges.length} judge${judges.length === 1 ? '' : 's'}…`;
+      resultsWrap.style.display = 'none';
+
+      try {
+        const res = await AceAdmin.askJudgePanel({ prompt, judges });
+        renderResponses(res.data.responses);
+        statusEl.textContent = `Done in ${(res.data.totalLatencyMs / 1000).toFixed(1)}s`;
+      } catch (err) {
+        errorEl.textContent = err.message || 'Judge Panel request failed.';
+        statusEl.textContent = '';
+      } finally {
+        askBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

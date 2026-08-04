@@ -86,6 +86,7 @@ export const AceAdmin = {
   runACEVoting: (payload) => httpsCallable(functions, 'runACEVoting', { timeout: 1830000 })(payload),
   setACEResultStatus: (payload) => httpsCallable(functions, 'setACEResultStatus')(payload),
   publishACEResults: (payload) => httpsCallable(functions, 'publishACEResults')(payload),
+  askJudgePanel: (payload) => httpsCallable(functions, 'askJudgePanel', { timeout: 120000 })(payload),
 };
 
 /**
