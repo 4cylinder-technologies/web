@@ -29,6 +29,9 @@
     .jp-history-run-prompt { color: var(--ace-text); font-size:13px; margin-bottom:4px; }
     .jp-history-run-meta { font-size:11px; color: var(--ace-muted); }
     .jp-history-run-body { padding:4px 0 14px 19px; }
+    .jp-history-run-text { flex:1; }
+    .jp-delete-run-btn { font-size:12px; line-height:1; padding:5px 9px; border-radius:6px; border:1px solid var(--ace-border); background: transparent; color: var(--ace-text); cursor:pointer; font-family:'DM Sans', sans-serif; flex-shrink:0; }
+    .jp-delete-run-btn:hover { background: var(--ace-bad); border-color: var(--ace-bad); color: #fff; }
   </style>
 </head>
 <body>
@@ -94,7 +97,7 @@
 
   <script type="module">
     import { AceAdmin } from './ace-admin.js';
-    import { collection, query, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+    import { collection, query, orderBy, limit, getDocs, doc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
 
     await AceAdmin.requireAuth();
 
@@ -166,12 +169,34 @@
     async function handleCardClick(e) {
       const copyBtn = e.target.closest('.jp-copy-btn');
       const clearBtn = e.target.closest('.jp-clear-btn');
+      const deleteRunBtn = e.target.closest('.jp-delete-run-btn');
 
-      // Both buttons live inside <summary> so they sit in the always-visible
-      // header row — without this, clicking either one would also toggle
-      // the card open/closed, since any click inside a <summary> does that
-      // by default.
-      if (copyBtn || clearBtn) e.preventDefault();
+      // All three buttons live inside a <summary> so they sit in the
+      // always-visible header row — without this, clicking any of them
+      // would also toggle the card/run open or closed, since any click
+      // inside a <summary> does that by default.
+      if (copyBtn || clearBtn || deleteRunBtn) e.preventDefault();
+
+      if (deleteRunBtn) {
+        const runId = deleteRunBtn.dataset.runId;
+        const runEl = deleteRunBtn.closest('.jp-history-run');
+        const promptText = runEl?.querySelector('.jp-history-run-prompt')?.textContent || 'this run';
+        if (!confirm(`Permanently delete this run from history?\n\n"${promptText}"\n\nThis cannot be undone.`)) {
+          return;
+        }
+        deleteRunBtn.disabled = true;
+        try {
+          await deleteDoc(doc(AceAdmin.db, 'judge_panel_runs', runId));
+          for (const uid of Array.from(answerStore.keys())) {
+            if (uid.startsWith(`hist-${runId}-`)) answerStore.delete(uid);
+          }
+          if (runEl) runEl.remove();
+        } catch (err) {
+          alert(`Failed to delete: ${err.message}`);
+          deleteRunBtn.disabled = false;
+        }
+        return;
+      }
 
       if (copyBtn) {
         const uid = copyBtn.dataset.uid;
@@ -260,13 +285,14 @@
             .map((resp, i) => buildResponseCardHtml(resp, `hist-${d.id}-${i}`, { showClear: true }))
             .join('');
           return `
-            <details class="jp-history-run">
+            <details class="jp-history-run" data-run-id="${d.id}">
               <summary>
                 <span class="jp-caret">▶</span>
-                <span>
+                <span class="jp-history-run-text">
                   <div class="jp-history-run-prompt">${escapeHtml(r.prompt || '')}</div>
                   <div class="jp-history-run-meta">${when} · ${judgesLabel}</div>
                 </span>
+                <button type="button" class="jp-delete-run-btn" data-run-id="${d.id}" title="Permanently delete this run">🗑 Delete Run</button>
               </summary>
               <div class="jp-history-run-body">${cardsHtml || '<p style="color: var(--ace-muted); font-size:12px;">No stored responses for this run.</p>'}</div>
             </details>`;
