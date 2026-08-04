@@ -257,7 +257,7 @@
           const when = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString() : '—';
           const judgesLabel = (r.judges || []).map(j => JUDGE_LABELS[j] || j).join(', ');
           const cardsHtml = (r.responses || [])
-            .map((resp, i) => buildResponseCardHtml(resp, `hist-${d.id}-${i}`))
+            .map((resp, i) => buildResponseCardHtml(resp, `hist-${d.id}-${i}`, { showClear: true }))
             .join('');
           return `
             <details class="jp-history-run">
