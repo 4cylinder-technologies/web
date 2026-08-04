@@ -8,6 +8,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./ace-admin.css" />
+  <style>
+    .jp-response { border:1px solid var(--ace-border); border-radius:10px; margin-bottom:12px; background: var(--ace-panel); overflow:hidden; }
+    .jp-response summary { cursor:pointer; list-style:none; padding:14px; display:flex; justify-content:space-between; align-items:center; }
+    .jp-response summary::-webkit-details-marker { display:none; }
+    .jp-response summary .jp-caret { display:inline-block; font-size:11px; color: var(--ace-muted); margin-right:8px; transition: transform 0.15s ease; }
+    .jp-response[open] summary .jp-caret { transform: rotate(90deg); }
+    .jp-response .jp-body { padding: 0 14px 14px; }
+    .jp-toolbar { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .jp-toolbar button { font-size:12px; padding:4px 10px; border-radius:6px; border:1px solid var(--ace-border); background: transparent; color: var(--ace-text); cursor:pointer; font-family:'DM Sans', sans-serif; }
+    .jp-toolbar button:hover { background: var(--ace-border); }
+    .jp-copy-feedback { font-size:11px; color:#22c55e; }
+  </style>
 </head>
 <body>
   <img class="bg-watermark" src="../ace-icon.png" alt="" aria-hidden="true" />
@@ -54,8 +66,11 @@
     </div>
 
     <div id="jp-results" style="display:none;" class="ace-card">
-      <h3 style="margin-top:0;">Responses</h3>
-      <div id="jp-results-grid"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin-top:0; margin-bottom:0;">Responses</h3>
+        <button type="button" id="jp-clear-all-btn" class="ace-btn" style="padding:6px 14px; font-size:12px;">Clear All</button>
+      </div>
+      <div id="jp-results-grid" style="margin-top:14px;"></div>
     </div>
 
     <details class="ace-card" id="jp-history-card">
@@ -93,28 +108,102 @@
     const errorEl = document.getElementById('jp-error');
     const resultsWrap = document.getElementById('jp-results');
     const resultsGrid = document.getElementById('jp-results-grid');
+    const clearAllBtn = document.getElementById('jp-clear-all-btn');
+
+    // Holds the responses currently rendered, indexed to match each card's
+    // data-index — copy reads the raw (unescaped) text from here rather than
+    // pulling it back out of the DOM.
+    let currentResponses = [];
+
+    function escapeHtml(s) {
+      return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (err) {
+        // Fallback for browsers/contexts without Clipboard API access.
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(ta);
+        return ok;
+      }
+    }
 
     function renderResponses(responses) {
-      resultsGrid.innerHTML = responses.map(r => {
+      currentResponses = responses;
+      if (!responses.length) {
+        resultsGrid.innerHTML = '';
+        resultsWrap.style.display = 'none';
+        return;
+      }
+      resultsGrid.innerHTML = responses.map((r, i) => {
         const label = JUDGE_LABELS[r.judge] || r.judge;
-        if (r.error) {
-          return `
-            <div style="border:1px solid var(--ace-border); border-radius:10px; padding:14px; margin-bottom:12px; background: var(--ace-panel);">
-              <div style="font-weight:700; font-family:'Syne', sans-serif; margin-bottom:6px;">${label}</div>
-              <div style="color: var(--ace-bad); font-size:13px;">Error: ${r.error}</div>
-            </div>`;
-        }
+        const latency = r.latencyMs != null ? (r.latencyMs / 1000).toFixed(1) + 's' : '';
+        const bodyHtml = r.error
+          ? `<div style="color: var(--ace-bad); font-size:13px;">Error: ${escapeHtml(r.error)}</div>`
+          : `<div style="font-size:14px; line-height:1.6; white-space:pre-wrap;">${escapeHtml(r.answer || '')}</div>`;
         return `
-          <div style="border:1px solid var(--ace-border); border-radius:10px; padding:14px; margin-bottom:12px; background: var(--ace-panel);">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
-              <div style="font-weight:700; font-family:'Syne', sans-serif;">${label}</div>
-              <div style="font-size:11px; color: var(--ace-muted);">${r.latencyMs != null ? (r.latencyMs / 1000).toFixed(1) + 's' : ''}</div>
+          <details class="jp-response" data-index="${i}" open>
+            <summary>
+              <span><span class="jp-caret">▶</span><strong style="font-family:'Syne', sans-serif;">${label}</strong></span>
+              <span style="font-size:11px; color: var(--ace-muted);">${latency}</span>
+            </summary>
+            <div class="jp-body">
+              <div class="jp-toolbar">
+                <button type="button" class="jp-copy-btn" data-index="${i}">📋 Copy</button>
+                <button type="button" class="jp-clear-btn" data-index="${i}">✕ Clear</button>
+                <span class="jp-copy-feedback" data-index="${i}"></span>
+              </div>
+              ${bodyHtml}
             </div>
-            <div style="font-size:14px; line-height:1.6; white-space:pre-wrap;">${(r.answer || '').replace(/</g, '&lt;')}</div>
-          </div>`;
+          </details>`;
       }).join('');
       resultsWrap.style.display = 'block';
     }
+
+    // Event delegation on the grid — cards are re-rendered wholesale on
+    // every ask, so listeners live on the stable parent instead of each card.
+    resultsGrid.addEventListener('click', async (e) => {
+      const copyBtn = e.target.closest('.jp-copy-btn');
+      const clearBtn = e.target.closest('.jp-clear-btn');
+
+      if (copyBtn) {
+        const idx = Number(copyBtn.dataset.index);
+        const r = currentResponses[idx];
+        const text = r?.error ? `Error: ${r.error}` : (r?.answer || '');
+        const ok = await copyText(text);
+        const feedback = resultsGrid.querySelector(`.jp-copy-feedback[data-index="${idx}"]`);
+        if (feedback) {
+          feedback.textContent = ok ? 'Copied!' : 'Copy failed';
+          feedback.style.color = ok ? '#22c55e' : 'var(--ace-bad)';
+          setTimeout(() => { feedback.textContent = ''; }, 1500);
+        }
+        return;
+      }
+
+      if (clearBtn) {
+        const card = clearBtn.closest('.jp-response');
+        if (card) card.remove();
+        if (!resultsGrid.querySelector('.jp-response')) {
+          resultsWrap.style.display = 'none';
+        }
+      }
+    });
+
+    clearAllBtn.addEventListener('click', () => {
+      resultsGrid.innerHTML = '';
+      resultsWrap.style.display = 'none';
+      currentResponses = [];
+    });
 
     async function loadHistory() {
       const el = document.getElementById('jp-history');
