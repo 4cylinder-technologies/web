@@ -62,6 +62,7 @@
     import { AceAdmin } from './ace-admin.js';
     import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
     import { httpsCallable } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-functions.js';
+    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js';
 
     // Gen2 Cloud Run URL flakiness (firebase/firebase-functions#1447) — real,
     // recurring. Updated again 8/1 (Play Console phase): a stuck "Skipped
@@ -636,6 +637,257 @@
     const checkUserTier = (data) => httpsCallable(AceAdmin.functions, 'checkUserTier')(data);
     const promoteUserTier = (data) => httpsCallable(AceAdmin.functions, 'promoteUserTier')(data);
 
+    // ─── BUFFER PUSH (write), added 8/6 ──────────────────────────────────────
+    // Web counterpart to social-agent/push_batch.js's CSV push, for anyone on
+    // the gaugesAccess allow-list (admin or social role) — not just Michael's
+    // terminal. Uploads go to Firebase Storage (Buffer's API needs a public
+    // URL, not a raw file — same reason push_batch.js's CSV already has an
+    // image_url column) and the CSV format matches that script exactly:
+    // text,image_url,tags,posting_time. "tags" is accepted but not sent to
+    // Buffer (no such field on a post) — kept only so an existing CSV drops
+    // in unchanged. "image_url" may be an http(s) URL OR the exact filename
+    // of a .png uploaded in the box above it. One CSV pushes to one channel,
+    // same one-file-per-network model push_batch.js already uses.
+    //
+    // NOT YET LIVE-TESTED end-to-end. Push one throwaway post scheduled well
+    // in the future first, confirm it lands in Buffer, then delete it —
+    // same idea as push_batch.js's own `test` command — before trusting this
+    // with real content.
+    const pushBufferBatch = (data) => httpsCallable(AceAdmin.functions, 'pushBufferBatch')(data);
+    const listBufferChannelsFn = () => httpsCallable(AceAdmin.functions, 'listBufferChannels')();
+
+    let bufferUploadedImages = {}; // filename -> public download URL, this page load only
+
+    // Converts "YYYY-MM-DD HH:MM" (America/New_York local, same convention
+    // as push_batch.js) to a UTC ISO string WITHOUT relying on the browser's
+    // own timezone — unlike push_batch.js (only ever run on Michael's Mac),
+    // this tool may run on a team member's machine outside America/New_York.
+    // Round-trips through Intl to get the real UTC offset for that exact
+    // date, so it stays correct across the EST/EDT boundary rather than
+    // assuming a fixed -4/-5.
+    function nyLocalToUtcIso(localStr) {
+      const [datePart, timePart] = (localStr || '').trim().split(' ');
+      if (!datePart || !timePart) throw new Error(`Bad posting_time: "${localStr}"`);
+      const [y, m, d] = datePart.split('-').map(Number);
+      const [hh, mi] = timePart.split(':').map(Number);
+      if ([y, m, d, hh, mi].some(Number.isNaN)) throw new Error(`Bad posting_time: "${localStr}"`);
+      const guessUtc = Date.UTC(y, m - 1, d, hh, mi);
+      const fmt = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York', hourCycle: 'h23',
+        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
+      });
+      const parts = Object.fromEntries(fmt.formatToParts(guessUtc).map(p => [p.type, p.value]));
+      const nyReading = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute);
+      const correctedUtc = guessUtc + (guessUtc - nyReading);
+      return new Date(correctedUtc).toISOString();
+    }
+
+    // Minimal CSV parser (handles quoted fields with commas) — same approach
+    // as push_batch.js's parseCsv, kept dependency-free for four columns.
+    function parseBufferCsv(text) {
+      const rows = []; let row = [], field = '', inQ = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQ) {
+          if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+          else field += ch;
+        } else if (ch === '"') inQ = true;
+        else if (ch === ',') { row.push(field); field = ''; }
+        else if (ch === '\n' || ch === '\r') {
+          if (ch === '\r' && text[i + 1] === '\n') i++;
+          row.push(field); field = '';
+          if (row.some(f => f !== '')) rows.push(row);
+          row = [];
+        } else field += ch;
+      }
+      if (field !== '' || row.length) { row.push(field); if (row.some(f => f !== '')) rows.push(row); }
+      if (rows.length === 0) return [];
+      const header = rows.shift().map(h => h.replace(/^\uFEFF/, '').trim());
+      return rows.map(r => Object.fromEntries(header.map((h, i) => [h, (r[i] ?? '').trim()])));
+    }
+
+    function bufferPushHtml() {
+      return `
+        <div id="buffer-push-panel" style="margin-top:18px; padding-top:18px; border-top:1px solid var(--border);">
+          <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px; margin-bottom:4px;">Push content</div>
+          <div style="color:var(--muted); font-size:12px; margin-bottom:14px;">
+            Upload images, then a CSV (text,image_url,tags,posting_time — same format as the terminal tool). image_url can
+            be an existing hosted URL, or the exact filename of an image uploaded below. One CSV pushes to one channel.
+            Posting times are read as America/New_York local, same as always.
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">1. Upload images (.png)</label>
+            <input id="buffer-image-input" type="file" accept="image/png" multiple style="color:var(--text); font-size:13px;" />
+            <div id="buffer-image-list" style="margin-top:8px; font-size:12px; color:var(--muted);"></div>
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">2. Channel</label>
+            <select id="buffer-channel-select" style="background:#050a12; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px; min-width:240px;">
+              <option value="">Loading channels…</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">3. CSV (paste or upload)</label>
+            <input id="buffer-csv-file" type="file" accept=".csv,text/csv" style="color:var(--text); font-size:13px; margin-bottom:8px; display:block;" />
+            <textarea id="buffer-csv-text" rows="6" placeholder="text,image_url,tags,posting_time"
+              style="width:100%; box-sizing:border-box; background:#050a12; border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-family:'SF Mono','Menlo','Consolas',monospace; font-size:12px;"></textarea>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:14px;">
+            <button id="buffer-preview-btn" class="gauges-refresh-btn" type="button">Preview</button>
+            <button id="buffer-push-btn" class="gauges-refresh-btn" type="button" disabled>Push</button>
+          </div>
+
+          <div id="buffer-preview" style="font-size:12px;"></div>
+          <div id="buffer-push-result" style="font-size:12px; margin-top:10px;"></div>
+        </div>
+      `;
+    }
+
+    function renderBufferPreview(rows) {
+      const container = document.getElementById('buffer-preview');
+      if (rows.length === 0) {
+        container.innerHTML = '<p style="color: var(--muted);">No rows parsed yet.</p>';
+        return;
+      }
+      const body = rows.map(r => `
+        <tr>
+          <td>${escapeHtml((r.text || '').slice(0, 60))}${(r.text || '').length > 60 ? '…' : ''}</td>
+          <td>${r.resolvedImageUrl ? `<span class="dim">${escapeHtml(r.resolvedImageUrl.slice(0, 40))}…</span>` : (r.image_url ? '<span style="color:#f87171;">unresolved</span>' : '<span class="dim">(none)</span>')}</td>
+          <td>${escapeHtml(r.posting_time || '')}</td>
+          <td>${r.error ? `<span style="color:#f87171;">${escapeHtml(r.error)}</span>` : '<span class="badge approved">ok</span>'}</td>
+        </tr>
+      `).join('');
+      container.innerHTML = `
+        <table class="ace-table">
+          <thead><tr><th>Text</th><th>Image</th><th>Posting time (ET)</th><th>Status</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      `;
+    }
+
+    function wireBufferPush() {
+      let parsedRows = [];
+
+      document.getElementById('buffer-image-input').addEventListener('change', async (e) => {
+        const files = Array.from(e.target.files || []);
+        const listEl = document.getElementById('buffer-image-list');
+        for (const file of files) {
+          listEl.innerHTML += `<div>Uploading ${escapeHtml(file.name)}…</div>`;
+          try {
+            const storage = getStorage();
+            const path = `social-uploads/${AceAdmin.auth.currentUser.uid}/${Date.now()}-${file.name}`;
+            const fileRef = ref(storage, path);
+            await uploadBytes(fileRef, file);
+            const url = await getDownloadURL(fileRef);
+            bufferUploadedImages[file.name] = url;
+            listEl.innerHTML += `<div>✅ ${escapeHtml(file.name)} → <span class="dim">${escapeHtml(url.slice(0, 60))}…</span></div>`;
+          } catch (err) {
+            listEl.innerHTML += `<div style="color:#f87171;">❌ ${escapeHtml(file.name)}: ${escapeHtml(err.message)}</div>`;
+          }
+        }
+      });
+
+      listBufferChannelsFn().then(({ data }) => {
+        const select = document.getElementById('buffer-channel-select');
+        const channels = data.channels || [];
+        select.innerHTML = channels.length
+          ? channels.map(c => `<option value="${c.id}" data-service="${c.service}">${escapeHtml(c.name)} (${escapeHtml(c.service)})</option>`).join('')
+          : '<option value="">No connected channels found</option>';
+      }).catch(err => {
+        document.getElementById('buffer-channel-select').innerHTML = `<option value="">Error: ${escapeHtml(err.message)}</option>`;
+      });
+
+      document.getElementById('buffer-csv-file').addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        document.getElementById('buffer-csv-text').value = await file.text();
+      });
+
+      document.getElementById('buffer-preview-btn').addEventListener('click', () => {
+        const csvText = document.getElementById('buffer-csv-text').value;
+        let raw;
+        try {
+          raw = parseBufferCsv(csvText);
+        } catch (err) {
+          renderBufferPreview([]);
+          document.getElementById('buffer-push-result').innerHTML = `<span style="color:#f87171;">CSV parse error: ${escapeHtml(err.message)}</span>`;
+          return;
+        }
+        parsedRows = raw.map(r => {
+          const row = { ...r };
+          const rawImage = (r.image_url || '').trim();
+          if (!rawImage) {
+            row.resolvedImageUrl = null;
+          } else if (/^https?:\/\//i.test(rawImage)) {
+            row.resolvedImageUrl = rawImage;
+          } else if (bufferUploadedImages[rawImage]) {
+            row.resolvedImageUrl = bufferUploadedImages[rawImage];
+          } else {
+            row.resolvedImageUrl = null;
+            row.error = `"${rawImage}" isn't an uploaded filename or a URL`;
+          }
+          if (!row.error && !r.text) row.error = 'Missing text';
+          if (!row.error) {
+            try { nyLocalToUtcIso(r.posting_time); } catch (err) { row.error = err.message; }
+          }
+          return row;
+        });
+        renderBufferPreview(parsedRows);
+        const anyError = parsedRows.some(r => r.error);
+        document.getElementById('buffer-push-btn').disabled =
+          parsedRows.length === 0 || anyError || !document.getElementById('buffer-channel-select').value;
+      });
+
+      document.getElementById('buffer-channel-select').addEventListener('change', () => {
+        if (parsedRows.length && !parsedRows.some(r => r.error)) {
+          document.getElementById('buffer-push-btn').disabled = !document.getElementById('buffer-channel-select').value;
+        }
+      });
+
+      document.getElementById('buffer-push-btn').addEventListener('click', async () => {
+        const select = document.getElementById('buffer-channel-select');
+        const channelId = select.value;
+        const service = select.selectedOptions[0]?.dataset.service;
+        if (!channelId || parsedRows.length === 0) return;
+        if (!confirm(`Push ${parsedRows.length} post${parsedRows.length === 1 ? '' : 's'} to ${select.selectedOptions[0].textContent}?`)) return;
+
+        const btn = document.getElementById('buffer-push-btn');
+        btn.disabled = true; btn.textContent = 'Pushing…';
+        try {
+          const rows = parsedRows.map(r => ({
+            channelId,
+            service,
+            text: r.text,
+            dueAt: nyLocalToUtcIso(r.posting_time),
+            imageUrl: r.resolvedImageUrl || undefined,
+          }));
+          const { data } = await pushBufferBatch({ rows });
+          const lines = data.results.map((r, i) =>
+            r.ok
+              ? `✅ Row ${i + 1}: scheduled (post ${r.post?.id || '—'})`
+              : `❌ Row ${i + 1}: ${escapeHtml(r.error)}`
+          );
+          document.getElementById('buffer-push-result').innerHTML = lines.join('<br>');
+        } catch (err) {
+          document.getElementById('buffer-push-result').innerHTML = `<span style="color:#f87171;">Push failed: ${escapeHtml(err.message)}</span>`;
+        } finally {
+          btn.disabled = false; btn.textContent = 'Push';
+        }
+      });
+    }
+
+    function injectBufferPush() {
+      const bufferPanel = document.querySelector('.gauge-panel[data-panel="buffer"]');
+      if (!bufferPanel) return; // shouldn't happen — buildTabsAndPanels() must run before this
+      bufferPanel.insertAdjacentHTML('beforeend', bufferPushHtml());
+      wireBufferPush();
+    }
+
+
     // Tier vocabulary differs by app — MUST match gauges/functions/
     // index.js's MYOWNIQ_TIERS/AIR_TIERS exactly, or a selection here would
     // just bounce off the server's own validation. MyOwnIQ's 3 tiers and
@@ -754,8 +1006,17 @@
         e.preventDefault();
         await AceAdmin.logout();
       });
+      // 8/6: team members added with role:'social' (gaugesAccess/{email})
+      // only get the Buffer tab — revenue/RevenueCat/App Store/etc. never
+      // render or fetch for them. Cosmetic only (the real boundary is
+      // server-side in gauges/functions/index.js's requireAccess/
+      // requireAdmin) but keeps business data off their screen entirely.
+      if (AceAdmin.role !== 'admin') {
+        Object.keys(SECTIONS).forEach(id => { if (id !== 'buffer') delete SECTIONS[id]; });
+      }
       buildTabsAndPanels();
-      injectTierAdmin();
+      if (AceAdmin.role === 'admin') injectTierAdmin(); // paid-tier overrides — owner-only regardless of allow-list
+      injectBufferPush();
       await loadAndRender();
 
       document.getElementById('refresh-btn').addEventListener('click', (e) => {

@@ -20,7 +20,7 @@ import {
   httpsCallable,
 } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-functions.js';
 import {
-  getFirestore, collection, query, where, orderBy, limit, getDocs,
+  getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc,
 } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
 
 const ACE_FIREBASE_CONFIG = {
@@ -32,8 +32,6 @@ const ACE_FIREBASE_CONFIG = {
   appId: '1:807232980244:web:4cdfb336c2386a786f2e01',
 };
 
-const ADMIN_EMAIL = 'michael.welton@4cylindertechnologies.com';
-
 const app = initializeApp(ACE_FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -41,39 +39,63 @@ const db = getFirestore(app);
 // project space than the app's own functions — same project, isolated code.
 const functions = getFunctions(app);
 
+// 8/6: replaced the single hardcoded ADMIN_EMAIL gate with a Firestore
+// allow-list (gaugesAccess/{email}, field `role`) so team members can be
+// added/removed by editing a Firestore doc instead of editing this file and
+// redeploying the website. `role` is 'admin' (full admin site, unchanged
+// from before) or 'social' (Buffer push tab only — gauges.html filters its
+// SECTIONS map on this). Michael's own email is seeded role:'admin' via
+// gauges/scripts/seed-admin-access.js. This is a UX convenience only — the
+// real security boundary for anything that writes (e.g. pushBufferBatch)
+// is the equivalent server-side check in gauges/functions/index.js, which
+// never trusts what the client reports here.
+async function lookupAccessRole(email) {
+  if (!email) return null;
+  const snap = await getDoc(doc(db, 'gaugesAccess', email));
+  return snap.exists() ? (snap.data().role || null) : null;
+}
+
 export const AceAdmin = {
   auth,
   db,
   functions,
+  role: null, // set by login()/requireAuth() once resolved — check after awaiting either
 
   async login() {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ hd: '4cylindertechnologies.com' });
     const result = await signInWithPopup(auth, provider);
-    if (result.user.email !== ADMIN_EMAIL) {
+    const role = await lookupAccessRole(result.user.email);
+    if (!role) {
       await signOut(auth);
-      throw new Error(`Access restricted to ${ADMIN_EMAIL}.`);
+      throw new Error(`${result.user.email} isn't on the admin access list.`);
     }
+    this.role = role;
     return result.user;
   },
 
   async logout() {
+    this.role = null;
     await signOut(auth);
   },
 
   /**
-   * Redirects to index.html (login) if not authenticated as the admin.
-   * Call at the top of every protected page. Resolves with the user once
-   * confirmed, so callers can await it before rendering.
+   * Redirects to index.html (login) if not authenticated AND allow-listed
+   * (gaugesAccess/{email} exists). Call at the top of every protected page.
+   * Resolves with the user once confirmed, so callers can await it before
+   * rendering. Sets AceAdmin.role as a side effect — check it after
+   * awaiting this to scope what the page shows (see gauges.html).
    */
   requireAuth() {
     return new Promise((resolve, reject) => {
-      onAuthStateChanged(auth, user => {
-        if (!user || user.email !== ADMIN_EMAIL) {
+      onAuthStateChanged(auth, async user => {
+        const role = user ? await lookupAccessRole(user.email) : null;
+        if (!user || !role) {
           window.location.href = './index.html';
           reject(new Error('Not authenticated'));
           return;
         }
+        this.role = role;
         resolve(user);
       });
     });
