@@ -723,10 +723,13 @@
           </div>
 
           <div style="margin-bottom:16px;">
-            <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">2. Channel</label>
-            <select id="buffer-channel-select" style="background:#050a12; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px; min-width:240px;">
+            <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">2. Channel(s) — cmd/ctrl-click to pick more than one</label>
+            <select id="buffer-channel-select" multiple size="6" style="background:#050a12; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px; min-width:280px;">
               <option value="">Loading channels…</option>
             </select>
+            <label style="display:block; margin-top:6px; font-size:12px; color:var(--muted); cursor:pointer;">
+              <input type="checkbox" id="buffer-channel-select-all" style="vertical-align:middle; margin-right:6px;" /> Select all channels
+            </label>
           </div>
 
           <div style="margin-bottom:16px;">
@@ -801,6 +804,15 @@
         document.getElementById('buffer-channel-select').innerHTML = `<option value="">Error: ${escapeHtml(err.message)}</option>`;
       });
 
+      // "Select all channels" — added 8/6, Michael's request, so cross-posting
+      // the same CSV to every connected channel doesn't need cmd-clicking
+      // each one by hand.
+      document.getElementById('buffer-channel-select-all').addEventListener('change', (e) => {
+        const select = document.getElementById('buffer-channel-select');
+        Array.from(select.options).forEach(o => { if (o.value) o.selected = e.target.checked; });
+        select.dispatchEvent(new Event('change'));
+      });
+
       document.getElementById('buffer-csv-file').addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -839,38 +851,51 @@
         renderBufferPreview(parsedRows);
         const anyError = parsedRows.some(r => r.error);
         document.getElementById('buffer-push-btn').disabled =
-          parsedRows.length === 0 || anyError || !document.getElementById('buffer-channel-select').value;
+          parsedRows.length === 0 || anyError || document.getElementById('buffer-channel-select').selectedOptions.length === 0;
       });
 
       document.getElementById('buffer-channel-select').addEventListener('change', () => {
         if (parsedRows.length && !parsedRows.some(r => r.error)) {
-          document.getElementById('buffer-push-btn').disabled = !document.getElementById('buffer-channel-select').value;
+          document.getElementById('buffer-push-btn').disabled =
+            document.getElementById('buffer-channel-select').selectedOptions.length === 0;
         }
       });
 
       document.getElementById('buffer-push-btn').addEventListener('click', async () => {
         const select = document.getElementById('buffer-channel-select');
-        const channelId = select.value;
-        const service = select.selectedOptions[0]?.dataset.service;
-        if (!channelId || parsedRows.length === 0) return;
-        if (!confirm(`Push ${parsedRows.length} post${parsedRows.length === 1 ? '' : 's'} to ${select.selectedOptions[0].textContent}?`)) return;
+        const targets = Array.from(select.selectedOptions)
+          .filter(o => o.value)
+          .map(o => ({ channelId: o.value, service: o.dataset.service, label: o.textContent }));
+        if (targets.length === 0 || parsedRows.length === 0) return;
+        const totalPosts = parsedRows.length * targets.length;
+        const targetLabel = targets.length === 1 ? targets[0].label : `${targets.length} channels`;
+        if (!confirm(`Push ${parsedRows.length} post${parsedRows.length === 1 ? '' : 's'} to ${targetLabel} (${totalPosts} total)?`)) return;
 
         const btn = document.getElementById('buffer-push-btn');
         btn.disabled = true; btn.textContent = 'Pushing…';
         try {
-          const rows = parsedRows.map(r => ({
-            channelId,
-            service,
+          // Same CSV rows, once per selected channel — pushBufferBatch already
+          // takes channelId/service per-row, so fanning out here needs no
+          // server-side change.
+          const rows = targets.flatMap(t => parsedRows.map(r => ({
+            channelId: t.channelId,
+            service: t.service,
             text: r.text,
             dueAt: nyLocalToUtcIso(r.posting_time),
             imageUrl: r.resolvedImageUrl || undefined,
-          }));
+          })));
           const { data } = await pushBufferBatch({ rows });
-          const lines = data.results.map((r, i) =>
-            r.ok
-              ? `✅ Row ${i + 1}: scheduled (post ${r.post?.id || '—'})`
-              : `❌ Row ${i + 1}: ${escapeHtml(r.error)}`
-          );
+          // Fanned out across channels, so label each result by channel, not
+          // just row number — "Row 3" alone is ambiguous once the same CSV
+          // went to 5 channels at once.
+          const labelFor = (channelId) => targets.find(t => t.channelId === channelId)?.label || channelId;
+          const lines = data.results.map((r, i) => {
+            const rowNum = (i % parsedRows.length) + 1;
+            const chLabel = escapeHtml(labelFor(r.row?.channelId));
+            return r.ok
+              ? `✅ ${chLabel} · Row ${rowNum}: scheduled (post ${r.post?.id || '—'})`
+              : `❌ ${chLabel} · Row ${rowNum}: ${escapeHtml(r.error)}`;
+          });
           document.getElementById('buffer-push-result').innerHTML = lines.join('<br>');
         } catch (err) {
           document.getElementById('buffer-push-result').innerHTML = `<span style="color:#f87171;">Push failed: ${escapeHtml(err.message)}</span>`;
