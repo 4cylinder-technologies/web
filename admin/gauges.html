@@ -183,7 +183,7 @@
             ${a.appStoreState}
           </div>
           <div class="gauge-meta-row">
-            <span>${timeAgo(a.createdDate)}</span>
+            <span>${timeAgo(a.stateChangedAt || a.createdDate)}</span>
             <span>${a.platform || ''}</span>
           </div>
         </div>`;
