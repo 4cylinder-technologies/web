@@ -109,6 +109,8 @@ export const AceAdmin = {
   setACEResultStatus: (payload) => httpsCallable(functions, 'setACEResultStatus')(payload),
   publishACEResults: (payload) => httpsCallable(functions, 'publishACEResults')(payload),
   askJudgePanel: (payload) => httpsCallable(functions, 'askJudgePanel', { timeout: 120000 })(payload),
+  getJudgePromptTemplate: () => httpsCallable(functions, 'getJudgePromptTemplate')(),
+  setJudgePromptTemplate: (payload) => httpsCallable(functions, 'setJudgePromptTemplate')(payload),
 };
 
 /**
