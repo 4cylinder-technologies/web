@@ -459,6 +459,7 @@ const TOOL_LABELS = {
   cleo: 'Cleo',
   wysa: 'Wysa',
   ada: 'Ada',
+  'github-copilot': 'GitHub Copilot',
 };
 export const toolLabel = (id) => TOOL_LABELS[id] || id;
 
@@ -503,6 +504,7 @@ const TOOL_WIRING = {
   elevenlabs: { tier: 'deeplink', askair: true, dashboardair: true },
   suno:       { tier: 'deeplink', askair: true, dashboardair: true },
   kling:      { tier: 'deeplink', askair: true, dashboardair: true },
+  'github-copilot': { tier: 'deeplink', askair: true, dashboardair: true },
 };
 
 const TIER_LABELS = {
