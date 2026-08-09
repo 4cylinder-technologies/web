@@ -79,7 +79,7 @@
   <script type="module">
     import { AceAdmin, computeToolOwnership, renderOwnershipChart } from './ace-admin.js';
     import {
-      collection, doc, getDoc, getDocs, query, orderBy,
+      collection, doc, getDoc, getDocs, query, orderBy, limit,
     } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
 
     await AceAdmin.requireAuth();
@@ -91,11 +91,22 @@
     });
 
     const params = new URLSearchParams(window.location.search);
-    const runId = params.get('runId');
+    let runId = params.get('runId');
     if (!runId) {
-      document.querySelector('.ace-container').innerHTML =
-        '<div class="ace-card">No runId specified. Go back to <a href="./dashboard.html">Dashboard</a>.</div>';
-      throw new Error('Missing runId');
+      // The persistent top-nav "Results" link (and any bookmark without a
+      // runId) has no run to show on its own -- Dashboard's run-history
+      // table is the only place that normally supplies one. Fall back to
+      // the most recent run instead of dead-ending.
+      const latestSnap = await getDocs(
+        query(collection(AceAdmin.db, 'ace_results'), orderBy('runDate', 'desc'), limit(1))
+      );
+      if (latestSnap.empty) {
+        document.querySelector('.ace-container').innerHTML =
+          '<div class="ace-card">No ACE runs yet. Go to <a href="./dashboard.html">Dashboard</a> to start one.</div>';
+        throw new Error('No runs exist');
+      }
+      runId = latestSnap.docs[0].id;
+      window.history.replaceState(null, '', `./results.html?runId=${runId}`);
     }
     document.getElementById('run-id-label').textContent = runId.slice(0, 8);
 
