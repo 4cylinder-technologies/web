@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>ACE Admin — Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./ace-admin.css" />
+</head>
+<body>
+  <div class="ace-header">
+    <div class="ace-brand">
+      <img src="../ace-icon.png" alt="AIR Consensus Engine" />
+      <div class="ace-brand-text">
+        <h1>AIR Consensus Engine<span class="tm">™</span></h1>
+        <div class="ace-brand-sub">Multiple Intelligences. One Truth.</div>
+      </div>
+    </div>
+    <nav class="ace-nav">
+      <a href="./dashboard.html">Dashboard</a>
+      <a href="./results.html">Results</a>
+      <a href="./assignments.html">Assignments</a>
+      <a href="./judge-panel.html">Judge Panel</a>
+      <a href="./analytics.html" class="active">Analytics</a>
+      <a href="./gauges.html">Gauges</a>
+      <a href="#" id="logout-link">Sign out</a>
+    </nav>
+  </div>
+
+  <div class="ace-container">
+    <p style="color: var(--ace-muted); font-size: 13px; margin: 0 0 4px;">
+      Moved off Dashboard 2026-08-09 to cut clutter — this is every cross-run
+      analysis view (tool ownership, tenure, wiring, history, trend, bias) in
+      one place. Dashboard stays focused on staging runs and recent history.
+    </p>
+
+    <details class="ace-card" id="ownership-card">
+      <summary style="cursor:pointer; list-style:none;">
+        <h3 style="display:inline; margin: 0;">📊 Tool Ownership Chart</h3>
+        <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand — shows the most recent run's tool breakdown)</span>
+      </summary>
+      <div style="margin-top: 16px;">
+        <select id="ownership-app-select" style="padding: 8px; border-radius: 6px; background: var(--ace-panel); color: var(--ace-text); border: 1px solid var(--ace-border); margin-bottom: 16px;">
+          <option value="dashboardair">DashboardAIR</option>
+          <option value="askair">AskAIR</option>
+        </select>
+        <div id="ownership-chart"><p style="color: var(--ace-muted); font-size: 13px;">Expand to load…</p></div>
+      </div>
+    </details>
+
+    <details class="ace-card" id="analytics-card">
+      <summary style="cursor:pointer; list-style:none;">
+        <h3 style="display:inline; margin: 0;">📈 ACE Analytics</h3>
+        <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand — category history, tool trend, and judge bias across recent runs)</span>
+      </summary>
+      <div style="margin-top: 16px;">
+        <select id="analytics-app-select" style="padding: 8px; border-radius: 6px; background: var(--ace-panel); color: var(--ace-text); border: 1px solid var(--ace-border); margin-bottom: 20px;">
+          <option value="dashboardair">DashboardAIR</option>
+          <option value="askair">AskAIR</option>
+        </select>
+
+        <details style="margin-bottom: 20px;" open>
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Assignment Tenure</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to collapse — how long has the current tool held each category)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Current tool per category, held-since date, and streak length — counting only runs that were actually published with that category approved. Longest-held first.</p>
+          <div id="assignment-streaks-table" style="overflow-x:auto;"><p style="color: var(--ace-muted); font-size: 13px;">Expand to load…</p></div>
+        </details>
+
+        <details style="margin-bottom: 20px;" open>
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Tool Wiring Status</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to collapse — which catalog tools actually have a working answer/deep-link path in each app)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">
+            The best tool always wins on merit — but "wins" only means something if the app actually knows how to use
+            it. This cross-checks every judgeable tool against both apps' real wiring so a gap (like Cleo/Wysa/Ada
+            missing from DashboardAIR, found 2026-07-29) shows up here instead of as a dead button for a real user.
+          </p>
+          <div id="tool-wiring-table" style="overflow-x:auto;"><p style="color: var(--ace-muted); font-size: 13px;">Loading…</p></div>
+        </details>
+
+        <details style="margin-bottom: 20px;">
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Category Winner History</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Which tool won each category, run by run — flags categories whose winner has flipped.</p>
+          <div id="category-history-table" style="overflow-x:auto;"><p style="color: var(--ace-muted); font-size: 13px;">Expand to load…</p></div>
+        </details>
+
+        <details style="margin-bottom: 20px;">
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Tool Win Trend</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Each tool's % share of decided categories, run by run.</p>
+          <div id="tool-trend-table" style="overflow-x:auto;"></div>
+        </details>
+
+        <details style="margin-bottom: 4px;">
+          <summary style="cursor:pointer; list-style:none;">
+            <h4 style="display:inline; margin: 0;">Judge Self-Preference Bias</h4>
+            <span style="color: var(--ace-muted); font-size: 12px; margin-left: 8px;">(click to expand)</span>
+          </summary>
+          <p style="color: var(--ace-muted); font-size: 13px; margin: 10px 0 12px;">Does a judge favor its own tool more than its peers do? Aggregated across all loaded runs.</p>
+          <div id="judge-bias-table"></div>
+        </details>
+      </div>
+    </details>
+
+  </div>
+
+  <script type="module">
+    import {
+      AceAdmin, renderOwnershipChart, fetchRunHistory,
+      renderAssignmentStreaks, renderCategoryHistory, renderToolTrend, renderJudgeBias,
+      renderToolWiringStatus,
+    } from './ace-admin.js';
+    import {
+      collection, query, where, orderBy, limit, getDocs,
+    } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+    await AceAdmin.requireAuth();
+
+    document.getElementById('logout-link').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await AceAdmin.logout();
+      window.location.href = './index.html';
+    });
+
+    let ownershipLoaded = false;
+    async function loadOwnershipChart() {
+      const appId = document.getElementById('ownership-app-select').value;
+      const chartEl = document.getElementById('ownership-chart');
+      chartEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
+
+      try {
+        const latestRunQuery = query(
+          collection(AceAdmin.db, 'ace_results'),
+          where('appId', '==', appId),
+          orderBy('runDate', 'desc'),
+          limit(1)
+        );
+        const runSnap = await getDocs(latestRunQuery);
+        if (runSnap.empty) {
+          chartEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">No runs yet for this app.</p>';
+          return;
+        }
+        const runDoc = runSnap.docs[0];
+        const catsSnap = await getDocs(collection(AceAdmin.db, 'ace_results', runDoc.id, 'categories'));
+        const categories = catsSnap.docs.map(d => d.data());
+        renderOwnershipChart(chartEl, categories);
+      } catch (err) {
+        console.error('loadOwnershipChart failed:', err);
+        chartEl.innerHTML = `<p style="color: var(--ace-danger, #f87171); font-size: 13px;">Couldn't load ownership chart: ${err.message}</p>`;
+      }
+    }
+
+    document.getElementById('ownership-card').addEventListener('toggle', (e) => {
+      if (e.target.open && !ownershipLoaded) {
+        ownershipLoaded = true;
+        loadOwnershipChart();
+      }
+    });
+    document.getElementById('ownership-app-select').addEventListener('change', loadOwnershipChart);
+    document.getElementById('ownership-app-select').addEventListener('click', (e) => e.stopPropagation());
+
+    let analyticsLoaded = false;
+    async function loadAnalytics() {
+      const appId = document.getElementById('analytics-app-select').value;
+      const streaksEl = document.getElementById('assignment-streaks-table');
+      const catHistEl = document.getElementById('category-history-table');
+      const trendEl = document.getElementById('tool-trend-table');
+      const biasEl = document.getElementById('judge-bias-table');
+
+      streaksEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
+      catHistEl.innerHTML = '<p style="color: var(--ace-muted); font-size: 13px;">Loading…</p>';
+      trendEl.innerHTML = '';
+      biasEl.innerHTML = '';
+
+      try {
+        // Last 12 runs — enough history to spot flips/trends without pulling
+        // every run and every category doc ever created as the run count grows.
+        const runs = await fetchRunHistory(AceAdmin.db, appId, 12);
+        renderAssignmentStreaks(streaksEl, runs);
+        renderCategoryHistory(catHistEl, runs);
+        renderToolTrend(trendEl, runs);
+        renderJudgeBias(biasEl, runs);
+      } catch (err) {
+        console.error('loadAnalytics failed:', err);
+        const msg = `<p style="color: var(--ace-danger, #f87171); font-size: 13px;">Couldn't load analytics: ${err.message}</p>`;
+        streaksEl.innerHTML = msg;
+        catHistEl.innerHTML = msg;
+        trendEl.innerHTML = '';
+        biasEl.innerHTML = '';
+      }
+
+      // Tool wiring status is static (not per-run) — render once, independent
+      // of the try/catch above so a Firestore hiccup for run history doesn't
+      // also blank out the wiring table.
+      renderToolWiringStatus(document.getElementById('tool-wiring-table'));
+    }
+
+    document.getElementById('analytics-card').addEventListener('toggle', (e) => {
+      if (e.target.open && !analyticsLoaded) {
+        analyticsLoaded = true;
+        loadAnalytics();
+      }
+    });
+    document.getElementById('analytics-app-select').addEventListener('change', loadAnalytics);
+    document.getElementById('analytics-app-select').addEventListener('click', (e) => e.stopPropagation());
+
+  </script>
+</body>
+</html>
