@@ -169,7 +169,9 @@
       const latency = r.latencyMs != null ? (r.latencyMs / 1000).toFixed(1) + 's' : '';
       const bodyHtml = r.error
         ? `<div style="color: var(--ace-bad); font-size:13px;">Error: ${escapeHtml(r.error)}</div>`
-        : `<div style="font-size:14px; line-height:1.6; white-space:pre-wrap;">${escapeHtml(r.answer || '')}</div>`;
+        : r.answer
+          ? `<div style="font-size:14px; line-height:1.6; white-space:pre-wrap;">${escapeHtml(r.answer)}</div>`
+          : `<div style="color: var(--ace-muted); font-size:13px; font-style:italic;">Empty response — likely truncated by the output token cap on a long/complex question. Try a shorter question or ask this judge alone.</div>`;
       const clearBtnHtml = showClear
         ? `<button type="button" class="jp-clear-btn" data-uid="${uid}" title="Clear this response">✕</button>`
         : '';
