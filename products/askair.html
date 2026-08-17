@@ -8,6 +8,7 @@
   <meta property="og:title" content="AskAIR™ — One Prompt. One Route. THE Answer." />
   <meta property="og:description" content="Tap a category, ask a question, get the right AI's answer — no juggling apps, no guessing which AI is best. Free on iOS and Android." />
   <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://4cylindertechnologies.com/products/askair.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
@@ -53,7 +54,8 @@
     .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--lavender); margin-bottom: 20px; }
     .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(38px, 6vw, 68px); font-weight: 800; line-height: 1.08; letter-spacing: -1.5px; margin-bottom: 24px; max-width: 780px; }
     .hero h1 em { font-style: normal; color: var(--lavender); }
-    .hero-sub { max-width: 600px; font-size: 18px; font-weight: 300; color: var(--muted); line-height: 1.7; margin-bottom: 40px; }
+    .hero-sub { max-width: 600px; font-size: 18px; font-weight: 300; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+    .hero-highlight { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--lavender); background: var(--lavender-dim); border: 1px solid rgba(124,111,205,0.35); padding: 11px 22px; border-radius: 999px; margin-bottom: 40px; display: inline-block; }
 
     /* INSTALL PILL — the top-of-page CTA */
     .install-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 18px; }
@@ -77,6 +79,18 @@
     .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--lavender); margin-bottom: 16px; }
     .section-title { font-family: 'Syne', sans-serif; font-size: clamp(28px, 3.5vw, 42px); font-weight: 800; letter-spacing: -1px; line-height: 1.15; margin-bottom: 16px; }
     .section-sub { font-size: 16px; color: var(--muted); max-width: 600px; line-height: 1.7; margin-bottom: 52px; }
+
+    /* COMPARE STRIP */
+    .compare-strip { margin-top: 36px; border: 1px solid var(--border-med); border-radius: 16px; overflow: hidden; background: var(--surface); }
+    .compare-row { display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; padding: 15px 24px; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-row > div:nth-child(2), .compare-row > div:nth-child(3) { text-align: center; }
+    .compare-head { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.02em; color: var(--muted); background: var(--surface2); }
+    .compare-highlight { color: var(--lavender); font-weight: 700; }
+    .compare-head .compare-highlight { font-size: 15px; }
+    @media (max-width: 600px) {
+      .compare-row { grid-template-columns: 1.3fr 1fr 1fr; padding: 12px 14px; font-size: 12.5px; }
+    }
 
     .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .pillar { background: var(--surface); border: 1px solid var(--border-med); border-radius: 16px; padding: 32px 28px; }
@@ -153,6 +167,7 @@
   <p class="hero-eyebrow">AskAIR™ &middot; Free on iOS &amp; Android</p>
   <h1>Ask anything.<br><em>The right AI</em> answers.</h1>
   <p class="hero-sub">Stop guessing which AI to open. Tap a life category or just ask — AskAIR routes your question to whichever AI actually wins that category, decided by monthly consensus, not a hunch.</p>
+  <p class="hero-highlight">Built for the consumer and the power user. Powered by AIR at the core.</p>
 
   <div class="install-row" id="install">
     <a class="store-badge" href="https://apps.apple.com/us/app/ask-air/id6764843351" target="_blank" rel="noopener">
@@ -198,9 +213,9 @@
 <div class="divider"></div>
 
 <section>
-  <div class="section-label">More Than A Category Browser</div>
-  <h2 class="section-title">Same engine as DashboardAIR.<br>Built for real life, not just work.</h2>
-  <p class="section-sub">AskAIR runs on the same AIR Consensus Engine™ routing intelligence as DashboardAIR — the same monthly, blind vote across frontier AIs deciding who's actually best. AskAIR just points it at a much bigger world: 125 everyday categories today, growing as AIR keeps pace with real life, each one updated right along with its assigned AI tool.</p>
+  <div class="section-label">The Full AIR Experience</div>
+  <h2 class="section-title">Everything DashboardAIR is.<br>Then a whole lot more.</h2>
+  <p class="section-sub">AskAIR runs on the exact same AIR Consensus Engine™ as DashboardAIR — the same monthly, blind vote deciding which AI is objectively best for every category. AskAIR just goes further: more categories, more AI tools, and features DashboardAIR doesn't have. It's priced accordingly, too — AskAIR Pro is a step up from DashboardAIR Pro, because it's simply the bigger app.</p>
 
   <div class="pillars">
     <div class="pillar">
@@ -216,7 +231,35 @@
     <div class="pillar">
       <span class="pillar-icon">🌐</span>
       <h3>Language Preference: answers in your language</h3>
-      <p>Set your preferred language once in Settings — from Spanish and French to Japanese and Chinese, 12+ languages and counting — and every eligible answer comes back in it. (Pro &amp; Family feature.)</p>
+      <p>Set your preferred language once in Settings — from Spanish and French to Japanese and Chinese, 12+ languages and counting — and every eligible answer comes back in it. DashboardAIR doesn't have this. (Pro &amp; Family feature.)</p>
+    </div>
+  </div>
+
+  <div class="compare-strip">
+    <div class="compare-row compare-head">
+      <div>What you get</div>
+      <div>DashboardAIR</div>
+      <div class="compare-highlight">AskAIR</div>
+    </div>
+    <div class="compare-row">
+      <div>Categories</div>
+      <div>24</div>
+      <div class="compare-highlight">125</div>
+    </div>
+    <div class="compare-row">
+      <div>AI tools inside</div>
+      <div>14</div>
+      <div class="compare-highlight">17</div>
+    </div>
+    <div class="compare-row">
+      <div>AIR Consensus Engine™ routing</div>
+      <div>✓</div>
+      <div class="compare-highlight">✓</div>
+    </div>
+    <div class="compare-row">
+      <div>Language Preference (answer in your language)</div>
+      <div>—</div>
+      <div class="compare-highlight">✓</div>
     </div>
   </div>
 </section>
