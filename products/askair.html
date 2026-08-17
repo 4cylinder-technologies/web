@@ -144,7 +144,7 @@
   <a class="nav-logo" href="#top">
     <div class="nav-wordmark">Ask<span class="air">AIR</span><sup style="font-size:9px;">™</sup></div>
   </a>
-  <a class="nav-cta" href="#install">Get the App</a>
+  <a class="nav-cta" id="navCta" href="#install">Get the App</a>
 </nav>
 
 <div class="hero" id="top">
@@ -354,5 +354,24 @@
   </div>
 </footer>
 
+<script>
+  (function () {
+    var ua = navigator.userAgent || navigator.vendor || window.opera;
+    var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    var isAndroid = /android/i.test(ua);
+    var cta = document.getElementById('navCta');
+    if (!cta) return;
+    if (isIOS) {
+      cta.href = 'https://apps.apple.com/us/app/ask-air/id6764843351';
+      cta.target = '_blank';
+      cta.rel = 'noopener';
+    } else if (isAndroid) {
+      cta.href = 'https://play.google.com/store/apps/details?id=com.askair.app';
+      cta.target = '_blank';
+      cta.rel = 'noopener';
+    }
+    // Desktop / other: leave as #install so it scrolls to the store badges below.
+  })();
+</script>
 </body>
 </html>
