@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyOwnIQ™ — Know What You Own.</title>
+  <meta name="description" content="Point your camera at any space — pantry, garage, closet, vehicle — and AI catalogs everything it sees. Never rebuy what you already own. Free on Android, iOS coming soon." />
+  <meta property="og:title" content="MyOwnIQ™ — Know What You Own." />
+  <meta property="og:description" content="AI-Powered Ownership Intelligence. Sweep your camera, build your whole home in five questions, and stop rebuying what you already have." />
+  <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://4cylindertechnologies.com/products/myowniq.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    :root {
+      --bg: #080C14; --surface: #0D1522; --surface2: #111B2B;
+      --border: rgba(255,255,255,0.07); --border-med: rgba(255,255,255,0.11);
+      --text: #E8EDF5; --muted: #6B7A99; --subtle: #3A4A62;
+      --blue: #00BFFF; --blue-dim: rgba(0,191,255,0.12); --blue-glow: rgba(0,191,255,0.28);
+      --green: #22C55E; --green-dim: rgba(34,197,94,0.1);
+      --gold: #F5C842;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(0,191,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,191,255,0.03) 1px, transparent 1px);
+      background-size: 52px 52px; pointer-events: none; z-index: 0;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 66px;
+      background: rgba(8,12,20,0.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-back { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--muted); font-size: 13px; font-weight: 500; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-wordmark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 19px; letter-spacing: -0.4px; color: var(--text); }
+    .nav-wordmark .iq { color: var(--blue); }
+    .nav-cta { background: var(--blue-dim); border: 1px solid rgba(0,191,255,0.35); color: var(--blue) !important; padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.2s, border-color 0.2s; }
+    .nav-cta:hover { background: rgba(0,191,255,0.22); border-color: rgba(0,191,255,0.55); }
+
+    section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 96px 40px; }
+    .divider { position: relative; z-index: 1; height: 1px; background: var(--border); max-width: 1100px; margin: 0 auto; }
+
+    /* HERO */
+    .hero { position: relative; z-index: 1; min-height: 92vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 130px 24px 80px; }
+    .hero-glow { position: absolute; top: 18%; left: 50%; transform: translateX(-50%); width: 760px; height: 420px; background: radial-gradient(ellipse at center, var(--blue-glow) 0%, transparent 65%); pointer-events: none; opacity: 0.5; }
+    .hero-icon { width: 84px; height: 84px; border-radius: 20px; margin-bottom: 28px; box-shadow: 0 12px 36px rgba(0,191,255,0.3); }
+    .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--blue); margin-bottom: 20px; }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(38px, 6vw, 68px); font-weight: 800; line-height: 1.08; letter-spacing: -1.5px; margin-bottom: 24px; max-width: 780px; }
+    .hero h1 em { font-style: normal; color: var(--blue); }
+    .hero-sub { max-width: 600px; font-size: 18px; font-weight: 300; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+    .hero-highlight { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--blue); background: var(--blue-dim); border: 1px solid rgba(0,191,255,0.35); padding: 11px 22px; border-radius: 999px; margin-bottom: 40px; display: inline-block; }
+
+    /* INSTALL PILL */
+    .install-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 18px; }
+    .store-badge {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      background: #000; border: 1px solid rgba(255,255,255,0.18); border-radius: 10px;
+      padding: 12px 22px; text-decoration: none; min-width: 176px; min-height: 56px;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .store-badge:hover { background: #1a1a1a; border-color: rgba(0,191,255,0.5); transform: translateY(-1px); }
+    .store-badge svg { width: 24px; height: 28px; flex-shrink: 0; }
+    .store-badge-text { display: flex; flex-direction: column; line-height: 1.25; text-align: left; }
+    .store-badge-sub { font-size: 10px; color: rgba(255,255,255,0.6); letter-spacing: 0.02em; }
+    .store-badge-name { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.2px; }
+    .store-badge-soon {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      background: rgba(255,255,255,0.03); border: 1px dashed var(--border-med); border-radius: 10px;
+      padding: 12px 22px; min-width: 176px; min-height: 56px;
+    }
+    .store-badge-soon .store-badge-text { text-align: left; }
+    .store-badge-soon .store-badge-sub { color: var(--subtle); }
+    .store-badge-soon .store-badge-name { color: var(--muted); font-size: 14px; font-weight: 600; }
+    .install-note { font-size: 12px; color: var(--subtle); margin-bottom: 56px; }
+    .install-note strong { color: var(--muted); }
+
+    .hero-shot { max-width: 380px; width: 100%; border-radius: 22px; border: 1px solid var(--border-med); box-shadow: 0 30px 80px rgba(0,191,255,0.16), 0 8px 24px rgba(0,0,0,0.5); display: block; }
+
+    /* SECTIONS */
+    .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue); margin-bottom: 16px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: clamp(28px, 3.5vw, 42px); font-weight: 800; letter-spacing: -1px; line-height: 1.15; margin-bottom: 16px; }
+    .section-sub { font-size: 16px; color: var(--muted); max-width: 600px; line-height: 1.7; margin-bottom: 52px; }
+
+    .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .pillar { background: var(--surface); border: 1px solid var(--border-med); border-radius: 16px; padding: 32px 28px; }
+    .pillar-icon { font-size: 26px; margin-bottom: 18px; display: block; }
+    .pillar h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+    .pillar p { font-size: 14px; color: var(--muted); line-height: 1.75; }
+
+    /* WIZARD STRIP */
+    .wizard-strip { background: linear-gradient(135deg, rgba(0,191,255,0.07) 0%, transparent 60%); border: 1px solid rgba(0,191,255,0.22); border-radius: 20px; padding: 48px 52px; }
+    .wizard-types { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 32px; }
+    .wizard-type { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); background: var(--surface2); border: 1px solid var(--border-med); padding: 8px 16px; border-radius: 100px; }
+    .how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 8px; }
+    .how-step-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: var(--blue); margin-bottom: 8px; }
+    .how-step-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .how-step p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* SHOWCASE — real screenshots */
+    .showcase { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .showcase-item { background: var(--surface); border: 1px solid var(--border-med); border-radius: 16px; overflow: hidden; }
+    .showcase-item img { width: 100%; display: block; background: var(--surface2); aspect-ratio: 9/19.5; object-fit: cover; }
+    .showcase-caption { padding: 16px 18px 20px; }
+    .showcase-caption .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; display: block; }
+    .showcase-caption p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* PURGE ENGINE CARDS */
+    .purge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .purge-card { background: var(--surface); border: 1px solid var(--border-med); border-radius: 14px; padding: 24px 20px; text-align: center; }
+    .purge-card .emoji { font-size: 28px; display: block; margin-bottom: 12px; }
+    .purge-card h4 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .purge-card p { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+    /* PLANS */
+    .plans-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .plan-card { background: var(--surface); border: 1px solid var(--border-med); border-radius: 16px; padding: 32px 28px; display: flex; flex-direction: column; }
+    .plan-card.owner { border-color: rgba(0,191,255,0.4); background: linear-gradient(160deg, rgba(0,191,255,0.06) 0%, transparent 60%); }
+    .plan-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+    .plan-name { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .plan-price { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+    .plan-price strong { color: var(--text); font-size: 22px; font-family: 'Syne', sans-serif; }
+    .plan-features { list-style: none; font-size: 13px; color: var(--muted); line-height: 2; flex: 1; }
+    .plan-features li::before { content: '✓ '; color: var(--blue); font-weight: 700; }
+
+    /* FAQ */
+    .faq-item { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); margin-bottom: 12px; overflow: hidden; }
+    .faq-item summary { cursor: pointer; padding: 20px 24px; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: '+'; color: var(--blue); font-size: 20px; font-weight: 400; }
+    .faq-item[open] summary::after { content: '–'; }
+    .faq-item .faq-body { padding: 0 24px 22px; font-size: 14px; color: var(--muted); line-height: 1.8; }
+
+    /* FINAL CTA */
+    .final-cta { text-align: center; }
+    .final-cta h2 { margin-bottom: 14px; }
+    .final-cta .section-sub { margin-left: auto; margin-right: auto; }
+
+    footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 32px 40px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .footer-links { display: flex; gap: 24px; list-style: none; }
+    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 12px; color: var(--subtle); }
+
+    @media (max-width: 900px) {
+      .pillars { grid-template-columns: 1fr; }
+      .showcase { grid-template-columns: repeat(2, 1fr); }
+      .purge-grid { grid-template-columns: repeat(2, 1fr); }
+      .plans-grid { grid-template-columns: 1fr; }
+      .how-steps { grid-template-columns: 1fr; }
+      .wizard-strip { padding: 36px 28px; }
+    }
+    @media (max-width: 600px) {
+      nav { padding: 0 20px; }
+      section { padding: 64px 20px; }
+      .showcase { grid-template-columns: 1fr; }
+      .purge-grid { grid-template-columns: 1fr; }
+      .install-row { flex-direction: column; align-items: center; }
+      .store-badge, .store-badge-soon { width: 100%; max-width: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="/#apps">&larr; 4Cylinder Technologies</a>
+  <a class="nav-logo" href="#top">
+    <div class="nav-wordmark">MyOwn<span class="iq">IQ</span><sup style="font-size:9px;">™</sup></div>
+  </a>
+  <a class="nav-cta" id="navCta" href="#install">Get the App</a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-glow"></div>
+  <img class="hero-icon" src="../MyOwnIQ Icon Tight.png" alt="MyOwnIQ" />
+  <p class="hero-eyebrow">MyOwnIQ™ &middot; Free on Android &middot; iOS coming soon</p>
+  <h1>Know what you own.<br><em>Before you buy it again.</em></h1>
+  <p class="hero-sub">Point your camera at any space — pantry, garage, closet, vehicle — and AI catalogs everything it sees. Search any item in seconds. Never rebuy what you already have.</p>
+  <p class="hero-highlight">AI-Powered Ownership Intelligence — Your World. Understood.</p>
+
+  <div class="install-row" id="install">
+    <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.fourcylinder.myowniq" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1.22 0L1 .22v23.56l.22.22L13 12.22z" fill="#00C1FF"/><path d="M16.89 8.56L13 4.67 1.22 0l11.5 11.5z" fill="#00E876"/><path d="M16.89 15.44l-3.89 3.89L1.22 24l11.28-11.28z" fill="#FF3D00"/><path d="M22.67 10.89l-5.78-2.33-3.89 3.66 3.89 3.56 5.78-2.33c1-.56 1-.78 1-1.28s0-.72-1-1.28z" fill="#FFC400"/></svg>
+      <div class="store-badge-text"><span class="store-badge-sub">Get it on</span><span class="store-badge-name">Google Play</span></div>
+    </a>
+    <div class="store-badge-soon">
+      <div class="store-badge-text"><span class="store-badge-sub">Coming to</span><span class="store-badge-name">iOS App Store</span></div>
+    </div>
+  </div>
+  <p class="install-note">Free to start &middot; <strong>1 property, 15 areas, 10 scans/month</strong> — no card required</p>
+
+  <img class="hero-shot" src="assets/myowniq-home.jpg" alt="MyOwnIQ home dashboard" />
+</div>
+
+<div class="divider"></div>
+
+<section>
+  <div class="section-label">Why MyOwnIQ</div>
+  <h2 class="section-title">Four things.<br>One camera.</h2>
+  <p class="section-sub">Everything you own, organized without the typing. MyOwnIQ is built around four simple jobs — and it does all four with a photo.</p>
+
+  <div class="pillars">
+    <div class="pillar">
+      <span class="pillar-icon">📸</span>
+      <h3>Snap It</h3>
+      <p>Sweep your camera across a pantry, closet, garage, or trunk. AI identifies every item it sees and catalogs it — no manual entry, no barcode scanning.</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-icon">🔎</span>
+      <h3>Find It</h3>
+      <p>Search any item across every property, area, and spot you own. "Where's my tomato sauce?" gets answered in seconds, not a trip to the garage.</p>
+    </div>
+    <div class="pillar">
+      <span class="pillar-icon">🛒</span>
+      <h3>Need It</h3>
+      <p>Before you buy something new, check the Don't Rebuy list first — MyOwnIQ tells you what you already have so you stop buying duplicates.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section>
+  <div class="wizard-strip">
+    <div class="section-label" style="margin-bottom:12px;">Setup In Minutes</div>
+    <h2 class="section-title" style="font-size: clamp(24px, 3vw, 34px); margin-bottom: 20px;">Answer a few questions.<br>We build your whole home.</h2>
+    <p class="section-sub" style="margin-bottom: 8px;">The Property Setup Wizard skips the blank-page problem entirely. Pick what you're cataloging, toggle the areas that apply, and MyOwnIQ builds the full property tree — areas, spots, and all — in one tap.</p>
+    <div class="wizard-types">
+      <span class="wizard-type">🏠 Home</span>
+      <span class="wizard-type">🏖️ Vacation Home</span>
+      <span class="wizard-type">🚐 RV / Boat</span>
+      <span class="wizard-type">🏢 Business / Office</span>
+      <span class="wizard-type">🚗 Vehicle</span>
+    </div>
+    <img src="assets/myowniq-wizard-types.jpg" alt="MyOwnIQ New Property type picker" style="max-width:340px; width:100%; border-radius:18px; border:1px solid var(--border-med); box-shadow:0 20px 50px rgba(0,191,255,0.15); display:block; margin:0 auto 32px;" />
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">STEP 01</div>
+        <div class="how-step-title">Pick a Type</div>
+        <p>Home, vacation home, RV or boat, business, or vehicle — each with its own smart question set.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">STEP 02</div>
+        <div class="how-step-title">Toggle What Applies</div>
+        <p>Kitchen, closets, garage, trunk, glovebox, supply closet — flip on what's real, skip what isn't.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">STEP 03</div>
+        <div class="how-step-title">Build It</div>
+        <p>One tap creates the entire property tree, ready to scan. No typing, no starting from a blank list.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section>
+  <div class="section-label">See It In Action</div>
+  <h2 class="section-title">Real screens.<br>Real ownership, organized.</h2>
+  <p class="section-sub">No mockups — these are MyOwnIQ's actual screens.</p>
+
+  <div class="showcase">
+    <div class="showcase-item">
+      <img src="assets/myowniq-wizard.jpg" alt="MyOwnIQ Property Setup Wizard" />
+      <div class="showcase-caption">
+        <span class="eyebrow">Build it</span>
+        <p>The Property Setup Wizard turns "where do I even start?" into a two-minute setup.</p>
+      </div>
+    </div>
+    <div class="showcase-item">
+      <img src="assets/myowniq-search.jpg" alt="MyOwnIQ search results" />
+      <div class="showcase-caption">
+        <span class="eyebrow">Find anything</span>
+        <p>Search any item across every property you own — results in seconds.</p>
+      </div>
+    </div>
+    <div class="showcase-item">
+      <img src="assets/myowniq-dont-rebuy.jpg" alt="MyOwnIQ Don't Rebuy check" />
+      <div class="showcase-caption">
+        <span class="eyebrow">Don't Rebuy</span>
+        <p>Check your list before you shop — MyOwnIQ flags what you already own.</p>
+      </div>
+    </div>
+    <div class="showcase-item">
+      <img src="assets/myowniq-qriq-label.jpg" alt="MyOwnIQ QRIQ printable labels" />
+      <div class="showcase-caption">
+        <span class="eyebrow">QRIQ Labels</span>
+        <p>Print real labels for your shelves — scan one and jump straight to that spot.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section>
+  <div class="section-label">Stay On Top Of It</div>
+  <h2 class="section-title">The Purge Engine™</h2>
+  <p class="section-sub">MyOwnIQ doesn't just catalog what you own — it tells you what to let go of, tuned to what kind of thing it is.</p>
+
+  <div class="purge-grid">
+    <div class="purge-card">
+      <span class="emoji">🍎</span>
+      <h4>Freshness Check</h4>
+      <p>Pantry, fridge, and bar items — flagged before they expire.</p>
+    </div>
+    <div class="purge-card">
+      <span class="emoji">👕</span>
+      <h4>Closet Check</h4>
+      <p>Clothing you haven't worn in a while — a gentle "still love it?"</p>
+    </div>
+    <div class="purge-card">
+      <span class="emoji">📦</span>
+      <h4>Garage & Gear</h4>
+      <p>Tools, sports gear, and furniture sitting dormant — donate or write it off.</p>
+    </div>
+    <div class="purge-card">
+      <span class="emoji">📄</span>
+      <h4>Everything Else</h4>
+      <p>A neutral sweep for anything that doesn't fit the other three.</p>
+    </div>
+  </div>
+  <p style="font-size: 13px; color: var(--subtle); margin-top: 24px;">Jewelry, electronics, and documents are permanently excluded — some things are family. Mark any item "keep forever" to exempt it, no matter the category.</p>
+</section>
+
+<div class="divider"></div>
+
+<section>
+  <div class="section-label">Never Forget A Spot</div>
+  <h2 class="section-title">Freshness that finds you,<br>not the other way around.</h2>
+  <p class="section-sub">Every property, area, and spot tracks its own last-scanned date. When something's overdue, MyOwnIQ tells you — you don't have to remember to check.</p>
+
+  <div class="showcase" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="showcase-item">
+      <img src="assets/myowniq-needs-scan.jpg" alt="MyOwnIQ Needs a Scan overdue list" />
+      <div class="showcase-caption">
+        <span class="eyebrow">Needs a Scan</span>
+        <p>Every stale area and spot, most overdue first — tap through and you're there.</p>
+      </div>
+    </div>
+    <div class="showcase-item">
+      <img src="assets/myowniq-family-sharing.jpg" alt="MyOwnIQ Family Sharing settings" />
+      <div class="showcase-caption">
+        <span class="eyebrow">Family Sharing</span>
+        <p>Share a property with the household — everyone scans, everyone sees what's owned.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section>
+  <div class="section-label">Plans</div>
+  <h2 class="section-title">Start free.<br>Upgrade when breadth matters.</h2>
+  <p class="section-sub">Depth is free. Breadth is paid — one property, unlimited depth, is enough for most single-home users forever.</p>
+
+  <div class="plans-grid">
+    <div class="plan-card">
+      <div class="plan-badge">Free</div>
+      <div class="plan-name">Get Started</div>
+      <div class="plan-price"><strong>$0</strong></div>
+      <ul class="plan-features">
+        <li>1 property</li>
+        <li>15 areas per property</li>
+        <li>10 scans per month</li>
+        <li>Full Property Setup Wizard</li>
+        <li>Purge Engine (locked preview)</li>
+      </ul>
+    </div>
+    <div class="plan-card">
+      <div class="plan-badge">Personal</div>
+      <div class="plan-name">Personal</div>
+      <div class="plan-price"><strong>$9.99</strong>/mo &middot; $95.99/yr</div>
+      <ul class="plan-features">
+        <li>More properties &amp; areas</li>
+        <li>100 scans per month</li>
+        <li>Full Purge Engine access</li>
+        <li>QRIQ printable labels</li>
+      </ul>
+    </div>
+    <div class="plan-card owner">
+      <div class="plan-badge">Owner</div>
+      <div class="plan-name">Owner</div>
+      <div class="plan-price"><strong>$17.99</strong>/mo &middot; $172.99/yr</div>
+      <ul class="plan-features">
+        <li>Everything in Personal</li>
+        <li>Highest property &amp; scan limits</li>
+        <li>Family Sharing</li>
+        <li>Priority support</li>
+      </ul>
+    </div>
+  </div>
+  <p style="font-size: 12px; color: var(--subtle); margin-top: 20px;">Prices shown reflect current Google Play pricing and may vary by region. See the app for exact current plan details.</p>
+</section>
+
+<div class="divider"></div>
+
+<section>
+  <div class="section-label">Questions</div>
+  <h2 class="section-title">Good to know</h2>
+
+  <details class="faq-item" open>
+    <summary>Is MyOwnIQ actually free?</summary>
+    <div class="faq-body">Yes — MyOwnIQ is free to download and use with 1 property, 15 areas, and 10 scans a month, no card required. Personal and Owner tiers exist for more properties, more scans, and features like the full Purge Engine and Family Sharing.</div>
+  </details>
+  <details class="faq-item">
+    <summary>How does the AI actually catalog my stuff?</summary>
+    <div class="faq-body">Point your camera at a space and sweep — MyOwnIQ's AI identifies each item it sees and adds it to that spot automatically. Re-scanning a spot you've already cataloged updates existing items instead of duplicating them.</div>
+  </details>
+  <details class="faq-item">
+    <summary>Is my data private?</summary>
+    <div class="faq-body">Scans are processed to extract what's in them and then discarded — MyOwnIQ isn't storing a photo library of your home, it's storing the inventory that comes out of it.</div>
+  </details>
+  <details class="faq-item">
+    <summary>What are QRIQ Labels?</summary>
+    <div class="faq-body">Printable physical labels (Avery 6450 round or 6460 rectangular) for your highest-churn shelves — pantry, closets, the fridge. Scan a label and MyOwnIQ jumps straight to that spot.</div>
+  </details>
+  <details class="faq-item">
+    <summary>When is MyOwnIQ coming to iOS?</summary>
+    <div class="faq-body">MyOwnIQ is live today on Android. iOS is on the way — check back here or watch our <a href="https://www.instagram.com/4cylindertech/" style="color:var(--blue);" target="_blank" rel="noopener">social channels</a> for the release.</div>
+  </details>
+</section>
+
+<div class="divider"></div>
+
+<section class="final-cta">
+  <div class="section-label" style="justify-content:center; display:flex;">Get Started</div>
+  <h2 class="section-title">Stop losing track of what you own.</h2>
+  <p class="section-sub">Download MyOwnIQ free and build your first property in minutes.</p>
+  <div class="install-row">
+    <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.fourcylinder.myowniq" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M1.22 0L1 .22v23.56l.22.22L13 12.22z" fill="#00C1FF"/><path d="M16.89 8.56L13 4.67 1.22 0l11.5 11.5z" fill="#00E876"/><path d="M16.89 15.44l-3.89 3.89L1.22 24l11.28-11.28z" fill="#FF3D00"/><path d="M22.67 10.89l-5.78-2.33-3.89 3.66 3.89 3.56 5.78-2.33c1-.56 1-.78 1-1.28s0-.72-1-1.28z" fill="#FFC400"/></svg>
+      <div class="store-badge-text"><span class="store-badge-sub">Get it on</span><span class="store-badge-name">Google Play</span></div>
+    </a>
+    <div class="store-badge-soon">
+      <div class="store-badge-text"><span class="store-badge-sub">Coming to</span><span class="store-badge-name">iOS App Store</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-copy">&copy; 2026 4Cylinder Technologies LLC &middot; MyOwnIQ&trade;</span>
+    <ul class="footer-links">
+      <li><a href="/#apps">All Products</a></li>
+      <li><a href="/#consensus">AIR Consensus Engine&trade;</a></li>
+      <li><a href="../support.html">Support</a></li>
+      <li><a href="../age-rating.html">Age Ratings</a></li>
+      <li><a href="../privacy.html">Privacy Policy</a></li>
+      <li><a href="../terms.html">Terms of Use</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var ua = navigator.userAgent || navigator.vendor || window.opera;
+    var isAndroid = /android/i.test(ua);
+    var cta = document.getElementById('navCta');
+    if (!cta) return;
+    if (isAndroid) {
+      cta.href = 'https://play.google.com/store/apps/details?id=com.fourcylinder.myowniq';
+      cta.target = '_blank';
+      cta.rel = 'noopener';
+    }
+    // iOS / desktop / other: leave as #install so it scrolls to the store badges below
+    // (iOS isn't live yet, so there's no store link to send iOS users straight to).
+  })();
+</script>
+</body>
+</html>
