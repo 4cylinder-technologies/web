@@ -636,6 +636,7 @@
     // template stays untouched.
     const checkUserTier = (data) => httpsCallable(AceAdmin.functions, 'checkUserTier')(data);
     const promoteUserTier = (data) => httpsCallable(AceAdmin.functions, 'promoteUserTier')(data);
+    const getTierAdminHistory = () => httpsCallable(AceAdmin.functions, 'getTierAdminHistory')();
 
     // ─── BUFFER PUSH (write), added 8/6 ──────────────────────────────────────
     // Web counterpart to social-agent/push_batch.js's CSV push, for anyone on
@@ -945,8 +946,44 @@
             <button class="gauges-refresh-btn" id="tier-check-btn" type="button">Check</button>
             <button class="gauges-refresh-btn" id="tier-promote-btn" type="button" style="background:var(--orange); color:#050a12; border-color:var(--orange);">Set Tier</button>
           </div>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+            <label for="tier-history-select" style="color:var(--muted); font-size:12px; white-space:nowrap;">History:</label>
+            <select id="tier-history-select" style="flex:1; min-width:280px; background:#050a12; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px;">
+              <option value="">Loading…</option>
+            </select>
+          </div>
           <div id="tier-result" class="gauge-lcd" style="margin-top:14px; display:none;"></div>
         </div>`;
+    }
+
+    // Most recent Set Tier actions (server-logged, cross-browser) — kept in
+    // this array so the <select>'s value (an index) can look the full entry
+    // back up without re-fetching. Repopulated on panel load and again after
+    // every successful Set Tier, so it never goes stale within a session.
+    let tierHistoryEntries = [];
+
+    function fmtHistoryWhen(ms) {
+      return ms ? new Date(ms).toLocaleString() : 'unknown time';
+    }
+
+    function fmtHistoryOption(e) {
+      const who = e.email ? `${e.email} (${e.uid.slice(0, 8)}…)` : `${e.uid.slice(0, 8)}…`;
+      return `${fmtHistoryWhen(e.setAt)} — ${who} → ${e.appId}: ${e.tier}`;
+    }
+
+    async function loadTierHistory() {
+      const sel = document.getElementById('tier-history-select');
+      if (!sel) return;
+      try {
+        const { data } = await getTierAdminHistory();
+        tierHistoryEntries = data.entries || [];
+        sel.innerHTML = tierHistoryEntries.length
+          ? '<option value="">— Recent Set Tier actions —</option>' +
+            tierHistoryEntries.map((e, i) => `<option value="${i}">${escapeHtml(fmtHistoryOption(e))}</option>`).join('')
+          : '<option value="">No history yet</option>';
+      } catch (e) {
+        sel.innerHTML = '<option value="">History unavailable</option>';
+      }
     }
 
     function renderTierResult(html, isError = false) {
@@ -982,6 +1019,23 @@
 
       document.getElementById('tier-app-select').addEventListener('change', populateTierOptions);
       populateTierOptions();
+      loadTierHistory();
+
+      // Picking a history entry re-fills the form with that action's
+      // uid/app/tier (convenience for re-checking or repeating a past grant)
+      // and shows its full detail in the LCD panel, same as a live result.
+      document.getElementById('tier-history-select').addEventListener('change', (evt) => {
+        const entry = tierHistoryEntries[evt.target.value];
+        if (!entry) return;
+        document.getElementById('tier-uid-input').value = entry.uid;
+        document.getElementById('tier-app-select').value = entry.appId;
+        populateTierOptions();
+        document.getElementById('tier-value-select').value = entry.tier;
+        renderTierResult(
+          `History — ${escapeHtml(entry.email || '(no email on file)')} · <span class="dim">${escapeHtml(entry.uid)}</span><br>` +
+          `Set <b>${escapeHtml(entry.appId)}</b> to <b>${escapeHtml(entry.tier)}</b> by ${escapeHtml(entry.setBy || 'unknown')} at ${fmtHistoryWhen(entry.setAt)}`
+        );
+      });
 
       document.getElementById('tier-check-btn').addEventListener('click', async () => {
         const uid = document.getElementById('tier-uid-input').value.trim();
@@ -1016,7 +1070,9 @@
           const lines = Object.entries(data.results).map(([app, r]) =>
             `${app}: <span class="dim">before</span> ${r.before ? escapeHtml(JSON.stringify(r.before)) : '(no doc)'} → <span class="dim">after</span> ${escapeHtml(JSON.stringify(r.after))}`
           );
-          renderTierResult('✅ Done.<br>' + lines.join('<br>'));
+          const emailLine = `<span class="dim">${escapeHtml(data.email || '(no email on file)')}</span><br>`;
+          renderTierResult('✅ Done.<br>' + emailLine + lines.join('<br>'));
+          loadTierHistory();
         } catch (e) {
           renderTierResult('Error: ' + escapeHtml(e.message), true);
         } finally {
