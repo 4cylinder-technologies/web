@@ -654,8 +654,17 @@
     // in the future first, confirm it lands in Buffer, then delete it —
     // same idea as push_batch.js's own `test` command — before trusting this
     // with real content.
+    //
+    // 8/27: added Clear (resets the whole panel) and a 30-day History +
+    // Repost dropdown, sourced from bufferPushLog — a new Firestore
+    // collection pushBufferBatch now writes to per row (see that function
+    // in gauges/functions/index.js). Repost resubmits the logged
+    // channel/service/text/image through pushBufferBatch again with a fresh
+    // dueAt ~5 minutes out (Buffer requires a future dueAt; there's no
+    // "post now").
     const pushBufferBatch = (data) => httpsCallable(AceAdmin.functions, 'pushBufferBatch')(data);
     const listBufferChannelsFn = () => httpsCallable(AceAdmin.functions, 'listBufferChannels')();
+    const getBufferPushHistoryFn = () => httpsCallable(AceAdmin.functions, 'getBufferPushHistory')();
 
     let bufferUploadedImages = {}; // filename -> public download URL, this page load only
 
@@ -743,10 +752,27 @@
           <div style="display:flex; gap:10px; align-items:center; margin-bottom:14px;">
             <button id="buffer-preview-btn" class="gauges-refresh-btn" type="button">Preview</button>
             <button id="buffer-push-btn" class="gauges-refresh-btn" type="button" disabled>Push</button>
+            <button id="buffer-clear-btn" class="gauges-refresh-btn" type="button">Clear</button>
           </div>
 
           <div id="buffer-preview" style="font-size:12px;"></div>
           <div id="buffer-push-result" style="font-size:12px; margin-top:10px;"></div>
+
+          <div style="margin-top:24px; padding-top:18px; border-top:1px solid var(--border);">
+            <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:14px; margin-bottom:4px;">History (last 30 days)</div>
+            <div style="color:var(--muted); font-size:12px; margin-bottom:12px;">
+              Every push attempt, success or failure. Pick one below to see it in full and, if it looks right, repost it —
+              Repost resubmits the same text/image/channel to Buffer scheduled a few minutes from now.
+            </div>
+            <select id="buffer-history-select" style="width:100%; box-sizing:border-box; background:#050a12; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px; margin-bottom:12px;">
+              <option value="">Loading history…</option>
+            </select>
+            <div id="buffer-history-detail" style="font-size:12px; margin-bottom:10px;"></div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button id="buffer-repost-btn" class="gauges-refresh-btn" type="button" disabled>Repost</button>
+            </div>
+            <div id="buffer-repost-result" style="font-size:12px; margin-top:10px;"></div>
+          </div>
         </div>
       `;
     }
@@ -880,6 +906,7 @@
           // server-side change.
           const rows = targets.flatMap(t => parsedRows.map(r => ({
             channelId: t.channelId,
+            channelLabel: t.label,
             service: t.service,
             text: r.text,
             dueAt: nyLocalToUtcIso(r.posting_time),
@@ -898,12 +925,132 @@
               : `❌ ${chLabel} · Row ${rowNum}: ${escapeHtml(r.error)}`;
           });
           document.getElementById('buffer-push-result').innerHTML = lines.join('<br>');
+          loadBufferHistory(); // every attempt (ok or not) just got logged server-side — reflect it right away
         } catch (err) {
           document.getElementById('buffer-push-result').innerHTML = `<span style="color:#f87171;">Push failed: ${escapeHtml(err.message)}</span>`;
         } finally {
           btn.disabled = false; btn.textContent = 'Push';
         }
       });
+
+      // Clear — resets the whole panel back to a blank slate (CSV text,
+      // parsed preview, channel selection, push result, and the uploaded-
+      // image map/list). Deliberately whole-panel rather than just the CSV
+      // box: this form accumulates state across a session (uploaded images,
+      // selected channels, a stale push-result message) and "clear" reads
+      // most naturally as "start over," not "just empty the textarea."
+      document.getElementById('buffer-clear-btn').addEventListener('click', () => {
+        document.getElementById('buffer-csv-text').value = '';
+        document.getElementById('buffer-csv-file').value = '';
+        document.getElementById('buffer-image-input').value = '';
+        document.getElementById('buffer-image-list').innerHTML = '';
+        bufferUploadedImages = {};
+        parsedRows = [];
+        renderBufferPreview([]);
+        document.getElementById('buffer-push-result').innerHTML = '';
+        document.getElementById('buffer-push-btn').disabled = true;
+        const select = document.getElementById('buffer-channel-select');
+        Array.from(select.options).forEach(o => { o.selected = false; });
+        document.getElementById('buffer-channel-select-all').checked = false;
+      });
+
+      // ─── History + Repost, added 8/27 (Michael's ask) ──────────────────
+      // History is read from bufferPushLog (written server-side by
+      // pushBufferBatch itself, see gauges/functions/index.js) rather than
+      // re-derived from Buffer's own API — every entry already carries the
+      // exact text/image/channel it was pushed with, so Repost needs zero
+      // extra Buffer read calls to reconstruct a post.
+      let historyEntries = [];
+
+      function selectedHistoryEntry() {
+        const id = document.getElementById('buffer-history-select').value;
+        return historyEntries.find(e => e.id === id) || null;
+      }
+
+      function renderHistoryDetail() {
+        const entry = selectedHistoryEntry();
+        const detail = document.getElementById('buffer-history-detail');
+        const repostBtn = document.getElementById('buffer-repost-btn');
+        if (!entry) {
+          detail.innerHTML = '';
+          repostBtn.disabled = true;
+          return;
+        }
+        const when = entry.pushedAt ? new Date(entry.pushedAt).toLocaleString('en-US', { timeZone: 'America/New_York' }) + ' ET' : '—';
+        detail.innerHTML = `
+          <div style="border:1px solid var(--border); border-radius:8px; padding:12px;">
+            <div style="margin-bottom:6px;">${escapeHtml(entry.text || '')}</div>
+            <div style="color:var(--muted);">
+              ${escapeHtml(entry.channelLabel || entry.channelId)} ·
+              ${entry.ok ? '<span class="badge approved">ok</span>' : `<span style="color:#f87171;">failed: ${escapeHtml(entry.error || 'unknown error')}</span>`}
+              · pushed ${when}${entry.pushedBy ? ' by ' + escapeHtml(entry.pushedBy) : ''}
+            </div>
+            ${entry.imageUrl ? `<div style="margin-top:6px;"><span class="dim">${escapeHtml(entry.imageUrl.slice(0, 70))}…</span></div>` : ''}
+          </div>
+        `;
+        repostBtn.disabled = false;
+      }
+
+      function loadBufferHistory() {
+        const select = document.getElementById('buffer-history-select');
+        select.innerHTML = '<option value="">Loading history…</option>';
+        getBufferPushHistoryFn().then(({ data }) => {
+          historyEntries = data.entries || [];
+          if (historyEntries.length === 0) {
+            select.innerHTML = '<option value="">No pushes in the last 30 days</option>';
+            renderHistoryDetail();
+            return;
+          }
+          select.innerHTML = '<option value="">Select a past push…</option>' + historyEntries.map(e => {
+            const when = e.pushedAt ? new Date(e.pushedAt).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '?';
+            const preview = (e.text || '').slice(0, 60);
+            return `<option value="${e.id}">${escapeHtml(when)} ET · ${escapeHtml(e.channelLabel || e.channelId)} · ${e.ok ? 'ok' : 'FAILED'} · ${escapeHtml(preview)}${preview.length >= 60 ? '…' : ''}</option>`;
+          }).join('');
+          renderHistoryDetail();
+        }).catch(err => {
+          select.innerHTML = `<option value="">Error: ${escapeHtml(err.message)}</option>`;
+        });
+      }
+
+      document.getElementById('buffer-history-select').addEventListener('change', renderHistoryDetail);
+
+      // Reposts exactly what was logged (same channel/service/text/image) at
+      // a fresh dueAt a few minutes out — Buffer's createPost rejects a
+      // dueAt that isn't in the future, and there's no "post immediately"
+      // bypass in this API (confirmed against push_batch.js's own comments),
+      // so "a few minutes from now" is the closest this gets to "post now."
+      // If that cadence isn't what's wanted, this is the one line to change.
+      document.getElementById('buffer-repost-btn').addEventListener('click', async () => {
+        const entry = selectedHistoryEntry();
+        if (!entry) return;
+        if (!confirm(`Repost to ${entry.channelLabel || entry.channelId}, scheduled ~5 minutes from now?`)) return;
+        const btn = document.getElementById('buffer-repost-btn');
+        btn.disabled = true; btn.textContent = 'Reposting…';
+        try {
+          const dueAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+          const { data } = await pushBufferBatch({
+            rows: [{
+              channelId: entry.channelId,
+              channelLabel: entry.channelLabel,
+              service: entry.service,
+              text: entry.text,
+              dueAt,
+              imageUrl: entry.imageUrl || undefined,
+            }],
+          });
+          const r = data.results[0];
+          document.getElementById('buffer-repost-result').innerHTML = r.ok
+            ? `✅ Reposted — scheduled (post ${r.post?.id || '—'})`
+            : `❌ Repost failed: ${escapeHtml(r.error)}`;
+          loadBufferHistory();
+        } catch (err) {
+          document.getElementById('buffer-repost-result').innerHTML = `<span style="color:#f87171;">Repost failed: ${escapeHtml(err.message)}</span>`;
+        } finally {
+          btn.disabled = false; btn.textContent = 'Repost';
+        }
+      });
+
+      loadBufferHistory();
     }
 
     function injectBufferPush() {
