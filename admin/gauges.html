@@ -290,8 +290,15 @@
       // inserts alongside the normal per-channel entries (see its comment) —
       // same card shell, different body (ranked post list vs metric list).
       if (c.isLeaderboard) {
+        // Repost pill: starts disabled ("checking…") — Buffer's posts query
+        // has no media field (confirmed 8/2), so reposting from p alone would
+        // silently drop the image. enhanceLeaderboardRepost() (below) matches
+        // each post to its bufferPushLog entry (which does have imageUrl) by
+        // channelId + dueAt after this HTML is in the DOM, and only then
+        // enables the ones with a real match — never falls back to a
+        // text-only repost built from p itself.
         const rows = (c.posts || []).length
-          ? c.posts.map((p, i) => `${i + 1}. <span class="dim">${escapeHtml(p.channel)}</span> — ${escapeHtml(p.text)}${(p.text || '').length >= 90 ? '…' : ''}<br><span class="dim">${p.reactions} reactions · ${p.comments} comments</span>`).join('<br><br>')
+          ? c.posts.map((p, i) => `${i + 1}. <span class="dim">${escapeHtml(p.channel)}</span> — ${escapeHtml(p.text)}${(p.text || '').length >= 90 ? '…' : ''} <button type="button" class="gauges-refresh-btn repost-pill" style="font-size:11px; padding:2px 10px;" data-idx="${i}" data-channel-id="${escapeHtml(p.channelId || '')}" data-due-at="${escapeHtml(p.dueAt || '')}" disabled title="Checking for a matching push-log entry…">Repost</button><br><span class="dim">${p.reactions} reactions · ${p.comments} comments</span>`).join('<br><br>')
           : '<span class="dim">No sent posts in this window</span>';
         return `
           <div class="gauge-card">
@@ -495,7 +502,11 @@
       grid.innerHTML = entries.length
         ? entries.map(([name, r]) => cardFn(name, r)).join('')
         : '<div class="gauges-empty">Collector ran but returned nothing — check the underlying error in Firestore.</div>';
-      if (docId === 'buffer') reflowBufferGrid(grid);
+      if (docId === 'buffer') {
+        reflowBufferGrid(grid);
+        const leaderboard = entries.find(([name]) => name.includes('Top 5 Posts'));
+        if (leaderboard) enhanceLeaderboardRepost(grid, leaderboard[1].posts || []);
+      }
       return data.updatedAt?.toDate ? data.updatedAt.toDate() : null;
     }
 
@@ -666,6 +677,85 @@
     const pushBufferBatch = (data) => httpsCallable(AceAdmin.functions, 'pushBufferBatch')(data);
     const listBufferChannelsFn = () => httpsCallable(AceAdmin.functions, 'listBufferChannels')();
     const getBufferPushHistoryFn = () => httpsCallable(AceAdmin.functions, 'getBufferPushHistory')();
+
+    // Buffer's dueAt on a *post* and the dueAt we logged when *pushing* it
+    // don't string-match new Date(...).toISOString() (confirmed 8/2) — same
+    // gotcha as the rest of this file's date handling, so compare epoch ms
+    // with a tolerance rather than string equality.
+    function bufferDueAtCloseEnough(a, b, toleranceMs = 60000) {
+      const ta = new Date(a).getTime();
+      const tb = new Date(b).getTime();
+      return Number.isFinite(ta) && Number.isFinite(tb) && Math.abs(ta - tb) <= toleranceMs;
+    }
+
+    // Repost pill for the Top 5 Posts leaderboard card, added 8/31.
+    // Buffer's posts query (collectTopPostsGauge, gauges/functions/index.js)
+    // returns id/text/dueAt/channelId/metrics — no media field (confirmed
+    // 8/2, see that file's comments) — so there is no image to repost from
+    // the leaderboard data itself. bufferPushLog (written by pushBufferBatch
+    // for every push, including through this same Repost path) is the only
+    // place that image lives. This matches each of the 5 posts back to its
+    // log entry by channelId + dueAt (tolerant compare, see
+    // bufferDueAtCloseEnough) and reposts from THAT entry — same
+    // pushBufferBatch call the History panel's Repost button already uses,
+    // no new Buffer API surface. A post with no match (pushed some other
+    // way — social-agent's CSV tool, manually in Buffer's own UI, or it
+    // simply predates history logging) gets a permanently disabled pill
+    // with a tooltip explaining why, never a text-only fallback built from
+    // the leaderboard's own (media-less) data.
+    async function enhanceLeaderboardRepost(grid, posts) {
+      const pills = () => Array.from(grid.querySelectorAll('.repost-pill'));
+      if (!posts.length) return;
+      let entries;
+      try {
+        const { data } = await getBufferPushHistoryFn();
+        entries = data.entries || [];
+      } catch (e) {
+        pills().forEach(btn => { btn.title = `Repost unavailable — couldn't load push history: ${e.message}`; });
+        return;
+      }
+      posts.forEach((p, i) => {
+        const btn = grid.querySelector(`.repost-pill[data-idx="${i}"]`);
+        if (!btn) return;
+        const match = p.channelId
+          ? entries.find(e => e.channelId === p.channelId && bufferDueAtCloseEnough(e.dueAt, p.dueAt))
+          : null;
+        if (!match) {
+          btn.title = 'No matching push-log entry for this post, so there\'s no image on file to repost safely (it may have been pushed some other way, or predate history logging).';
+          return;
+        }
+        btn.disabled = false;
+        btn.title = `Repost to ${match.channelLabel || match.channelId}, scheduled ~5 minutes from now`;
+        btn.addEventListener('click', async () => {
+          if (!confirm(`Repost "${(match.text || '').slice(0, 60)}${(match.text || '').length > 60 ? '…' : ''}" to ${match.channelLabel || match.channelId}, scheduled ~5 minutes from now? This publishes publicly and can't be trivially undone.`)) return;
+          btn.disabled = true;
+          btn.textContent = 'Reposting…';
+          try {
+            const dueAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+            const { data } = await pushBufferBatch({
+              rows: [{
+                channelId: match.channelId,
+                channelLabel: match.channelLabel,
+                service: match.service,
+                text: match.text,
+                dueAt,
+                imageUrl: match.imageUrl || undefined,
+              }],
+            });
+            const r = data.results[0];
+            btn.textContent = r.ok ? 'Reposted ✓' : 'Failed';
+            if (!r.ok) {
+              btn.title = `Repost failed: ${r.error}`;
+              btn.disabled = false;
+            }
+          } catch (err) {
+            btn.textContent = 'Failed';
+            btn.title = `Repost failed: ${err.message}`;
+            btn.disabled = false;
+          }
+        });
+      });
+    }
 
     let bufferUploadedImages = {}; // filename -> public download URL, this page load only
 
