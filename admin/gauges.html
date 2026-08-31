@@ -135,7 +135,8 @@
           </div>`;
       }
       const rows = (p.metrics || [])
-        .map(m => `${m.name}: <span class="dim">${m.unit === 'percentage' ? `${Number(m.value).toFixed(2)}%` : m.value}</span>`)
+        // RC v2 returns unit as '#', '$' or 'percentage'; '$' was unhandled so MRR rendered as a bare number.
+        .map(m => `${m.name}: <span class="dim">${m.unit === 'percentage' ? `${Number(m.value).toFixed(2)}%` : m.unit === '$' ? `$${Number(m.value).toLocaleString('en-US')}` : m.value}</span>${m.description ? ` <span class="dim">(${m.description})</span>` : ''}`)
         .join('<br>');
       return `
         <div class="gauge-card">
