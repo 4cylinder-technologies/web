@@ -497,7 +497,7 @@ const TOOL_WIRING = {
   wysa:       { tier: 'fallback', askair: true, dashboardair: true },
   ada:        { tier: 'fallback', askair: true, dashboardair: true },
   cleo:       { tier: 'fallback', askair: true, dashboardair: true },
-  wolfram:    { tier: 'deeplink', askair: true, dashboardair: true },
+  wolfram:    { tier: 'real-api', askair: true, dashboardair: true },
   canva:      { tier: 'deeplink', askair: true, dashboardair: true },
   firefly:    { tier: 'deeplink', askair: true, dashboardair: true },
   runway:     { tier: 'deeplink', askair: true, dashboardair: true },
