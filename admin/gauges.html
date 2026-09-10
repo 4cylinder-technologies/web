@@ -698,6 +698,7 @@
     // template stays untouched.
     const checkUserTier = (data) => httpsCallable(AceAdmin.functions, 'checkUserTier')(data);
     const promoteUserTier = (data) => httpsCallable(AceAdmin.functions, 'promoteUserTier')(data);
+    const resetUserRouteLimit = (data) => httpsCallable(AceAdmin.functions, 'resetUserRouteLimit')(data);
     const getTierAdminHistory = () => httpsCallable(AceAdmin.functions, 'getTierAdminHistory')();
 
     // ─── BUFFER PUSH (write), added 8/6 ──────────────────────────────────────
@@ -1233,6 +1234,7 @@
             <select id="tier-value-select" style="background:#050a12; border:1px solid var(--border); border-radius:8px; padding:8px 12px; color:var(--text); font-size:13px;"></select>
             <button class="gauges-refresh-btn" id="tier-check-btn" type="button">Check</button>
             <button class="gauges-refresh-btn" id="tier-promote-btn" type="button" style="background:var(--orange); color:#050a12; border-color:var(--orange);">Set Tier</button>
+            <button class="gauges-refresh-btn" id="tier-reset-route-btn" type="button" title="Deletes today's rate-limit doc(s) for this UID -- next route call starts back at 0. AskAIR/DashboardAIR only, no MyOwnIQ equivalent.">Reset Route Count</button>
           </div>
           <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
             <label for="tier-history-select" style="color:var(--muted); font-size:12px; white-space:nowrap;">History:</label>
@@ -1365,6 +1367,32 @@
           renderTierResult('Error: ' + escapeHtml(e.message), true);
         } finally {
           btn.disabled = false; btn.textContent = 'Set Tier';
+        }
+      });
+
+      // Resets today's daily-route-cap counter for this UID -- lets Michael
+      // re-test free-tier behavior repeatedly without waiting for the UTC
+      // date to roll over. No MyOwnIQ equivalent (it has no daily route
+      // cap), so this is blocked client-side for that appId rather than
+      // sending a request the server would just reject.
+      document.getElementById('tier-reset-route-btn').addEventListener('click', async () => {
+        const uid = document.getElementById('tier-uid-input').value.trim();
+        const appId = document.getElementById('tier-app-select').value;
+        if (!uid) { renderTierResult('Enter a UID first.', true); return; }
+        if (appId === 'myowniq') { renderTierResult('MyOwnIQ has no daily route cap to reset (Personal/Owner is an entitlement, not a counter).', true); return; }
+        if (!confirm(`Reset today's route count for UID\n${uid}\non ${appId}?`)) return;
+        const btn = document.getElementById('tier-reset-route-btn');
+        btn.disabled = true; btn.textContent = 'Resetting…';
+        try {
+          const { data } = await resetUserRouteLimit({ uid, appId });
+          const lines = Object.entries(data.results).map(([app, r]) =>
+            `${app}: cleared <span class="dim">${escapeHtml(r.key)}</span> ${r.before ? `(was ${escapeHtml(JSON.stringify(r.before))})` : '(already empty)'}`
+          );
+          renderTierResult(`✅ Reset for ${data.today} (UTC).<br>` + lines.join('<br>'));
+        } catch (e) {
+          renderTierResult('Error: ' + escapeHtml(e.message), true);
+        } finally {
+          btn.disabled = false; btn.textContent = 'Reset Route Count';
         }
       });
     }
