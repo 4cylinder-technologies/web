@@ -400,6 +400,55 @@
         </div>`;
     }
 
+    // Added 9/9, Michael's ask: pull Expo's own EAS Update usage numbers
+    // (MAU / bandwidth / daily active users, from
+    // expo.dev/accounts/<account>/settings/usage) onto Gauges. Plain
+    // KiB/MiB/GiB/TiB formatter — nothing else on this page needed one yet.
+    function formatBytes(bytes) {
+      if (bytes == null) return '—';
+      const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+      let i = 0, n = bytes;
+      while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+      return `${n.toFixed(n < 10 && i > 0 ? 2 : 1)} ${units[i]}`;
+    }
+
+    // Account-wide, not per-app — Expo doesn't break MAU/bandwidth/DAU down
+    // by project, so this card shows one entry (the whole
+    // 4cylinder-technologies account) rather than one per app like every
+    // other tab on this page. See collectEasUsageGauge in
+    // gauges/functions/index.js for how the underlying query works (a real,
+    // confirmed-live capture from Expo's own dashboard network traffic —
+    // not a guess, unlike collectOtaGauge's still-unverified one).
+    function easUsageCardHtml(accountLabel, a) {
+      if (a.error) {
+        return `
+          <div class="gauge-card">
+            <div class="gauge-card-head">
+              <span class="gauge-card-title">${accountLabel}</span>
+              <span class="gauge-led error" title="Collector error"></span>
+            </div>
+            <div class="gauge-lcd error-tone">ERROR<br>${a.error}</div>
+          </div>`;
+      }
+      const dau = a.dailyActiveUsers || [];
+      const peakDau = dau.length ? Math.max(...dau.map(d => d.value)) : null;
+      const latestDau = dau.length ? dau[dau.length - 1].value : null;
+      const usageLink = `<a href="https://expo.dev/accounts/${accountLabel}/settings/usage" target="_blank" rel="noopener">Expo →</a>`;
+      return `
+        <div class="gauge-card">
+          <div class="gauge-card-head">
+            <span class="gauge-card-title">${accountLabel}</span>
+            <span class="gauge-led ok"></span>
+          </div>
+          <div class="gauge-lcd">
+            <span class="dim">Monthly active users</span> ${a.monthlyActiveUsers ?? '—'}<br>
+            <span class="dim">Bandwidth (30d)</span> ${formatBytes(a.totalBandwidthBytes)}<br>
+            <span class="dim">Daily active users</span> latest ${latestDau ?? '—'}, peak ${peakDau ?? '—'}
+          </div>
+          <div class="gauge-meta-row"><span></span><span>${usageLink}</span></div>
+        </div>`;
+    }
+
     // Added 8/2 (~12:30am), Michael's ask: see the latest ACE run status
     // from Gauges, not just the separate ACE Dashboard. LED reflects
     // whether there's a run sitting unpublished (warn) vs. everything
@@ -541,6 +590,7 @@
       website: { gridId: 'website-grid', cardFn: websiteCardHtml, entriesKey: 'sites', label: 'Website', panelTitle: 'Website — GA4 traffic + uptime, merged 8/2 (was two tabs)', launchUrl: 'https://analytics.google.com/analytics/web/#/p548106750/reports/intelligenthome' },
       firebase: { gridId: 'firebase-grid', cardFn: firebaseCardHtml, entriesKey: 'projects', label: 'Firebase', panelTitle: 'Firebase — Auth + Firestore user counts, all projects', launchUrl: 'https://console.firebase.google.com/project/dashboard-air-dd713/overview' },
       latestupdates: { gridId: 'latestupdates-grid', cardFn: latestUpdatesCardHtml, entriesKey: 'apps', label: 'Latest Updates', panelTitle: 'Latest Updates — ACE run + OTA version, all apps', launchUrl: './dashboard.html' },
+      easusage: { gridId: 'easusage-grid', cardFn: easUsageCardHtml, entriesKey: 'accounts', label: 'EAS Usage', panelTitle: 'EAS Update Usage — MAU, bandwidth, daily active users', launchUrl: 'https://expo.dev/accounts/4cylinder-technologies/settings/usage' },
     };
 
     // Builds the tab bar + one hidden panel per SECTIONS entry, entirely from
