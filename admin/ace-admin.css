@@ -375,3 +375,70 @@ table.ace-table tbody tr:hover {
   font-size: 13px;
   margin-top: 14px;
 }
+
+/* ---------------------------------------------------------------------- */
+/* Responsive — phone views                                               */
+/* Mirrors the main site's own 768px/480px breakpoint convention           */
+/* (4cylindertechnologies.com's index.html/product pages). Added 9/12,     */
+/* Michael: "The 4cylinders admin and ace webpages need to be formatted    */
+/* for phone views, like the main site is." Applies to every page that     */
+/* loads this shared stylesheet (all ACE pages + Gauges + the admin        */
+/* login screen) in one place, since they all share this one header/nav/   */
+/* container/table/card skeleton.                                         */
+/* ---------------------------------------------------------------------- */
+
+/* Any card containing a data table (Results/Assignments/Judge Panel/
+   Analytics/Dashboard) scrolls horizontally instead of forcing the whole
+   page to scroll sideways. Not gated to a media query — harmless at any
+   width, since it only engages once the table's natural width actually
+   exceeds the card's. */
+.ace-card:has(table.ace-table) {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .ace-header {
+    flex-wrap: wrap;
+    padding: 12px 20px;
+    row-gap: 10px;
+  }
+  /* 7 nav links (Dashboard/Results/Assignments/Judge Panel/Analytics/
+     Gauges/Sign out) never fit one row under 768px — wrap the nav to its
+     own full-width row below the brand and let it scroll horizontally
+     rather than squeeze/overflow the page. */
+  .ace-nav {
+    width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    gap: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ace-nav::-webkit-scrollbar { display: none; }
+  .ace-nav a { flex-shrink: 0; }
+
+  .ace-container { padding: 24px 20px 48px; }
+
+  .ace-login-box { margin: 90px auto 0; }
+}
+
+@media (max-width: 480px) {
+  .ace-header { padding: 10px 16px; }
+  .ace-brand-sub { display: none; }
+  .ace-container { padding: 20px 16px 40px; }
+  .ace-card { padding: 18px 16px; }
+
+  .ace-stat-row { gap: 12px; }
+  .ace-stat { min-width: 130px; }
+
+  table.ace-table { font-size: 13px; }
+  table.ace-table th,
+  table.ace-table td { padding: 9px 8px; }
+
+  .ace-login-box {
+    margin: 60px auto 0;
+    padding: 32px 24px;
+    max-width: calc(100vw - 32px);
+  }
+}
+

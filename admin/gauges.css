@@ -232,3 +232,19 @@
   padding: 40px 0;
   text-align: center;
 }
+
+/* Phone views — mirrors ace-admin.css's 480px breakpoint (added 9/12).
+   .gauges-toolbar and .gauge-card-head are both title+button(s) flex rows
+   with justify-content:space-between and no flex-wrap declared anywhere
+   above, so a long title next to the refresh/LED cluster can overflow a
+   narrow phone instead of dropping to a second line. */
+@media (max-width: 480px) {
+  .gauges-toolbar,
+  .gauge-card-head {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .gauge-card { padding: 16px; }
+  .gauges-grid { grid-template-columns: 1fr; }
+}
+
