@@ -111,13 +111,17 @@
     document.getElementById('run-id-label').textContent = runId.slice(0, 8);
 
     let categories = [];
+    let run = null;
 
     // Confidence is now always a real result — tally() (ace/functions/
     // index.js) guarantees a winner, breaking ties by discounting
-    // self-interested votes first and falling back to a fixed alphabetical
-    // rule only if still tied. 'split' only appears on old runs from before
-    // that fix. Anything containing "tie-break" still has a real winner,
-    // just flagged so it's visually distinct from a clean majority.
+    // self-interested votes first, then keeping the category's current
+    // assignment, then (2026-09-15) a neutral hash -- never a plain
+    // alphabetical sort, which was found to structurally favor "claude"
+    // over its real competitors in any true tie. 'split' only appears on
+    // old runs from before the original fix. Anything containing
+    // "tie-break" still has a real winner, just flagged so it's visually
+    // distinct from a clean majority.
     function confidenceBadge(confidence) {
       let cls = 'confident';
       if (confidence === 'split') cls = 'split';
@@ -131,8 +135,33 @@
         .join('');
     }
 
+    // Reconsideration pass (option 2, 2026-09-15, see ace/functions/
+    // index.js's reconsiderVotes()) -- only present on categories that
+    // didn't reach a clean majority on the first round. Collapsed by
+    // default so a normal decisive-win row still reads at a glance; the
+    // round-1 votes are the ones the judges actually reconsidered from.
+    function reconsiderationNote(cat) {
+      if (!cat.reconsideration) return '';
+      const r = cat.reconsideration;
+      const outcome = r.changed
+        ? `<strong>${r.round1Winner}</strong> → <strong>${r.round2Winner}</strong>`
+        : `confirmed <strong>${r.round2Winner}</strong>`;
+      return `
+        <details style="margin-bottom:8px; font-size:12px; color: var(--ace-muted);">
+          <summary style="cursor:pointer;">🔄 Reconsidered (round 1: ${r.round1Confidence}) — ${outcome}</summary>
+          <div style="margin-top:6px; padding-left:8px; border-left:2px solid var(--ace-border);">${votesSummary(cat.votesRound1 || {})}</div>
+        </details>`;
+    }
+
     // Same catalog as ace/functions/index.js's TOOL_CATALOG — kept in sync
     // manually since this is a separate codebase from the backend by design.
+    // apps: ['askair'] (added 2026-09-15) mirrors ace/functions/index.js's
+    // TOOL_CATALOG -- these 10 were removed from DashboardAIR's client by
+    // the 9/11 "power-tool roster" narrowing (d8a6b5b) and never belong in
+    // a DBA override. The backend now rejects an override that violates
+    // this too (setACEResultStatus), so this is UX, not the safety net --
+    // but a dropdown offering an option that then errors on Set is still
+    // worth not showing.
     const TOOL_CATALOG = [
       { id: 'claude',     label: 'Claude' },
       { id: 'chatgpt',    label: 'ChatGPT' },
@@ -140,16 +169,16 @@
       { id: 'grok',       label: 'Grok' },
       { id: 'gemini',     label: 'Gemini' },
       { id: 'copilot',    label: 'Microsoft Copilot' },
-      { id: 'wolfram',    label: 'Wolfram Alpha' },
-      { id: 'firefly',    label: 'Adobe Firefly' },
-      { id: 'runway',     label: 'Runway' },
-      { id: 'elevenlabs', label: 'ElevenLabs' },
-      { id: 'suno',       label: 'Suno' },
-      { id: 'kling',      label: 'Kling AI' },
-      { id: 'canva',      label: 'Canva' },
-      { id: 'cleo',       label: 'Cleo' },
-      { id: 'wysa',       label: 'Wysa' },
-      { id: 'ada',        label: 'Ada Health' },
+      { id: 'wolfram',    label: 'Wolfram Alpha', apps: ['askair'] },
+      { id: 'firefly',    label: 'Adobe Firefly', apps: ['askair'] },
+      { id: 'runway',     label: 'Runway', apps: ['askair'] },
+      { id: 'elevenlabs', label: 'ElevenLabs', apps: ['askair'] },
+      { id: 'suno',       label: 'Suno', apps: ['askair'] },
+      { id: 'kling',      label: 'Kling AI', apps: ['askair'] },
+      { id: 'canva',      label: 'Canva', apps: ['askair'] },
+      { id: 'cleo',       label: 'Cleo', apps: ['askair'] },
+      { id: 'wysa',       label: 'Wysa', apps: ['askair'] },
+      { id: 'ada',        label: 'Ada Health', apps: ['askair'] },
       { id: 'github-copilot', label: 'GitHub Copilot' },
     ];
 
@@ -159,7 +188,7 @@
         document.querySelector('.ace-container').innerHTML = '<div class="ace-card">Run not found.</div>';
         return;
       }
-      const run = runSnap.data();
+      run = runSnap.data();
       document.getElementById('run-meta').textContent =
         `${run.appId} · ${run.runDate?.toDate?.().toLocaleString() ?? ''} · ${run.status}`;
 
@@ -188,7 +217,7 @@
           <td>${cat.categoryName}</td>
           <td>${cat.winner ?? '<em style="color: var(--ace-muted);">no consensus</em>'}</td>
           <td>${confidenceBadge(cat.confidence)}</td>
-          <td class="votes-detail">${votesSummary(cat.votes || {})}</td>
+          <td class="votes-detail">${reconsiderationNote(cat)}${votesSummary(cat.votes || {})}</td>
           <td><span class="badge ${cat.status}">${cat.status}</span></td>
           <td>
             <button class="ace-btn secondary approve-btn" data-id="${cat.id}" ${cat.status === 'approved' ? 'disabled' : ''}>Approve</button>
@@ -196,7 +225,7 @@
             <div style="margin-top: 8px; display:flex; gap:6px; align-items:center;">
               <select class="override-select" data-id="${cat.id}" style="padding:4px 6px; font-size:12px; border-radius:4px; background: var(--ace-panel); color: var(--ace-text); border:1px solid var(--ace-border);">
                 <option value="">Override winner…</option>
-                ${TOOL_CATALOG.map(t => `<option value="${t.id}" ${t.id === cat.winner ? 'selected' : ''}>${t.label}</option>`).join('')}
+                ${TOOL_CATALOG.filter(t => !t.apps || t.apps.includes(run.appId)).map(t => `<option value="${t.id}" ${t.id === cat.winner ? 'selected' : ''}>${t.label}</option>`).join('')}
               </select>
               <button class="ace-btn secondary override-btn" data-id="${cat.id}" style="padding:4px 10px; font-size:12px;">Set</button>
             </div>
@@ -212,7 +241,8 @@
         btn.addEventListener('click', () => setStatus(btn.dataset.id, 'rejected')));
 
       // Manual override — the tally() tie-breakers (self-interest discount,
-      // then alphabetical) guarantee a winner, but a close/forced tie-break
+      // then current-assignment, then a neutral hash — see 2026-09-15 note
+      // above) guarantee a winner, but a close/forced tie-break
       // isn't the same as a confident consensus. This lets Michael's own
       // domain judgment (e.g. "Perplexity's live sourcing matters more for
       // legal than Claude's reasoning") override a thin result. Sets the
@@ -298,12 +328,23 @@
       // JUDGE_ORDER is a fixed, explicit column order so every row looks up
       // each judge by name instead of trusting object iteration order.
       const JUDGE_ORDER = ['claude', 'gpt4o', 'copilot', 'perplexity', 'grok', 'gemini'];
-      const rows = [['Category', 'Winner', 'Confidence', 'Status', ...JUDGE_ORDER]];
+      // 'Reconsidered' column added 2026-09-15 alongside the option-2
+      // reconsideration pass -- blank for a clean-majority category, or
+      // "round1 -> round2 (changed/confirmed)" for one that got a second
+      // look. This is exactly the column a future run-to-run comparison
+      // (the kind that surfaced the alphabetical tie-break bias in the
+      // first place) needs to see without digging back into Firestore.
+      const rows = [['Category', 'Winner', 'Confidence', 'Reconsidered', 'Status', ...JUDGE_ORDER]];
       categories.forEach(cat => {
+        const r = cat.reconsideration;
+        const reconsideredCell = r
+          ? `${r.round1Confidence} -> ${r.round2Confidence} (${r.changed ? `changed: ${r.round1Winner} -> ${r.round2Winner}` : 'confirmed'})`
+          : '';
         rows.push([
           cat.categoryName,
           cat.winner ?? '',
           cat.confidence,
+          reconsideredCell,
           cat.status,
           ...JUDGE_ORDER.map(judge => {
             const v = (cat.votes || {})[judge];
